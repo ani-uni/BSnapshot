@@ -6,3 +6,10 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+model User {
+  mid           BigInt  @id
+  uname         String
+  vip           Boolean
+  bauth_cookies String?
+}

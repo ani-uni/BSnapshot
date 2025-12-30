@@ -7,6 +7,7 @@ export default defineTask({
   },
   run({ payload, context }) {
     console.log('Running echo task...')
+    if (payload.error) throw new Error('Echo task error for testing purposes')
     return { result: payload }
   },
 })

@@ -3,10 +3,13 @@
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
-    "preview": "pnpx srvx --prod .output/"
+    "preview": "pnpx srvx --prod .output/",
+    "clean-init": "rm -f .data/db/prisma.db & rm -rf prisma/migrations & prisma migrate dev --name init"
   },
   "devDependencies": {
+    "@types/json-bigint": "^1.0.4",
     "@types/node": "^25.0.3",
+    "@types/qs": "^6.14.0",
     "nitro": "3.0.1-alpha.1",
     "prisma": "^7.2.0",
     "rolldown": "1.0.0-beta.57"
@@ -14,6 +17,11 @@
   "dependencies": {
     "@prisma/adapter-libsql": "^7.2.0",
     "@prisma/client": "^7.2.0",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "js-md5": "^0.8.3",
+    "json-bigint": "^1.0.0",
+    "ky": "^1.14.2",
+    "qs": "^6.14.0",
+    "tough-cookie": "^6.0.0"
   }
 }
