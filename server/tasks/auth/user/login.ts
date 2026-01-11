@@ -52,18 +52,21 @@ export async function AuthUserLogin(
         throw new HTTPError('获取个人信息失败: 无法获取mid/uname/vip', {
           statusCode: 500,
         })
+      const bauth_cookies = cookies.toString()
+      if (!bauth_cookies)
+        throw new HTTPError('Invalid bauth_cookies', { statusCode: 500 })
       await prisma.user.upsert({
         where: { mid },
         update: {
           uname,
           vip: !!vip.type,
-          bauth_cookies: cookies.toString(),
+          bauth_cookies,
         },
         create: {
           mid,
           uname,
           vip: !!vip.type,
-          bauth_cookies: cookies.toString(),
+          bauth_cookies,
         },
       })
       const newUser = await AuthUserRefresh({ mid: mid.toString() })

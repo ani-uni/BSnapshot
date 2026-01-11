@@ -68,7 +68,6 @@ export async function getWbiKeys(cookies: Cookies = new Cookies()) {
       }
     }>()
     .then((res) => {
-      console.log(res)
       if (res?.data.wbi_img) {
         return res.data.wbi_img
       }

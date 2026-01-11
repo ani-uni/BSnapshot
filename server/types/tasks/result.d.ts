@@ -1,3 +1,3 @@
 import type { BigintToString } from '~/server/utils/bigint'
 
-export type TaskPayload<T> = Partial<BigintToString<T>>
+export type TaskResult<T> = BigintToString<T>

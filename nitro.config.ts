@@ -21,4 +21,8 @@ export default defineConfig({
     base: { driver: 'fs', base: '.data/db/base' },
     auth: { driver: 'fs', base: '.data/db/auth' },
   },
+  scheduledTasks: {
+    '0 12 * * *': ['auth:user:check'],
+    '0 */2 * * *': ['auth:global:wbikey:refresh'],
+  },
 })
