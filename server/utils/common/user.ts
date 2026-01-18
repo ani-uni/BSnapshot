@@ -7,9 +7,16 @@ import { prisma } from '../prisma'
 export class User {
   constructor(public userModel: UserModel) {}
   static async fromMid(mid: bigint) {
-    const u = await prisma.user.findUniqueOrThrow({
-      where: { mid },
-    })
+    const u = await prisma.user
+      .findUniqueOrThrow({
+        where: { mid },
+      })
+      .catch((err: Error) => {
+        throw new HTTPError(`User with mid ${mid.toString()} not found`, {
+          statusCode: 404,
+          cause: err,
+        })
+      })
     return new User(u)
   }
   static async fromRandom() {
@@ -20,11 +27,18 @@ export class User {
         { statusCode: 500 },
       )
     const skip = Math.floor(Math.random() * count)
-    const u = await prisma.user.findFirstOrThrow({
-      orderBy: { mid: 'asc' },
-      skip,
-      take: 1,
-    })
+    const u = await prisma.user
+      .findFirstOrThrow({
+        orderBy: { mid: 'asc' },
+        skip,
+        take: 1,
+      })
+      .catch((err: Error) => {
+        throw new HTTPError('Failed to get random user', {
+          statusCode: 500,
+          cause: err,
+        })
+      })
     return new User(u)
   }
   kyInstance() {

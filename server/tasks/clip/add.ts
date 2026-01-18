@@ -4,6 +4,7 @@ import { defineTask } from 'nitro/task'
 import type { TaskPayload } from '~/server/types/tasks/payload'
 import type { TaskResult } from '~/server/types/tasks/result'
 import { bigint2string } from '~/server/utils/bigint'
+import { clips2segs } from '~/server/utils/clips2segs'
 import { prisma } from '~/server/utils/prisma'
 
 type Clip = [number, number]
@@ -11,6 +12,7 @@ type Clip = [number, number]
 export interface TaskClipAddPayload {
   clips: Clip[]
   cid: bigint
+  pubdate?: number
 }
 
 export type TaskClipAddResult = PromiseReturnType<typeof ClipAdd>
@@ -34,23 +36,34 @@ export default defineTask<TaskResult<TaskClipAddResult>>({
 
 export async function ClipAdd(payload: TaskClipAddPayload) {
   const clips = ClipLintAndFmt(payload.clips)
+  const zeroDate = new Date(0)
   const task_c = await prisma.task.create({
     data: {
       cid: payload.cid,
+      pub: payload.pubdate ? new Date(payload.pubdate * 1000) : zeroDate,
       clips: {
         create: clips.map((clip) => ({ start: clip[0], end: clip[1] })),
       },
+      segs: clips2segs(clips).join(','),
+      rtRunAt: zeroDate,
+      hisRunAt: zeroDate,
+      spRunAt: zeroDate,
+      upRunAt: zeroDate,
     },
   })
-  const task = await prisma.task.findUnique({
-    where: { cid: task_c.cid },
-    include: {
-      clips: true,
-    },
-  })
-  if (!task) {
-    throw new HTTPError('Failed to create clip task', { statusCode: 500 })
-  }
+  const task = await prisma.task
+    .findUniqueOrThrow({
+      where: { cid: task_c.cid },
+      include: {
+        clips: true,
+      },
+    })
+    .catch((err: Error) => {
+      throw new HTTPError('Failed to create clip task', {
+        statusCode: 500,
+        cause: err,
+      })
+    })
   return task
 }
 

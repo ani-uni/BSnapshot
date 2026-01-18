@@ -14,11 +14,47 @@ model User {
   bauth_cookies String
 }
 
+model Config {
+  id          Int @id @default(0)
+  // 对rt、sp、up整体限制一次run中发出的task-type数
+  batchNum    Int @default(10)
+  // 对实时弹幕完全拉取一次的间隔时间
+  rtInterval  Int @default(7200) // 60 * 60 * 2 = 7200 = 2h
+  // 对历史弹幕获取下一批的间隔时间
+  hisInterval Int @default(1800) // 60 * 60 * 0.5 = 1800 = 0.5h
+  // 一批获取的天数
+  hisBatchNum Int @default(3)
+  // 对特殊弹幕拉取一次的间隔时间
+  spInterval  Int @default(86400) // 60 * 60 * 24 = 86400 = 24h = 1d
+  // 通过创作中心api拉取一次弹幕的间隔时间(因为可以指定上次最后拉取的时间往后的弹幕，所以请求压力可以减小)
+  upInterval  Int @default(7200)
+}
+
+enum TaskStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
 // 单次执行的最小单位
 model Task {
-  cid   BigInt  @id // 视频 cid
+  cid       BigInt     @id // 视频 cid
+  pub       DateTime?
   // title String? // 任务标题
-  clips Clip[] // 时间段数组，表示需要爬取的时间段
+  clips     Clip[] // 时间段数组，表示需要爬取的时间段
+  segs      String // Int[] <- str.split(',')
+  // 队列
+  rtStatus  TaskStatus @default(PENDING)
+  rtRunAt   DateTime?
+  hisStatus TaskStatus @default(PENDING)
+  hisRunAt  DateTime?
+  hisCursor DateTime?
+  spStatus  TaskStatus @default(PENDING)
+  spRunAt   DateTime?
+  upStatus  TaskStatus @default(PENDING)
+  upRunAt   DateTime?
+  upCursor  DateTime?
 }
 
 // 数据管理的最小单位
