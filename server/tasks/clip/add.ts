@@ -1,6 +1,7 @@
 import type { PromiseReturnType } from '@prisma/client/extension'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
+import { $Enums } from '~/generated/prisma/client'
 import type { TaskPayload } from '~/server/types/tasks/payload'
 import type { TaskResult } from '~/server/types/tasks/result'
 import { bigint2string } from '~/server/utils/bigint'
@@ -13,6 +14,8 @@ export interface TaskClipAddPayload {
   clips: Clip[]
   cid: bigint
   pubdate?: number
+  upMid?: bigint
+  taskTypes?: Array<'RT' | 'HIS' | 'SP' | 'UP'>
 }
 
 export type TaskClipAddResult = PromiseReturnType<typeof ClipAdd>
@@ -37,23 +40,42 @@ export default defineTask<TaskResult<TaskClipAddResult>>({
 export async function ClipAdd(payload: TaskClipAddPayload) {
   const clips = ClipLintAndFmt(payload.clips)
   const zeroDate = new Date(0)
-  const task_c = await prisma.task.create({
+  // 创建采集目标（Capture）及其片段
+  const capture_c = await prisma.capture.create({
     data: {
       cid: payload.cid,
       pub: payload.pubdate ? new Date(payload.pubdate * 1000) : zeroDate,
+      upMid: payload.upMid ?? null,
       clips: {
         create: clips.map((clip) => ({ start: clip[0], end: clip[1] })),
       },
       segs: clips2segs(clips).join(','),
-      rtRunAt: zeroDate,
-      hisRunAt: zeroDate,
-      spRunAt: zeroDate,
-      upRunAt: zeroDate,
     },
   })
-  const task = await prisma.task
+  // 决定要创建哪些类型的任务
+  const typesToCreate = payload.taskTypes
+    ? payload.taskTypes
+    : (['RT', 'HIS', 'SP', 'UP'] as const)
+
+  const tasksData = []
+  for (const type of typesToCreate) {
+    // 如果是 UP 任务但没有 upMid，则跳过
+    if (type === 'UP' && !payload.upMid) continue
+    tasksData.push({
+      cid: payload.cid,
+      type: $Enums.TaskType[type],
+      status: $Enums.TaskStatus.PENDING,
+      nextRunAt: zeroDate,
+      lastRunAt: zeroDate,
+    })
+  }
+
+  if (tasksData.length > 0) {
+    await prisma.fetchTask.createMany({ data: tasksData })
+  }
+  const capture = await prisma.capture
     .findUniqueOrThrow({
-      where: { cid: task_c.cid },
+      where: { cid: capture_c.cid },
       include: {
         clips: true,
       },
@@ -64,7 +86,7 @@ export async function ClipAdd(payload: TaskClipAddPayload) {
         cause: err,
       })
     })
-  return task
+  return capture
 }
 
 export function ClipLintAndFmt(clips: TaskClipAddPayload['clips']): Clip[] {
