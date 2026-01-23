@@ -2,6 +2,7 @@ import type { PromiseReturnType } from '@prisma/client/extension'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import type { TaskResult } from '~/server/types/tasks/result'
+import { bigint2string } from '~/server/utils/bigint'
 import { prisma } from '~/server/utils/prisma'
 
 export type TaskConfigGetResult = PromiseReturnType<typeof ConfigGet>
@@ -26,6 +27,14 @@ export async function ConfigGet() {
         cause: err,
       })
     })
+  const runtime = await prisma.runtime
+    .upsert({ where: { id: 0 }, update: {}, create: { id: 0 } })
+    .catch((err: Error) => {
+      throw new HTTPError('Runtime not available', {
+        statusCode: 500,
+        cause: err,
+      })
+    })
 
-  return conf
+  return bigint2string({ conf, runtime })
 }

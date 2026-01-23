@@ -62,7 +62,7 @@ export async function ClipPreGen(
     }
   } else {
     const abBasic = getVideoBasic(
-      await User.fromRandom(),
+      await User.fromRotating(),
       payload.type === 'aid' ? { aid: payload.id } : { bvid: payload.id },
     )
     return abBasic

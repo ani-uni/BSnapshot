@@ -43,6 +43,14 @@ export class User {
   }
   // 选择一个与上次使用不同的用户，避免连续使用同一用户
   static async fromRotating(lastMid?: bigint | null) {
+    if (!lastMid)
+      lastMid = (
+        await prisma.runtime
+          .findUniqueOrThrow({
+            where: { id: 0 },
+          })
+          .catch(() => null)
+      )?.lastUserMid
     for (let i = 0; i < 3; i++) {
       const u = await User.fromRandom()
       if (u.userModel.mid !== (lastMid ?? 0n)) return u
