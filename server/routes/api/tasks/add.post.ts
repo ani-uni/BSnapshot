@@ -10,6 +10,7 @@ export default defineHandler(async ({ req }) => {
   const res = await ClipAdd({
     ...payload,
     cid: BigInt(payload.cid),
+    upMid: payload.upMid ? BigInt(payload.upMid) : undefined,
   }).catch((err: Error) => {
     throw new HTTPError('Failed to add task and clips', {
       statusCode: 500,
