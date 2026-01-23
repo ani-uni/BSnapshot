@@ -50,7 +50,7 @@ export class User {
             where: { id: 0 },
           })
           .catch(() => null)
-      )?.lastUserMid
+      )?.lastUserMid ?? null
     for (let i = 0; i < 3; i++) {
       const u = await User.fromRandom()
       if (u.userModel.mid !== (lastMid ?? 0n)) return u
