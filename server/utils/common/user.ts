@@ -41,6 +41,19 @@ export class User {
       })
     return new User(u)
   }
+  // 选择一个与上次使用不同的用户，避免连续使用同一用户
+  static async fromRotating(lastMid?: bigint | null) {
+    for (let i = 0; i < 3; i++) {
+      const u = await User.fromRandom()
+      if (u.userModel.mid !== (lastMid ?? 0n)) return u
+    }
+    const alt = await prisma.user.findFirst({
+      where: lastMid ? { mid: { not: lastMid } } : undefined,
+      orderBy: { mid: 'asc' },
+    })
+    if (alt) return User.fromMid(alt.mid)
+    return User.fromRandom()
+  }
   kyInstance() {
     const ck = new Cookies(this.userModel.bauth_cookies)
     return ky.create({
