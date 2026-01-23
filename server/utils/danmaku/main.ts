@@ -20,7 +20,7 @@ export function duration2segs(duration: number) {
  * @returns
  */
 export async function rt(user: User, oid: bigint, segs: number[] = [1]) {
-  // if (segs <= 0 || !isInt(segs.toString())) throw new Error('seg参数错误')
+  if (segs.some((seg) => seg <= 0)) throw new Error('seg参数错误')
 
   let pool = UniPool.create({ dedupe: false, dmid: false })
   for (const seg of segs) {
