@@ -15,7 +15,7 @@ model User {
 }
 
 model Config {
-  id          Int @id @default(0)
+  id             Int @id @default(0)
   // RT 实时弹幕：调度间隔与单次拉取的任务数
   rtIntervalSec  Int @default(7200)
   rtBatch        Int @default(10)
@@ -31,6 +31,12 @@ model Config {
   upBatch        Int @default(5)
 }
 
+model Runtime {
+  id          Int     @id @default(0)
+  // 全局：上一次请求使用的用户，用于避免连续使用同一用户
+  lastUserMid BigInt?
+}
+
 enum TaskStatus {
   PENDING
   RUNNING
@@ -40,10 +46,10 @@ enum TaskStatus {
 
 // 采集目标（A）：记录某个 cid 的发布信息、时间片与其派生的 segs
 model Capture {
-  cid   BigInt   @id // 视频 cid
+  cid   BigInt      @id // 视频 cid
   pub   DateTime?
-  clips Clip[]   // 时间段数组，表示需要爬取的时间段
-  segs  String   // Int[] <- str.split(',')，由 clips 计算得到并存储
+  clips Clip[] // 时间段数组，表示需要爬取的时间段
+  segs  String // Int[] <- str.split(',')，由 clips 计算得到并存储
   // 对应UP主，用于 UP 任务的用户绑定
   upMid BigInt?
   tasks FetchTask[]
@@ -51,23 +57,21 @@ model Capture {
 
 // 任务类型（C）
 enum TaskType {
-  RT   // 实时弹幕，与 clips/segs 强相关
-  HIS  // 历史弹幕，记录已获取到的日期
-  SP   // 特殊弹幕，请求方式固定
-  UP   // 创作中心弹幕，以发送时间为锚点
+  RT // 实时弹幕，与 clips/segs 强相关
+  HIS // 历史弹幕，记录已获取到的日期
+  SP // 特殊弹幕，请求方式固定
+  UP // 创作中心弹幕，以发送时间为锚点
 }
 
 // 获取任务（C）：按类型拆分任务记录，便于调度与重试
 model FetchTask {
-  id           String    @id @default(cuid())
-  cid          BigInt
-  capture      Capture   @relation(fields: [cid], references: [cid], onDelete: Cascade)
-  type         TaskType
-  status       TaskStatus @default(PENDING)
-  nextRunAt    DateTime?
-  lastRunAt    DateTime?
-  // 上一次执行使用的用户，用于避免连续使用同一用户
-  lastUserMid  BigInt?
+  id            String     @id @default(cuid())
+  cid           BigInt
+  capture       Capture    @relation(fields: [cid], references: [cid], onDelete: Cascade)
+  type          TaskType
+  status        TaskStatus @default(PENDING)
+  nextRunAt     DateTime?
+  lastRunAt     DateTime?
   // 历史类任务游标
   hisDateCursor DateTime? // HIS：已获取到哪一天
   upCursor      DateTime? // UP：以弹幕发送时间为锚点
@@ -77,7 +81,7 @@ model FetchTask {
 
 // 数据管理的最小单位
 model Clip {
-  id      String @id @default(cuid())
+  id      String  @id @default(cuid())
   capture Capture @relation(fields: [cid], references: [cid], onDelete: Cascade)
   cid     BigInt
   // collection   Collection? @relation(fields: [collectionId], references: [id])
