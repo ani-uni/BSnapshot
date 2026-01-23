@@ -24,5 +24,7 @@ export default defineConfig({
   scheduledTasks: {
     '0 12 * * *': ['auth:user:check'],
     '0 */2 * * *': ['auth:global:wbikey:refresh'],
+    '*/5 * * * *': ['clip:schedule'], // 每5分钟扫描并调度任务
+    '*/10 * * * *': ['clip:run'], // 每10分钟执行任务队列
   },
 })
