@@ -1,5 +1,6 @@
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
+import { JSONBigInt } from '../bigint'
 import type { User } from '../common/user'
 
 const urls = {
@@ -100,7 +101,9 @@ async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
 
   return user
     .kyInstance()
-    .get(`${urls.view}?${qs.stringify(queryParam)}`)
+    .get(`${urls.view}?${qs.stringify(queryParam)}`, {
+      parseJson: JSONBigInt.parse,
+    })
     .json<VideoInfo>()
     .then((res) => {
       if (res.code !== 0)

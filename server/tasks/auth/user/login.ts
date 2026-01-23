@@ -48,7 +48,8 @@ export async function AuthUserLogin(
         throw new HTTPError(`获取个人信息失败: ${res.message}`, {
           statusCode: 500,
         })
-      const { uname, mid, vip } = res.data
+      const { uname, vip } = res.data
+      const mid = BigInt(res.data.mid)
       if (!mid || !uname || !vip)
         throw new HTTPError('获取个人信息失败: 无法获取mid/uname/vip', {
           statusCode: 500,

@@ -28,14 +28,14 @@ export async function getVideoBasic(
 ): Promise<VideoBasic> {
   const data = await view(user, opt)
   return {
-    aid: data.aid,
+    aid: BigInt(data.aid),
     bvid: data.bvid,
     title: data.title,
     pubdate: data.pubdate, // 秒级时间戳（UTC），app 端自行转本地时间
-    upMid: data.owner.mid,
+    upMid: BigInt(data.owner.mid),
     // videos: data.videos,
     pages: data.pages.map((p) => ({
-      cid: p.cid,
+      cid: BigInt(p.cid),
       page: p.page,
       part: p.part,
       duration: p.duration,
