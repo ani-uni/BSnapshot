@@ -3,6 +3,7 @@ import {
   AuthUserLogin,
   type TaskAuthUserLoginPayload,
 } from '~/server/tasks/auth/user/login'
+import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async ({ req }) => {
   const payload = (await req.json()) as TaskAuthUserLoginPayload
@@ -15,5 +16,5 @@ export default defineHandler(async ({ req }) => {
       cause: err,
     })
   })
-  return res
+  return bigint2string(res)
 })

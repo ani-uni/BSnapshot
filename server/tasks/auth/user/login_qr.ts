@@ -2,6 +2,8 @@ import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import type { UserModel } from '~/generated/prisma/models'
+import type { TaskResult } from '~/server/types/tasks/result'
+import { bigint2string } from '~/server/utils/bigint'
 import { Cookies } from '~/server/utils/cookies'
 import { AuthUserLogin } from './login'
 
@@ -11,9 +13,9 @@ export interface TaskAuthUserLoginQrPayload {
 
 export type TaskAuthUserLoginQrResult =
   | { url: string; qrcode_key: string }
-  | (Omit<UserModel, 'mid'> & { mid: string })
+  | UserModel
 
-export default defineTask<TaskAuthUserLoginQrResult>({
+export default defineTask<TaskResult<TaskAuthUserLoginQrResult>>({
   meta: {
     name: 'auth:user:login_qr',
     description: 'Login user with QR code',
@@ -21,12 +23,12 @@ export default defineTask<TaskAuthUserLoginQrResult>({
   async run({ payload }: { payload: TaskAuthUserLoginQrPayload }) {
     if (!payload) {
       const result = await AuthUserLoginQr()
-      return { result }
+      return bigint2string({ result })
     } else {
       const result = await AuthUserLoginQr(
         payload as TaskAuthUserLoginQrPayload,
       )
-      return { result }
+      return bigint2string({ result })
     }
   },
 })
@@ -34,7 +36,7 @@ export default defineTask<TaskAuthUserLoginQrResult>({
 export function AuthUserLoginQr(): Promise<{ url: string; qrcode_key: string }>
 export function AuthUserLoginQr(
   payload: TaskAuthUserLoginQrPayload,
-): Promise<Omit<UserModel, 'mid'> & { mid: string }>
+): Promise<UserModel>
 export async function AuthUserLoginQr(
   payload?: TaskAuthUserLoginQrPayload,
 ): Promise<TaskAuthUserLoginQrResult> {

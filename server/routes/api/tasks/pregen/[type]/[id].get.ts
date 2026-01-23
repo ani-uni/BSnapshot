@@ -3,6 +3,7 @@ import {
   ClipPreGen,
   type TaskClipPreGenPayload,
 } from '~/server/tasks/clip/pregen'
+import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async (event) => {
   const type = getRouterParam(event, 'type')
@@ -33,5 +34,5 @@ export default defineHandler(async (event) => {
       cause: err,
     })
   })
-  return res
+  return bigint2string(res)
 })

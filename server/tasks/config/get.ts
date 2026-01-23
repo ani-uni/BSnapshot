@@ -14,7 +14,7 @@ export default defineTask<TaskResult<TaskConfigGetResult>>({
   },
   async run() {
     const res = await ConfigGet()
-    return { result: res }
+    return { result: bigint2string(res) }
   },
 })
 
@@ -36,5 +36,5 @@ export async function ConfigGet() {
       })
     })
 
-  return bigint2string({ conf, runtime })
+  return { conf, runtime }
 }

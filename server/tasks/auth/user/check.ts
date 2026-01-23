@@ -1,4 +1,6 @@
 import { defineTask } from 'nitro/task'
+import type { TaskResult } from '~/server/types/tasks/result'
+import { bigint2string } from '~/server/utils/bigint'
 import { prisma } from '~/server/utils/prisma'
 import { AuthUserLogin } from './login'
 
@@ -6,14 +8,14 @@ export interface TaskAuthUserCheckResult {
   deletedUserMids: bigint[]
 }
 
-export default defineTask<TaskAuthUserCheckResult>({
+export default defineTask<TaskResult<TaskAuthUserCheckResult>>({
   meta: {
     name: 'auth:user:check',
     description: 'Check all users',
   },
   async run() {
     const result = await AuthUserCheck()
-    return { result }
+    return bigint2string({ result })
   },
 })
 

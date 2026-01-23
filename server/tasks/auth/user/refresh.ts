@@ -4,28 +4,33 @@ import { defineTask } from 'nitro/task'
 import type { UserModel } from '~/generated/prisma/models'
 import type { KVAuth } from '~/server/types/kv/auth'
 import type { TaskPayload } from '~/server/types/tasks/payload'
+import type { TaskResult } from '~/server/types/tasks/result'
 import { url2key } from '~/server/utils/auth/global/wbi'
 import { Buvid } from '~/server/utils/auth/user/buvid'
 import { getBiliTicket } from '~/server/utils/auth/user/ticket'
+import { bigint2string } from '~/server/utils/bigint'
 import { Cookies } from '~/server/utils/cookies'
 import { prisma } from '~/server/utils/prisma'
 import { AuthUserGet } from './get'
 
 export interface TaskAuthUserRefreshPayload {
-  mid: string // bigint
+  mid: bigint
 }
 
-export type TaskAuthUserRefreshResult = Omit<UserModel, 'mid'> & { mid: string }
+export type TaskAuthUserRefreshResult = UserModel
 
-export default defineTask<TaskAuthUserRefreshResult>({
+export default defineTask<TaskResult<TaskAuthUserRefreshResult>>({
   meta: {
     name: 'auth:user:refresh',
     description: 'Refresh user auth',
   },
   async run({ payload }: { payload: TaskPayload<TaskAuthUserRefreshPayload> }) {
     if (!payload.mid) throw new HTTPError('Missing mid', { statusCode: 400 })
-    const result = await AuthUserRefresh(payload as TaskAuthUserRefreshPayload)
-    return { result }
+    const result = await AuthUserRefresh({
+      ...payload,
+      mid: BigInt(payload.mid),
+    })
+    return bigint2string({ result })
   },
 })
 
@@ -69,6 +74,5 @@ export async function AuthUserRefresh(
       bauth_cookies: bauth_cookies.toString(),
     },
   })
-  const result = { ...updatedUser, mid: updatedUser.mid.toString() }
-  return result
+  return updatedUser
 }

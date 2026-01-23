@@ -1,6 +1,7 @@
 import { defineWebSocketHandler, HTTPError } from 'nitro/h3'
 import type { UserModel } from '~/generated/prisma/models'
 import { AuthUserLoginQr } from '~/server/tasks/auth/user/login_qr'
+import { bigint2string } from '~/server/utils/bigint'
 
 export interface WSAuthUserLoginQrGenMessage {
   gen: {
@@ -74,7 +75,7 @@ export default defineWebSocketHandler({
           const user = await AuthUserLoginQr({
             qrcode_key: res.qrcode_key,
           })
-          peer.send({ user })
+          peer.send(bigint2string({ user }))
           peer.close()
         } catch (err: unknown) {
           const httpErr = err as HTTPError
@@ -113,7 +114,7 @@ export default defineWebSocketHandler({
         const user = await AuthUserLoginQr({
           qrcode_key: peerData.qrcodeKey,
         })
-        peer.send({ user })
+        peer.send(bigint2string({ user }))
         peer.close()
       } catch (err: unknown) {
         const httpErr = err as HTTPError

@@ -3,7 +3,8 @@ import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import type { UserModel } from '~/generated/prisma/models'
 import type { TaskPayload } from '~/server/types/tasks/payload'
-import { JSONBigInt } from '~/server/utils/bigint'
+import type { TaskResult } from '~/server/types/tasks/result'
+import { bigint2string, JSONBigInt } from '~/server/utils/bigint'
 import { Cookies } from '~/server/utils/cookies'
 import { prisma } from '~/server/utils/prisma'
 import { AuthUserRefresh } from './refresh'
@@ -12,9 +13,9 @@ export interface TaskAuthUserLoginPayload {
   bauth_cookies: string
 }
 
-export type TaskAuthUserLoginResult = Omit<UserModel, 'mid'> & { mid: string }
+export type TaskAuthUserLoginResult = UserModel
 
-export default defineTask<TaskAuthUserLoginResult>({
+export default defineTask<TaskResult<TaskAuthUserLoginResult>>({
   meta: {
     name: 'auth:user:login',
     description: 'Login user',
@@ -23,7 +24,7 @@ export default defineTask<TaskAuthUserLoginResult>({
     if (!payload.bauth_cookies)
       throw new HTTPError('Missing bauth_cookies', { statusCode: 400 })
     const result = await AuthUserLogin(payload as TaskAuthUserLoginPayload)
-    return { result }
+    return bigint2string({ result })
   },
 })
 
@@ -69,9 +70,8 @@ export async function AuthUserLogin(
           bauth_cookies,
         },
       })
-      const newUser = await AuthUserRefresh({ mid: mid.toString() })
+      const newUser = await AuthUserRefresh({ mid })
       return newUser
     })
-  const result = { ...res, mid: res.mid.toString() }
-  return result
+  return res
 }

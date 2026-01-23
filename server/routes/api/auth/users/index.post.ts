@@ -1,5 +1,6 @@
 import { defineHandler, HTTPError } from 'nitro/h3'
 import { AuthUserCheck } from '~/server/tasks/auth/user/check'
+import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async () => {
   const res = await AuthUserCheck().catch((err: Error) => {
@@ -8,5 +9,5 @@ export default defineHandler(async () => {
       cause: err,
     })
   })
-  return res
+  return bigint2string(res)
 })

@@ -1,14 +1,14 @@
-import type { PromiseReturnType } from '@prisma/client/extension'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import type { Config } from '~/generated/prisma/client'
+import type { ConfigModel } from '~/generated/prisma/models'
 import type { TaskPayload } from '~/server/types/tasks/payload'
 import type { TaskResult } from '~/server/types/tasks/result'
 import { prisma } from '~/server/utils/prisma'
 
-export type TaskConfigSetPayload = Partial<Omit<Config, 'id'>>
+export type TaskConfigSetPayload = TaskPayload<Omit<Config, 'id'>>
 
-export type TaskConfigSetResult = PromiseReturnType<typeof ConfigSet>
+export type TaskConfigSetResult = ConfigModel
 
 export default defineTask<TaskResult<TaskConfigSetResult>>({
   meta: {
