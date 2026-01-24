@@ -1,5 +1,5 @@
 import { defineHandler, HTTPError } from 'nitro/h3'
-import { ClipLintAndFmt } from '~/server/tasks/clip/add'
+import { ClipLintAndFmt } from '~/server/utils/clip-lint-fmt'
 
 export default defineHandler(async ({ req }) => {
   const payload = (await req.json()) as [number, number][]
