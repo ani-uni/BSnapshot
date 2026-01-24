@@ -1,8 +1,8 @@
 import { defineHandler, getRouterParam, HTTPError } from 'nitro/h3'
 import {
-  ClipPreGen,
-  type TaskClipPreGenPayload,
-} from '~/server/tasks/clip/pregen'
+  TaskPreGen,
+  type TaskTaskPreGenPayload,
+} from '~/server/tasks/task/pregen'
 import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async (event) => {
@@ -15,7 +15,7 @@ export default defineHandler(async (event) => {
     throw new HTTPError('Missing id', { statusCode: 400 })
   }
   // const id = type === 'bvid' ? id_raw : BigInt(id_raw)
-  let payload: TaskClipPreGenPayload | undefined
+  let payload: TaskTaskPreGenPayload | undefined
   if (type === 'aid') {
     payload = { type: 'aid', id: BigInt(id_raw) }
   } else if (type === 'bvid') {
@@ -28,7 +28,7 @@ export default defineHandler(async (event) => {
   if (!payload) {
     throw new HTTPError('Invalid payload', { statusCode: 400 })
   }
-  const res = await ClipPreGen(payload).catch((err: Error) => {
+  const res = await TaskPreGen(payload).catch((err: Error) => {
     throw new HTTPError(`Failed to pre-gen clip for ${type}:"${id_raw}"`, {
       statusCode: 500,
       cause: err,

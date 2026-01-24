@@ -6,7 +6,7 @@ import { bigint2string } from '~/server/utils/bigint'
 import { User } from '~/server/utils/common/user'
 import { getVideoBasic, type VideoBasic } from '~/server/utils/video/main'
 
-export type TaskClipPreGenPayload =
+export type TaskTaskPreGenPayload =
   | {
       type: 'aid'
       id: bigint
@@ -20,14 +20,14 @@ export type TaskClipPreGenPayload =
       id: bigint
     }
 
-export type TaskClipPreGenResult = VideoBasic
+export type TaskTaskPreGenResult = VideoBasic
 
-export default defineTask<TaskResult<TaskClipPreGenResult>>({
+export default defineTask<TaskResult<TaskTaskPreGenResult>>({
   meta: {
-    name: 'clip:pregen',
+    name: 'task:pregen',
     description: 'Pre-generate clip resources',
   },
-  async run({ payload }: { payload: TaskPayload<TaskClipPreGenPayload> }) {
+  async run({ payload }: { payload: TaskPayload<TaskTaskPreGenPayload> }) {
     if (
       !payload.type ||
       !payload.id ||
@@ -36,14 +36,14 @@ export default defineTask<TaskResult<TaskClipPreGenResult>>({
       (payload.type === 'bvid' && typeof payload.id !== 'string')
     )
       throw new HTTPError('Invalid payload', { statusCode: 400 })
-    const res = await ClipPreGen(payload as TaskClipPreGenPayload)
+    const res = await TaskPreGen(payload as TaskTaskPreGenPayload)
     return { result: bigint2string(res) }
   },
 })
 
-export async function ClipPreGen(
-  payload: TaskClipPreGenPayload,
-): Promise<TaskClipPreGenResult> {
+export async function TaskPreGen(
+  payload: TaskTaskPreGenPayload,
+): Promise<TaskTaskPreGenResult> {
   if (payload.type === 'cid') {
     return {
       aid: 0n,
