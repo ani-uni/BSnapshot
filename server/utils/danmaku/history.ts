@@ -1,5 +1,5 @@
 import { UniPool } from '@dan-uni/dan-any'
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import qs from 'qs'
 import type { User } from '../common/user'
 
@@ -8,26 +8,30 @@ const url = {
   seg: 'https://api.bilibili.com/x/v2/dm/web/history/seg.so',
 }
 
-export type His = moment.Moment | string
+export type His = DateTime | string
 export type HisIndex<T = His> = T[]
 
 /**
- * 获取从发布月至今的所有历史弹幕月份
+ * 获取从发布日期至今的所有历史弹幕月份
  */
 export function his_pub_to_now(publish_time: His) {
-  if (typeof publish_time === 'string') publish_time = moment(publish_time)
-  if (!publish_time.isValid()) throw new Error('无效的时间格式')
-  const now = moment()
+  const input_type = typeof publish_time
+  if (typeof publish_time === 'string')
+    publish_time = DateTime.fromFormat(publish_time.slice(0, 7), 'yyyy-MM', {
+      zone: 'Asia/Shanghai',
+    }) // 月份后面的部分会自动截断
+  if (!publish_time.isValid) throw new Error('无效的时间格式')
+  const now = DateTime.now()
   const months: HisIndex<typeof publish_time> = []
 
-  const current = publish_time.clone().startOf('month')
-  while (current.isBefore(now) || current.isSame(moment(), 'month')) {
-    months.push(current.clone())
-    current.add(1, 'month')
+  let current = publish_time.startOf('month')
+  while (current < now || current.hasSame(now, 'month')) {
+    months.push(current)
+    current = current.plus({ months: 1 })
   }
 
-  if (typeof publish_time === 'string')
-    return months.map((m) => m.format('YYYY-MM')) as HisIndex<string>
+  if (input_type === 'string')
+    return months.map((m) => m.toFormat('yyyy-MM')) as HisIndex<string>
   else return months
 }
 
@@ -39,11 +43,10 @@ export function his_pub_to_now(publish_time: His) {
  * @returns 存在弹幕的日期列表，格式为 YYYY-MM-DD；若无弹幕则返回 null
  */
 export async function his_index(user: User, oid: bigint, month: His) {
-  // 使用 moment 验证 YYYY-MM 格式
-  if (!moment(month, 'YYYY-MM', true).isValid()) {
+  month = typeof month === 'string' ? month : month.toFormat('yyyy-MM')
+  if (!DateTime.fromFormat(month, 'yyyy-MM').isValid) {
     throw new Error('month参数错误')
   }
-  month = typeof month === 'string' ? month : month.format('YYYY-MM')
 
   return user
     .kyInstance()
@@ -64,7 +67,11 @@ export async function his_index(user: User, oid: bigint, month: His) {
       else
         return typeof month === 'string'
           ? data
-          : data.map((date) => moment(date))
+          : data.map((date) =>
+              DateTime.fromFormat(date, 'yyyy-MM-dd', {
+                zone: 'Asia/Shanghai',
+              }),
+            )
     })
 }
 
@@ -76,11 +83,10 @@ export async function his_index(user: User, oid: bigint, month: His) {
  * @returns 包含该日期所有弹幕的 UniPool 对象
  */
 export async function his_seg(user: User, oid: bigint, date: His) {
-  // 使用 moment 验证 YYYY-MM-DD 格式
-  if (!moment(date, 'YYYY-MM-DD', true).isValid()) {
+  date = typeof date === 'string' ? date : date.toFormat('yyyy-MM-dd')
+  if (!DateTime.fromFormat(date, 'yyyy-MM-dd').isValid) {
     throw new Error('date参数错误')
   }
-  date = typeof date === 'string' ? date : date.format('YYYY-MM-DD')
 
   return user
     .kyInstance()
