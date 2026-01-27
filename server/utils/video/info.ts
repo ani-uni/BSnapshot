@@ -1,5 +1,4 @@
 import { HTTPError } from 'nitro/h3'
-import qs from 'qs'
 import { JSONBigInt } from '../bigint'
 import type { User } from '../common/user'
 import { FastQueue } from '../req-limit/p-queue'
@@ -100,10 +99,10 @@ async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
 
   const queryParam = aid ? { aid } : { bvid }
 
-  return FastQueue.add(() =>
+  return FastQueue.add(async () =>
     user
       .kyInstance()
-      .get(`${urls.view}?${qs.stringify(queryParam)}`, {
+      .get(`${urls.wbi_view}?${await user.encWbi(queryParam)}`, {
         parseJson: JSONBigInt.parse,
       })
       .json<VideoInfo>()

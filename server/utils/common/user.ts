@@ -1,6 +1,8 @@
 import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
 import type { UserModel } from '~/generated/prisma/models'
+import { AuthGlobalWbiKeyGet } from '~/server/tasks/auth/global/wbikey/get'
+import { encWbi } from '../auth/global/wbi'
 import { Cookies } from '../cookies'
 import { prisma } from '../prisma'
 
@@ -73,5 +75,11 @@ export class User {
     return ky.create({
       headers: ck.toHeaders(),
     })
+  }
+  async encWbi(params: Record<string, unknown>) {
+    const wbiKey = await AuthGlobalWbiKeyGet()
+    if (!wbiKey.img_key || !wbiKey.sub_key)
+      throw new HTTPError('WBI key is not available', { statusCode: 500 })
+    return encWbi(params, wbiKey.img_key, wbiKey.sub_key)
   }
 }
