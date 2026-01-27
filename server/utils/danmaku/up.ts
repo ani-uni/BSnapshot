@@ -1,6 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import qs from 'qs'
 import type { User } from '../common/user'
+import { SlowQueue } from '../req-limit/p-queue'
 
 const urls = {
   search: 'https://api.bilibili.com/x/v2/dm/search',
@@ -200,12 +201,17 @@ export default async function up_seg(
   if (ctime_from) params.ctime_from = ctime_from
   if (ctime_to) params.ctime_to = ctime_to
 
-  return (await user.kyInstance())
-    .get(`${urls.search}?${qs.stringify(params)}`)
-    .json<DanmakuSearchResponse>()
-    .then((res) => {
-      if (res.code !== 0) throw new Error(`搜索弹幕失败: ${res.message}`)
-      return res
-    })
-    .then((res) => UniPool.fromBiliUp(res))
+  return SlowQueue.add(
+    () =>
+      user
+        .kyInstance()
+        .get(`${urls.search}?${qs.stringify(params)}`)
+        .json<DanmakuSearchResponse>()
+        .then((res) => {
+          if (res.code !== 0) throw new Error(`搜索弹幕失败: ${res.message}`)
+          return res
+        })
+        .then((res) => UniPool.fromBiliUp(res)),
+    { priority: 102 },
+  )
 }

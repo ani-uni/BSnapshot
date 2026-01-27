@@ -2,6 +2,7 @@ import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
 import { JSONBigInt } from '../bigint'
 import type { User } from '../common/user'
+import { FastQueue } from '../req-limit/p-queue'
 
 const urls = {
   view: 'https://api.bilibili.com/x/web-interface/view',
@@ -99,19 +100,21 @@ async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
 
   const queryParam = aid ? { aid } : { bvid }
 
-  return user
-    .kyInstance()
-    .get(`${urls.view}?${qs.stringify(queryParam)}`, {
-      parseJson: JSONBigInt.parse,
-    })
-    .json<VideoInfo>()
-    .then((res) => {
-      if (res.code !== 0)
-        throw new HTTPError(`获取视频信息失败: ${res.message}`, {
-          statusCode: 500,
-        })
-      return res.data
-    })
+  return FastQueue.add(() =>
+    user
+      .kyInstance()
+      .get(`${urls.view}?${qs.stringify(queryParam)}`, {
+        parseJson: JSONBigInt.parse,
+      })
+      .json<VideoInfo>()
+      .then((res) => {
+        if (res.code !== 0)
+          throw new HTTPError(`获取视频信息失败: ${res.message}`, {
+            statusCode: 500,
+          })
+        return res.data
+      }),
+  )
 }
 
 export default view

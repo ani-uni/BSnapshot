@@ -1,6 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import qs from 'qs'
 import type { User } from '../common/user'
+import { SlowQueue } from '../req-limit/p-queue'
 
 const url = { view: 'https://api.bilibili.com/x/v2/dm/web/view' }
 
@@ -16,11 +17,15 @@ export async function command_seg(user: User, oid: bigint, pid?: number) {
   if (oid <= 0) throw new Error('oid参数错误')
   if (pid && pid <= 0) throw new Error('pid参数错误')
 
-  return user
-    .kyInstance()
-    .get(`${url.view}?${qs.stringify({ type: 1, oid, pid })}`)
-    .then((res) => res.arrayBuffer())
-    .then((buf) =>
-      UniPool.fromBiliCommandGrpc(buf, { dedupe: false, dmid: false }),
-    )
+  return SlowQueue.add(
+    () =>
+      user
+        .kyInstance()
+        .get(`${url.view}?${qs.stringify({ type: 1, oid, pid })}`)
+        .then((res) => res.arrayBuffer())
+        .then((buf) =>
+          UniPool.fromBiliCommandGrpc(buf, { dedupe: false, dmid: false }),
+        ),
+    { priority: 103 },
+  )
 }

@@ -2,6 +2,7 @@ import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import qs from 'qs'
 import type { User } from '../common/user'
+import { FastQueue, SlowQueue } from '../req-limit/p-queue'
 
 const url = {
   index: 'https://api.bilibili.com/x/v2/dm/history/index',
@@ -48,31 +49,33 @@ export async function his_index(user: User, oid: bigint, month: His) {
     throw new Error('month参数错误')
   }
 
-  return user
-    .kyInstance()
-    .get(`${url.index}?${qs.stringify({ type: 1, oid, month })}`)
-    .json<{
-      code: number
-      message: string
-      ttl: number
-      data: string[] | null
-    }>()
-    .then((res) => {
-      if (res.code !== 0)
-        throw new Error(`查询历史弹幕日期失败: ${res.message}`)
-      return res.data
-    })
-    .then((data) => {
-      if (data === null) return []
-      else
-        return typeof month === 'string'
-          ? data
-          : data.map((date) =>
-              DateTime.fromFormat(date, 'yyyy-MM-dd', {
-                zone: 'Asia/Shanghai',
-              }),
-            )
-    })
+  return FastQueue.add(() =>
+    user
+      .kyInstance()
+      .get(`${url.index}?${qs.stringify({ type: 1, oid, month })}`)
+      .json<{
+        code: number
+        message: string
+        ttl: number
+        data: string[] | null
+      }>()
+      .then((res) => {
+        if (res.code !== 0)
+          throw new Error(`查询历史弹幕日期失败: ${res.message}`)
+        return res.data
+      })
+      .then((data) => {
+        if (data === null) return []
+        else
+          return typeof month === 'string'
+            ? data
+            : data.map((date) =>
+                DateTime.fromFormat(date, 'yyyy-MM-dd', {
+                  zone: 'Asia/Shanghai',
+                }),
+              )
+      }),
+  )
 }
 
 /**
@@ -88,9 +91,15 @@ export async function his_seg(user: User, oid: bigint, date: His) {
     throw new Error('date参数错误')
   }
 
-  return user
-    .kyInstance()
-    .get(`${url.seg}?${qs.stringify({ type: 1, oid, date })}`)
-    .then((res) => res.arrayBuffer())
-    .then((buf) => UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false }))
+  return SlowQueue.add(
+    () =>
+      user
+        .kyInstance()
+        .get(`${url.seg}?${qs.stringify({ type: 1, oid, date })}`)
+        .then((res) => res.arrayBuffer())
+        .then((buf) =>
+          UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false }),
+        ),
+    { priority: 104 },
+  )
 }
