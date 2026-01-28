@@ -66,10 +66,11 @@ export async function up(
 }
 export async function up_as_his(user: User, oid: bigint, dates: HisIndex) {
   const ds = dates.map((d) => {
-    const n: DateTime =
+    const n: DateTime = (
       typeof d === 'string'
         ? DateTime.fromFormat(d, 'yyyy-MM-dd', { zone: 'Asia/Shanghai' })
         : d
+    ).setZone('Asia/Shanghai')
     return {
       ctime_from: n.startOf('day').toFormat('yyyy-MM-dd+HH:mm:ss'),
       ctime_to: n.endOf('day').toFormat('yyyy-MM-dd+HH:mm:ss'),

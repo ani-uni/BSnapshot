@@ -24,9 +24,10 @@ export function his_pub_to_now(publish_time: His) {
       zone: 'Asia/Shanghai',
     }) // 月份后面的部分会自动截断
   if (!publish_time.isValid) throw new Error('无效的时间格式')
-  const now = DateTime.now()
+  const now = DateTime.now().setZone('Asia/Shanghai')
   const months: HisIndex<typeof publish_time> = []
 
+  publish_time = publish_time.setZone('Asia/Shanghai')
   let current = publish_time.startOf('month')
   while (current < now || current.hasSame(now, 'month')) {
     months.push(current)
@@ -55,8 +56,13 @@ export async function his_index(
   month: DateTime,
 ): Promise<DateTime[]>
 export async function his_index(user: User, oid: bigint, month: His) {
-  month = typeof month === 'string' ? month : month.toFormat('yyyy-MM')
-  if (!DateTime.fromFormat(month, 'yyyy-MM').isValid) {
+  month =
+    typeof month === 'string'
+      ? month
+      : month.setZone('Asia/Shanghai').toFormat('yyyy-MM')
+  if (
+    !DateTime.fromFormat(month, 'yyyy-MM', { zone: 'Asia/Shanghai' }).isValid
+  ) {
     throw new Error('month参数错误')
   }
 
@@ -99,8 +105,13 @@ export async function his_index(user: User, oid: bigint, month: His) {
  * @returns 包含该日期所有弹幕的 UniPool 对象
  */
 export async function his_seg(user: User, oid: bigint, date: His) {
-  date = typeof date === 'string' ? date : date.toFormat('yyyy-MM-dd')
-  if (!DateTime.fromFormat(date, 'yyyy-MM-dd').isValid) {
+  date =
+    typeof date === 'string'
+      ? date
+      : date.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
+  if (
+    !DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: 'Asia/Shanghai' }).isValid
+  ) {
     throw new Error('date参数错误')
   }
 
