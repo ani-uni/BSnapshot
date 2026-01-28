@@ -1,4 +1,5 @@
 import { UniPool } from '@dan-uni/dan-any'
+import { DateTime } from 'luxon'
 import type { User } from '../common/user'
 import { rt_seg } from './danmaku_proto'
 import { command_seg } from './danmaku_view_proto'
@@ -42,10 +43,48 @@ export async function sp(user: User, oid: bigint) {
   return command_seg(user, oid)
 }
 
-export async function up(user: User, oid: bigint, pages: number[] = [1]) {
+export async function up(
+  user: User,
+  oid: bigint,
+  // pages: number[] = [1],
+  ctime_from?: string,
+  ps: number = 500,
+) {
+  // let pool = UniPool.create({ dedupe: false, dmid: false })
+  // for (const page of pages) {
+  const pool = await up_seg(user, oid, {
+    // pn: page,
+    pn: 1,
+    ps,
+    ctime_from,
+    order: 'ctime',
+    sort: 'asc',
+  })
+  // pool = pool.assign(res.pool)
+  // }
+  return pool.pool
+}
+export async function up_as_his(user: User, oid: bigint, dates: HisIndex) {
+  const ds = dates.map((d) => {
+    const n: DateTime =
+      typeof d === 'string'
+        ? DateTime.fromFormat(d, 'yyyy-MM-dd', { zone: 'Asia/Shanghai' })
+        : d
+    return {
+      ctime_from: n.startOf('day').toFormat('yyyy-MM-dd+HH:mm:ss'),
+      ctime_to: n.endOf('day').toFormat('yyyy-MM-dd+HH:mm:ss'),
+    }
+  })
   let pool = UniPool.create({ dedupe: false, dmid: false })
-  for (const page of pages) {
-    pool = await up_seg(user, oid, { pn: page }).then((p) => pool.assign(p))
+  for (const date of ds) {
+    pool = await up_seg(user, oid, {
+      pn: 1,
+      ps: 6000,
+      ctime_from: date.ctime_from,
+      ctime_to: date.ctime_to,
+      order: 'ctime',
+      sort: 'asc',
+    }).then((p) => pool.assign(p.pool))
   }
   return pool
 }

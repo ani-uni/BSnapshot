@@ -8,6 +8,24 @@ const urls = {
 }
 
 /**
+ * 弹幕搜索分页信息
+ */
+export interface DanmakuSearchPage {
+  /**
+   * 当前页码
+   */
+  num: number
+  /**
+   * 页大小
+   */
+  size: number
+  /**
+   * 搜索到的弹幕总数
+   */
+  total: number
+}
+
+/**
  * 弹幕搜索结果项
  */
 export interface DanmakuSearchItem {
@@ -50,11 +68,7 @@ export interface DanmakuSearchResponse {
   message: string
   ttl: number
   data: {
-    page: {
-      num: number
-      size: number
-      total: number
-    }
+    page: DanmakuSearchPage
     result: DanmakuSearchItem[]
   }
 }
@@ -93,9 +107,9 @@ export interface DanmakuSearchOptions {
   pool?: string
   /** 弹幕属性列表，可为1到22的一个或多个，以逗号分隔 */
   attrs?: string
-  /** 发送时间起始值，格式为 YYYY-MM-DD hh:mm:ss */
+  /** 发送时间起始值，格式为 YYYY-MM-DD+hh:mm:ss */
   ctime_from?: string
-  /** 发送时间结束值，格式为 YYYY-MM-DD hh:mm:ss */
+  /** 发送时间结束值，格式为 YYYY-MM-DD+hh:mm:ss */
   ctime_to?: string
 }
 
@@ -211,7 +225,10 @@ export default async function up_seg(
           if (res.code !== 0) throw new Error(`搜索弹幕失败: ${res.message}`)
           return res
         })
-        .then((res) => UniPool.fromBiliUp(res)),
+        .then((res) => ({
+          page: res.data.page,
+          pool: UniPool.fromBiliUp(res, { dedupe: false, dmid: false }),
+        })),
     { priority: 102 },
   )
 }

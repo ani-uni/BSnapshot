@@ -2,7 +2,7 @@ import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import qs from 'qs'
 import type { User } from '../common/user'
-import { FastQueue, SlowQueue } from '../req-limit/p-queue'
+import { SlowQueue } from '../req-limit/p-queue'
 
 const url = {
   index: 'https://api.bilibili.com/x/v2/dm/history/index',
@@ -10,11 +10,13 @@ const url = {
 }
 
 export type His = DateTime | string
-export type HisIndex<T = His> = T[]
+export type HisIndex<T extends His = His> = T[]
 
 /**
  * 获取从发布日期至今的所有历史弹幕月份
  */
+export function his_pub_to_now(publish_time: string): HisIndex<string>
+export function his_pub_to_now(publish_time: DateTime): HisIndex<DateTime>
 export function his_pub_to_now(publish_time: His) {
   const input_type = typeof publish_time
   if (typeof publish_time === 'string')
@@ -31,8 +33,7 @@ export function his_pub_to_now(publish_time: His) {
     current = current.plus({ months: 1 })
   }
 
-  if (input_type === 'string')
-    return months.map((m) => m.toFormat('yyyy-MM')) as HisIndex<string>
+  if (input_type === 'string') return months.map((m) => m.toFormat('yyyy-MM'))
   else return months
 }
 
@@ -43,38 +44,50 @@ export function his_pub_to_now(publish_time: His) {
  * @param month 查询目标年月，格式为 YYYY-MM
  * @returns 存在弹幕的日期列表，格式为 YYYY-MM-DD；若无弹幕则返回 null
  */
+export async function his_index(
+  user: User,
+  oid: bigint,
+  month: string,
+): Promise<string[]>
+export async function his_index(
+  user: User,
+  oid: bigint,
+  month: DateTime,
+): Promise<DateTime[]>
 export async function his_index(user: User, oid: bigint, month: His) {
   month = typeof month === 'string' ? month : month.toFormat('yyyy-MM')
   if (!DateTime.fromFormat(month, 'yyyy-MM').isValid) {
     throw new Error('month参数错误')
   }
 
-  return FastQueue.add(() =>
-    user
-      .kyInstance()
-      .get(`${url.index}?${qs.stringify({ type: 1, oid, month })}`)
-      .json<{
-        code: number
-        message: string
-        ttl: number
-        data: string[] | null
-      }>()
-      .then((res) => {
-        if (res.code !== 0)
-          throw new Error(`查询历史弹幕日期失败: ${res.message}`)
-        return res.data
-      })
-      .then((data) => {
-        if (data === null) return []
-        else
-          return typeof month === 'string'
-            ? data
-            : data.map((date) =>
-                DateTime.fromFormat(date, 'yyyy-MM-dd', {
-                  zone: 'Asia/Shanghai',
-                }),
-              )
-      }),
+  return SlowQueue.add(
+    () =>
+      user
+        .kyInstance()
+        .get(`${url.index}?${qs.stringify({ type: 1, oid, month })}`)
+        .json<{
+          code: number
+          message: string
+          ttl: number
+          data: string[] | null
+        }>()
+        .then((res) => {
+          if (res.code !== 0)
+            throw new Error(`查询历史弹幕日期失败: ${res.message}`)
+          return res.data
+        })
+        .then((data) => {
+          if (data === null) return []
+          else
+            return typeof month === 'string'
+              ? data
+              : data.map((date) =>
+                  DateTime.fromFormat(date, 'yyyy-MM-dd', {
+                    zone: 'Asia/Shanghai',
+                  }),
+                )
+        }),
+    { priority: 100 },
   )
 }
 
