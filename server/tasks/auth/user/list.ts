@@ -1,10 +1,9 @@
 import { defineTask } from 'nitro/task'
-import type { UserModel } from '~/generated/prisma/models'
 import type { TaskResult } from '~/server/types/tasks/result'
 import { bigint2string } from '~/server/utils/bigint'
-import { prisma } from '~/server/utils/prisma'
+import { User, type UserWithoutDetails } from '~/server/utils/common/user'
 
-export type TaskAuthUserListResult = Omit<UserModel, 'bauth_cookies'>[]
+export type TaskAuthUserListResult = UserWithoutDetails[]
 
 export default defineTask<TaskResult<TaskAuthUserListResult>>({
   meta: {
@@ -18,6 +17,6 @@ export default defineTask<TaskResult<TaskAuthUserListResult>>({
 })
 
 export async function AuthUserList(): Promise<TaskAuthUserListResult> {
-  const result = await prisma.user.findMany({ omit: { bauth_cookies: true } })
+  const result = await User.list()
   return result
 }

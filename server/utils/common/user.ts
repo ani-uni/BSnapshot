@@ -6,8 +6,21 @@ import { encWbi } from '../auth/global/wbi'
 import { Cookies } from '../cookies'
 import { prisma } from '../prisma'
 
+export type UserWithoutDetails = Omit<UserModel, 'bauth_cookies'>
+
 export class User {
   constructor(public userModel: UserModel) {}
+  static async load(userModel: UserModel) {
+    if (!userModel.bauth_cookies) {
+      await prisma.user.delete({ where: { mid: userModel.mid } })
+      throw new HTTPError('User is not logged in', { statusCode: 500 })
+    }
+    return new User(userModel)
+  }
+  static async list(): Promise<UserWithoutDetails[]> {
+    const users = await prisma.user.findMany({ omit: { bauth_cookies: true } })
+    return users
+  }
   static async fromMid(mid: bigint) {
     const u = await prisma.user
       .findUniqueOrThrow({
@@ -19,7 +32,7 @@ export class User {
           cause: err,
         })
       })
-    return new User(u)
+    return User.load(u)
   }
   static async fromRandom() {
     const count = await prisma.user.count()
@@ -41,7 +54,7 @@ export class User {
           cause: err,
         })
       })
-    return new User(u)
+    return User.load(u)
   }
   // 选择一个与上次使用不同的用户，避免连续使用同一用户
   static async fromRotating(lastMid?: bigint | null) {
@@ -69,6 +82,9 @@ export class User {
       create: { id: 0, lastUserMid: use.userModel.mid },
     })
     return use
+  }
+  get toJSON() {
+    return this.userModel
   }
   kyInstance() {
     const ck = new Cookies(this.userModel.bauth_cookies)
