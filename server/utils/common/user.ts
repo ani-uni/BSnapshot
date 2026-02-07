@@ -84,7 +84,7 @@ export class User {
     return use
   }
   get toJSON() {
-    return this.userModel
+    return { ...this.userModel, mid: this.userModel.mid.toString() }
   }
   kyInstance() {
     const ck = new Cookies(this.userModel.bauth_cookies)

@@ -1,6 +1,5 @@
 import { defineHandler, getRouterParam, HTTPError } from 'nitro/h3'
 import { AuthUserGet } from '~/server/tasks/auth/user/get'
-import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async (event) => {
   const mid = getRouterParam(event, 'mid')
@@ -13,5 +12,5 @@ export default defineHandler(async (event) => {
       cause: err,
     })
   })
-  return bigint2string(res)
+  return res.toJSON
 })
