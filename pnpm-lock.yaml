@@ -891,8 +891,8 @@ packages:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
 
-  confbox@0.2.2:
-    resolution: {integrity: sha512-1NB+BKqhtNipMsov4xI/NnhCKp9XG9NamYp5PVm9klAT0fsrNPjaFICsCFhNhwZJKNh7zB/3q8qXz0E9oaMNtQ==}
+  confbox@0.2.4:
+    resolution: {integrity: sha512-ysOGlgTFbN2/Y6Cg3Iye8YKulHw+R2fNXHrgSmXISQdMnomY6eNDprVdW9R5xBguEqI954+S6709UyiO7B+6OQ==}
 
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
@@ -922,8 +922,8 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  crossws@0.4.3:
-    resolution: {integrity: sha512-lmf5mtwHiToP3HumOx53cqS0T5TK8GMBpsbSCXRB5OuszbltTgGOO4B1WhrDYqTeXOk3BAemibNjJx8E0/ecNw==}
+  crossws@0.4.4:
+    resolution: {integrity: sha512-w6c4OdpRNnudVmcgr7brb/+/HmYjMQvYToO/oTrprTwxRUiom3LYWU1PMWuD006okbUWpII1Ea9/+kwpUfmyRg==}
     peerDependencies:
       srvx: '>=0.7.1'
     peerDependenciesMeta:
@@ -1075,8 +1075,8 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
-  fast-xml-parser@5.3.4:
-    resolution: {integrity: sha512-EFd6afGmXlCx8H8WTZHhAoDaWaGyuIBoZJ2mknrNxug+aZKjkp0a0dlars9Izl+jF+7Gu1/5f/2h68cQpe0IiA==}
+  fast-xml-parser@5.3.5:
+    resolution: {integrity: sha512-JeaA2Vm9ffQKp9VjvfzObuMCjUYAp5WDYhRYL5LrBPY/jUDlUtOvDfot0vKSkB9tuX885BDHjtw4fZadD95wnA==}
     hasBin: true
 
   fetch-blob@3.2.0:
@@ -1159,9 +1159,10 @@ packages:
   graphmatch@1.1.0:
     resolution: {integrity: sha512-0E62MaTW5rPZVRLyIJZG/YejmdA/Xr1QydHEw3Vt+qOKkMIOE8WDLc9ZX2bmAjtJFZcId4lEdrdmASsEy7D1QA==}
 
-  h3@2.0.1-rc.11:
-    resolution: {integrity: sha512-2myzjCqy32c1As9TjZW9fNZXtLqNedjFSrdFy2AjFBQQ3LzrnGoDdFDYfC0tV2e4vcyfJ2Sfo/F6NQhO2Ly/Mw==}
+  h3@2.0.1-rc.14:
+    resolution: {integrity: sha512-163qbGmTr/9rqQRNuqMqtgXnOUAkE4KTdauiC9y0E5iG1I65kte9NyfWvZw5RTDMt6eY+DtyoNzrQ9wA2BfvGQ==}
     engines: {node: '>=20.11.1'}
+    hasBin: true
     peerDependencies:
       crossws: ^0.4.1
     peerDependenciesMeta:
@@ -1254,8 +1255,8 @@ packages:
     resolution: {integrity: sha512-9zy9lkjac+TR1c2tG+mkNSVlyOpInnWdSMiue4F+kq8TwJSgv6o8jhLRg8Ho6SnZ9wOYUq/yozts9qQCfk7bIw==}
     engines: {node: '>=18'}
 
-  libphonenumber-js@1.12.35:
-    resolution: {integrity: sha512-T/Cz6iLcsZdb5jDncDcUNhSAJ0VlSC9TnsqtBNdpkaAmy24/R1RhErtNWVWBrcUZKs9hSgaVsBkc7HxYnazIfw==}
+  libphonenumber-js@1.12.36:
+    resolution: {integrity: sha512-woWhKMAVx1fzzUnMCyOzglgSgf6/AFHLASdOBcchYCyvWSGWt12imw3iu2hdI5d4dGZRsNWAmWiz37sDKUPaRQ==}
 
   libsql@0.3.19:
     resolution: {integrity: sha512-Aj5cQ5uk/6fHdmeW0TiXK42FqUlwx7ytmMLPSaUQPin5HKKKuUPD62MAbN4OEweGBBI7q1BekoEN4gPUEL6MZA==}
@@ -1278,8 +1279,8 @@ packages:
   long@5.3.2:
     resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
 
-  lru.min@1.1.3:
-    resolution: {integrity: sha512-Lkk/vx6ak3rYkRR0Nhu4lFUT2VDnQSxBe8Hbl7f36358p6ow8Bnvr8lrLt98H8J1aGxfhbX4Fs5tYg2+FTwr5Q==}
+  lru.min@1.1.4:
+    resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
   luxon@3.7.2:
@@ -1334,8 +1335,8 @@ packages:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
 
-  nf3@0.3.6:
-    resolution: {integrity: sha512-/XRUUILTAyuy1XunyVQuqGp8aEmZ2TfRTn8Rji+FA4xqv20qzL4jV7Reqbuey2XucKgPeRVcEYGScmJM0UnB6Q==}
+  nf3@0.3.10:
+    resolution: {integrity: sha512-UlqmHkZiHGgSkRj17yrOXEsSu5ECvtlJ3Xm1W5WsWrTKgu9m7OjrMZh9H/ME2LcWrTlMD0/vmmNVpyBG4yRdGg==}
 
   nitro@3.0.1-alpha.2:
     resolution: {integrity: sha512-YviDY5J/trS821qQ1fpJtpXWIdPYiOizC/meHavlm1Hfuhx//H+Egd1+4C5SegJRgtWMnRPW9n//6Woaw81cTQ==}
@@ -1372,8 +1373,8 @@ packages:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nypm@0.6.4:
-    resolution: {integrity: sha512-1TvCKjZyyklN+JJj2TS3P4uSQEInrM/HkkuSXsEzm1ApPgBffOn8gFguNnZf07r/1X6vlryfIqMUkJKQMzlZiw==}
+  nypm@0.6.5:
+    resolution: {integrity: sha512-K6AJy1GMVyfyMXRVB88700BJqNUkByijGJM8kEHpLdcAt+vSQAVfkWWHYzuRXHSY6xA2sNc5RjTj0p9rE2izVQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -1579,8 +1580,8 @@ packages:
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
-  semver@7.7.3:
-    resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
+  semver@7.7.4:
+    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -1647,6 +1648,11 @@ packages:
     engines: {node: '>=20.16.0'}
     hasBin: true
 
+  srvx@0.11.2:
+    resolution: {integrity: sha512-u6NbjE84IJwm1XUnJ53WqylLTQ3BdWRw03lcjBNNeMBD+EFjkl0Cnw1RVaGSqRAo38pOHOPXJH30M6cuTINUxw==}
+    engines: {node: '>=20.16.0'}
+    hasBin: true
+
   standard-as-callback@2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
 
@@ -1678,11 +1684,11 @@ packages:
     resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
     engines: {node: '>=18'}
 
-  tldts-core@7.0.19:
-    resolution: {integrity: sha512-lJX2dEWx0SGH4O6p+7FPwYmJ/bu1JbcGJ8RLaG9b7liIgZ85itUVEPbMtWRVrde/0fnDPEPHW10ZsKW3kVsE9A==}
+  tldts-core@7.0.22:
+    resolution: {integrity: sha512-KgbTDC5wzlL6j/x6np6wCnDSMUq4kucHNm00KXPbfNzmllCmtmvtykJHfmgdHntwIeupW04y8s1N/43S1PkQDw==}
 
-  tldts@7.0.19:
-    resolution: {integrity: sha512-8PWx8tvC4jDB39BQw1m4x8y5MH1BcQ5xHeL2n7UVFulMPH/3Q0uiamahFJ3lXA0zO2SUyRXuVVbWSDmstlt9YA==}
+  tldts@7.0.22:
+    resolution: {integrity: sha512-nqpKFC53CgopKPjT6Wfb6tpIcZXHcI6G37hesvikhx0EmUGPkZrujRyAjgnmp1SHNgpQfKVanZ+KfpANFt2Hxw==}
     hasBin: true
 
   toidentifier@1.0.1:
@@ -1711,8 +1717,8 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@7.19.1:
-    resolution: {integrity: sha512-Gpq0iNm5M6cQWlyHQv9MV+uOj1jWk7LpkoE5vSp/7zjb4zMdAcUD+VL5y0nH4p9EbUklq00eVIIX/XcDHzu5xg==}
+  undici@7.21.0:
+    resolution: {integrity: sha512-Hn2tCQpoDt1wv23a68Ctc8Cr/BHpUSfaPYrkajTXOS9IKpxVRx/X5m1K2YkbK2ipgZgxXSgsUinl3x+2YdSSfg==}
     engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.24:
@@ -1877,7 +1883,7 @@ snapshots:
       base16384: 1.0.0
       class-transformer: 0.5.1
       class-validator: 0.14.3
-      fast-xml-parser: 5.3.4
+      fast-xml-parser: 5.3.5
       fs-extra: 11.3.3
       hh-mm-ss: 1.2.0
       json-bigint: 1.0.0
@@ -2496,7 +2502,7 @@ snapshots:
   c12@3.1.0:
     dependencies:
       chokidar: 4.0.3
-      confbox: 0.2.2
+      confbox: 0.2.4
       defu: 6.1.4
       dotenv: 16.6.1
       exsolve: 1.0.8
@@ -2550,13 +2556,13 @@ snapshots:
   class-validator@0.14.3:
     dependencies:
       '@types/validator': 13.15.10
-      libphonenumber-js: 1.12.35
+      libphonenumber-js: 1.12.36
       validator: 13.15.26
 
   cluster-key-slot@1.1.2:
     optional: true
 
-  confbox@0.2.2: {}
+  confbox@0.2.4: {}
 
   consola@3.4.2: {}
 
@@ -2579,7 +2585,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  crossws@0.4.3(srvx@0.10.1):
+  crossws@0.4.4(srvx@0.10.1):
     optionalDependencies:
       srvx: 0.10.1
 
@@ -2707,7 +2713,7 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-xml-parser@5.3.4:
+  fast-xml-parser@5.3.5:
     dependencies:
       strnum: 2.1.2
 
@@ -2793,7 +2799,7 @@ snapshots:
       consola: 3.4.2
       defu: 6.1.4
       node-fetch-native: 1.6.7
-      nypm: 0.6.4
+      nypm: 0.6.5
       pathe: 2.0.3
 
   github-from-package@0.0.0:
@@ -2807,12 +2813,12 @@ snapshots:
 
   graphmatch@1.1.0: {}
 
-  h3@2.0.1-rc.11(crossws@0.4.3(srvx@0.10.1)):
+  h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.10.1)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.10.1
+      srvx: 0.11.2
     optionalDependencies:
-      crossws: 0.4.3(srvx@0.10.1)
+      crossws: 0.4.4(srvx@0.10.1)
 
   has-symbols@1.1.0: {}
 
@@ -2899,7 +2905,7 @@ snapshots:
 
   ky@1.14.3: {}
 
-  libphonenumber-js@1.12.35: {}
+  libphonenumber-js@1.12.36: {}
 
   libsql@0.3.19:
     dependencies:
@@ -2926,7 +2932,7 @@ snapshots:
 
   long@5.3.2: {}
 
-  lru.min@1.1.3: {}
+  lru.min@1.1.4: {}
 
   luxon@3.7.2: {}
 
@@ -2960,36 +2966,36 @@ snapshots:
       generate-function: 2.3.1
       iconv-lite: 0.7.2
       long: 5.3.2
-      lru.min: 1.1.3
+      lru.min: 1.1.4
       named-placeholders: 1.1.6
       seq-queue: 0.0.5
       sqlstring: 2.3.3
 
   named-placeholders@1.1.6:
     dependencies:
-      lru.min: 1.1.3
+      lru.min: 1.1.4
 
   napi-build-utils@2.0.0:
     optional: true
 
   negotiator@1.0.0: {}
 
-  nf3@0.3.6: {}
+  nf3@0.3.10: {}
 
   nitro@3.0.1-alpha.2(@electric-sql/pglite@0.3.15)(@libsql/client@0.8.1)(better-sqlite3@12.6.2)(chokidar@5.0.0)(ioredis@5.8.2)(mysql2@3.15.3)(rolldown@1.0.0-rc.1)(rollup@4.54.0):
     dependencies:
       consola: 3.4.2
-      crossws: 0.4.3(srvx@0.10.1)
+      crossws: 0.4.4(srvx@0.10.1)
       db0: 0.3.4(@electric-sql/pglite@0.3.15)(@libsql/client@0.8.1)(better-sqlite3@12.6.2)(mysql2@3.15.3)
-      h3: 2.0.1-rc.11(crossws@0.4.3(srvx@0.10.1))
+      h3: 2.0.1-rc.14(crossws@0.4.4(srvx@0.10.1))
       jiti: 2.6.1
-      nf3: 0.3.6
+      nf3: 0.3.10
       ofetch: 2.0.0-alpha.3
       ohash: 2.0.11
       oxc-minify: 0.110.0
       oxc-transform: 0.110.0
       srvx: 0.10.1
-      undici: 7.19.1
+      undici: 7.21.0
       unenv: 2.0.0-rc.24
       unstorage: 2.0.0-alpha.5(chokidar@5.0.0)(db0@0.3.4(@electric-sql/pglite@0.3.15)(@libsql/client@0.8.1)(better-sqlite3@12.6.2)(mysql2@3.15.3))(ioredis@5.8.2)(ofetch@2.0.0-alpha.3)
     optionalDependencies:
@@ -3026,7 +3032,7 @@ snapshots:
 
   node-abi@3.87.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
     optional: true
 
   node-domexception@1.0.0: {}
@@ -3039,7 +3045,7 @@ snapshots:
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
 
-  nypm@0.6.4:
+  nypm@0.6.5:
     dependencies:
       citty: 0.2.0
       pathe: 2.0.3
@@ -3126,7 +3132,7 @@ snapshots:
 
   pkg-types@2.3.0:
     dependencies:
-      confbox: 0.2.2
+      confbox: 0.2.4
       exsolve: 1.0.8
       pathe: 2.0.3
 
@@ -3346,7 +3352,7 @@ snapshots:
 
   scheduler@0.27.0: {}
 
-  semver@7.7.3:
+  semver@7.7.4:
     optional: true
 
   send@1.2.1:
@@ -3432,6 +3438,8 @@ snapshots:
 
   srvx@0.10.1: {}
 
+  srvx@0.11.2: {}
+
   standard-as-callback@2.1.0:
     optional: true
 
@@ -3468,17 +3476,17 @@ snapshots:
 
   tinyexec@1.0.2: {}
 
-  tldts-core@7.0.19: {}
+  tldts-core@7.0.22: {}
 
-  tldts@7.0.19:
+  tldts@7.0.22:
     dependencies:
-      tldts-core: 7.0.19
+      tldts-core: 7.0.22
 
   toidentifier@1.0.1: {}
 
   tough-cookie@6.0.0:
     dependencies:
-      tldts: 7.0.19
+      tldts: 7.0.22
 
   tslib@2.8.1: {}
 
@@ -3498,7 +3506,7 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@7.19.1: {}
+  undici@7.21.0: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
