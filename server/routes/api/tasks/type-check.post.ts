@@ -1,20 +1,12 @@
-import { defineHandler, HTTPError } from 'nitro/h3'
+import { defineHandler, readValidatedBody } from 'nitro/h3'
+import z from 'zod'
 import { ClipLintAndFmt } from '~/server/utils/clip-lint-fmt'
 
-export default defineHandler(async ({ req }) => {
-  const payload = (await req.json()) as [number, number][]
-  if (
-    !Array.isArray(payload) ||
-    !payload.every(
-      (item) =>
-        Array.isArray(item) &&
-        item.length === 2 &&
-        typeof item[0] === 'number' &&
-        typeof item[1] === 'number',
-    )
-  ) {
-    throw new HTTPError('Invalid payload', { statusCode: 400 })
-  }
+export default defineHandler(async (event) => {
+  const payload = await readValidatedBody(
+    event,
+    z.array(z.tuple([z.number(), z.number()])),
+  )
   const res = ClipLintAndFmt(payload)
   return res
 })

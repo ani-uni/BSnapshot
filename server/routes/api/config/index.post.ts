@@ -1,13 +1,12 @@
-import { defineEventHandler, HTTPError } from 'nitro/h3'
-import { ConfigSet, type TaskConfigSetPayload } from '~/server/tasks/config/set'
+import { defineHandler, readValidatedBody } from 'nitro/h3'
+import { ConfigModelSchema } from '~/generated/zod/schemas'
+import { ConfigSet } from '~/server/tasks/config/set'
 
-export default defineEventHandler(async ({ req }) => {
-  const payload = (await req.json()) as TaskConfigSetPayload
-  const data = await ConfigSet(payload ?? {}).catch((err: Error) => {
-    throw new HTTPError('Failed to update config', {
-      statusCode: 500,
-      cause: err,
-    })
-  })
+export default defineHandler(async (event) => {
+  const payload = await readValidatedBody(
+    event,
+    ConfigModelSchema.omit({ id: true }),
+  )
+  const data = await ConfigSet(payload)
   return data
 })

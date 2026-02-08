@@ -1,13 +1,8 @@
-import { defineHandler, HTTPError } from 'nitro/h3'
+import { defineHandler } from 'nitro/h3'
 import { AuthUserCheck } from '~/server/tasks/auth/user/check'
 import { bigint2string } from '~/server/utils/bigint'
 
 export default defineHandler(async () => {
-  const res = await AuthUserCheck().catch((err: Error) => {
-    throw new HTTPError('Failed to check users', {
-      statusCode: 500,
-      cause: err,
-    })
-  })
+  const res = await AuthUserCheck()
   return bigint2string(res)
 })

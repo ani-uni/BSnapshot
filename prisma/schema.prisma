@@ -3,6 +3,12 @@ generator client {
   output   = "../generated/prisma"
 }
 
+generator zod {
+  provider = "prisma-zod-generator"
+  output = "../generated/zod"
+  // optional config = "./zod-generator.config.json" (relative to schema file)
+}
+
 datasource db {
   provider = "sqlite"
 }

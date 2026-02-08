@@ -1,16 +1,27 @@
-import { defineHandler, getRouterParam, HTTPError, readBody } from 'nitro/h3'
-import type { TaskType } from '~/generated/prisma/enums'
+import {
+  defineHandler,
+  getValidatedRouterParams,
+  readValidatedBody,
+} from 'nitro/h3'
+import z from 'zod'
+import { TaskTypeSchema } from '~/generated/zod/schemas'
 import { Capture } from '~/server/utils/common/capture'
 
 export default defineHandler(async (event) => {
-  const cid_raw = getRouterParam(event, 'cid')
-  if (!cid_raw) {
-    throw new HTTPError('Missing cid', { statusCode: 400 })
-  }
-  const payload = (await readBody(event).catch(() => {
-    throw new HTTPError('Missing payload', { statusCode: 400 })
-  })) as { types?: TaskType[]; manual?: boolean }
-  const capture = await Capture.loadFromCID(BigInt(cid_raw))
-  await capture.run(payload?.types, payload?.manual ?? false)
+  const params = await getValidatedRouterParams(
+    event,
+    z.object({
+      cid: z.string(),
+    }),
+  )
+  const payload = await readValidatedBody(
+    event,
+    z.object({
+      types: z.array(TaskTypeSchema).optional(),
+      manual: z.boolean().optional(),
+    }),
+  )
+  const capture = await Capture.loadFromCID(BigInt(params.cid))
+  await capture.run(payload.types, payload.manual)
   return { success: true }
 })
