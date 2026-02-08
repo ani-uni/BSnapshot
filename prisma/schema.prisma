@@ -16,43 +16,88 @@ model User {
 
 model Config {
   id             Int @id @default(0)
+  reqIntervalSec Int @default(10)
+  reqBatch       Int @default(20)
   // RT 实时弹幕：调度间隔与单次拉取的任务数
   rtIntervalSec  Int @default(7200)
   rtBatch        Int @default(10)
   // HIS 历史弹幕：调度间隔、单次拉取任务数、单任务抓取的天数
   hisIntervalSec Int @default(1800)
   hisBatch       Int @default(5)
-  hisBatchDays   Int @default(3)
   // SP 特殊弹幕：调度间隔与单次拉取任务数
   spIntervalSec  Int @default(86400)
   spBatch        Int @default(5)
   // UP 创作中心弹幕：调度间隔与单次拉取任务数
   upIntervalSec  Int @default(7200)
   upBatch        Int @default(5)
+  upPool         Int @default(500) // 一次获取的弹幕池大小
 }
 
 model Runtime {
   id          Int     @id @default(0)
   // 全局：上一次请求使用的用户，用于避免连续使用同一用户
   lastUserMid BigInt?
+  // // 当前请求队列是否闲置
+  // fetchTaskQueueIdle Boolean @default(true)
 }
 
 enum TaskStatus {
+  DISABLED
   PENDING
   RUNNING
   DONE
   FAILED
 }
 
+enum SyncDiffFlag {
+  localAdd // 本地存在更新的数据
+  cloudAdd // 云端存在更新的数据
+  twowayAdd // 二者均存在更新数据且不冲突
+  conflict // 二者存在相同dmid的弹幕但数据不同
+}
+
 // 采集目标（A）：记录某个 cid 的发布信息、时间片与其派生的 segs
 model Capture {
-  cid   BigInt      @id // 视频 cid
-  pub   DateTime?
-  clips Clip[] // 时间段数组，表示需要爬取的时间段
-  segs  String // Int[] <- str.split(',')，由 clips 计算得到并存储
-  // 对应UP主，用于 UP 任务的用户绑定
-  upMid BigInt?
-  tasks FetchTask[]
+  cid        BigInt      @id // 视频 cid
+  pub        DateTime? // 现在his不依赖pubdate来获取
+  clips      Clip[] // 时间段数组，表示需要爬取的时间段
+  segs       String // Int[] <- str.split(',')，由 clips 计算得到并存储
+  hisDateMap HisDate[] // 一个 日期->T/F 的映射，可由b-api/sever获取，同步时：s->c 日期覆盖 T覆盖增加 c->s 日期增量 上传指定日期弹幕检查后T增加
+  upLatest   DateTime? // up接口最新的弹幕ctime，下次请求时从这里开始，往后加page从1开始即可
+  upMid      BigInt? // 对应UP主，用于 UP 任务的用户绑定
+  tasks      FetchTask[]
+}
+
+enum LocalHisCacheStatus {
+  Null // 通过算法确认该日期没有弹幕
+  Await // 存在该日期但暂未获取过弹幕
+  FastForward // 通过算法快进确认
+  SpecificDate // 通过指定获取日期确定
+}
+
+enum CloudHisCacheStatus {
+  Null // 云端确定该日期不存在弹幕
+  Await // 云端存在该日期但未上传弹幕
+  PartiallyCached // 云端存在该日期且存在在该日期的弹幕
+  /**
+   * 云端存在该日期且从指定接口(his)上传(指定his日期)的弹幕
+   * 中该日期的弹幕数等于该日期已有弹幕数
+   * 且 在已有弹幕中全部存在
+   * 若有新的his接口触发上述验证，可能会降级会部分缓存状态
+   */
+  FullyCached
+}
+
+model HisDate {
+  // id      String              @id @default(cuid())
+  cid     BigInt
+  capture Capture             @relation(fields: [cid], references: [cid], onDelete: Cascade)
+  date    DateTime
+  cached  LocalHisCacheStatus
+  // cloud   CacheStatus @default(Null) // 当切换cloud时需要重新同步，不能保留原数据
+  // // sync    SyncDiffFlag?
+
+  @@id([cid, date]) // cid_date = id 不存在时表示不确定该日期弹幕存在状态/未获取过
 }
 
 // 任务类型（C）
@@ -65,27 +110,33 @@ enum TaskType {
 
 // 获取任务（C）：按类型拆分任务记录，便于调度与重试
 model FetchTask {
-  id            String     @id @default(cuid())
-  cid           BigInt
-  capture       Capture    @relation(fields: [cid], references: [cid], onDelete: Cascade)
-  type          TaskType
-  status        TaskStatus @default(PENDING)
-  nextRunAt     DateTime?
-  lastRunAt     DateTime?
-  // 历史类任务游标
-  hisDateCursor DateTime? // HIS：已获取到哪一天
-  upCursor      DateTime? // UP：以弹幕发送时间为锚点
+  id        String     @id @default(cuid())
+  cid       BigInt
+  capture   Capture    @relation(fields: [cid], references: [cid], onDelete: Cascade)
+  type      TaskType
+  status    TaskStatus @default(DISABLED)
+  lastRunAt DateTime // 默认记为 timestamp 0
+  // 队列ID
+  // 一旦被加入队列，则无法再次被加入，因为马上就会发出一次请求
+  // 无请求时为空，与状态同时更改
+  queueId   Int?
 
-  @@index([cid, type, status, nextRunAt])
+  @@unique([cid, type])
+  @@index([cid, type, status])
 }
 
 // 数据管理的最小单位
 model Clip {
-  id      String  @id @default(cuid())
-  capture Capture @relation(fields: [cid], references: [cid], onDelete: Cascade)
-  cid     BigInt
+  id        String  @id @default(cuid())
+  capture   Capture @relation(fields: [cid], references: [cid], onDelete: Cascade)
+  cid       BigInt
   // collection   Collection? @relation(fields: [collectionId], references: [id])
   // collectionId String?
-  start   Int // 开始时间（秒）
-  end     Int // 结束时间（秒）
+  start     Int // 开始时间（秒）
+  end       Int // 结束时间（秒）
+  danmaku   Bytes? // 导出为 .pb.bin 的 dan-any 标准弹幕库文件
+  danmakuUp Bytes? // 同上，但是保存的是up接口的数据
+
+  @@unique([cid, start])
+  @@unique([cid, end])
 }
