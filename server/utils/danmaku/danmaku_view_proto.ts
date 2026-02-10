@@ -1,7 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import qs from 'qs'
 import type { User } from '../common/user'
-import { SlowQueue } from '../req-limit/p-queue'
+import queue from '../req-limit/p-queue'
 
 const url = { view: 'https://api.bilibili.com/x/v2/dm/web/view' }
 
@@ -17,7 +17,7 @@ export async function command_seg(user: User, oid: bigint, pid?: number) {
   if (oid <= 0) throw new Error('oid参数错误')
   if (pid && pid <= 0) throw new Error('pid参数错误')
 
-  return SlowQueue.add(
+  return (await queue).SlowQueue.add(
     () =>
       user
         .kyInstance()

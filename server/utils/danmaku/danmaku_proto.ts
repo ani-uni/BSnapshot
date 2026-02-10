@@ -1,13 +1,13 @@
 import { UniPool } from '@dan-uni/dan-any'
 import type { User } from '../common/user'
-import { SlowQueue } from '../req-limit/p-queue'
+import queue from '../req-limit/p-queue'
 
 const url = { seg: 'https://api.bilibili.com/x/v2/dm/wbi/web/seg.so' }
 
 export async function rt_seg(user: User, oid: bigint, seg: number = 1) {
   if (seg <= 0) throw new Error('seg参数错误')
 
-  return SlowQueue.add(
+  return (await queue).SlowQueue.add(
     async () =>
       user
         .kyInstance()

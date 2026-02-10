@@ -1,7 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import qs from 'qs'
 import type { User } from '../common/user'
-import { SlowQueue } from '../req-limit/p-queue'
+import queue from '../req-limit/p-queue'
 
 const urls = {
   search: 'https://api.bilibili.com/x/v2/dm/search',
@@ -215,7 +215,7 @@ export default async function up_seg(
   if (ctime_from) params.ctime_from = ctime_from
   if (ctime_to) params.ctime_to = ctime_to
 
-  return SlowQueue.add(
+  return (await queue).SlowQueue.add(
     () =>
       user
         .kyInstance()

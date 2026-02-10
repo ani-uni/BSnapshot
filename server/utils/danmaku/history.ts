@@ -2,7 +2,7 @@ import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import qs from 'qs'
 import type { User } from '../common/user'
-import { SlowQueue } from '../req-limit/p-queue'
+import queue from '../req-limit/p-queue'
 
 const url = {
   index: 'https://api.bilibili.com/x/v2/dm/history/index',
@@ -66,7 +66,7 @@ export async function his_index(user: User, oid: bigint, month: His) {
     throw new Error('month参数错误')
   }
 
-  return SlowQueue.add(
+  return (await queue).SlowQueue.add(
     () =>
       user
         .kyInstance()
@@ -115,7 +115,7 @@ export async function his_seg(user: User, oid: bigint, date: His) {
     throw new Error('date参数错误')
   }
 
-  return SlowQueue.add(
+  return (await queue).SlowQueue.add(
     () =>
       user
         .kyInstance()

@@ -273,11 +273,11 @@ export class FetchTaskAsQueue {
     //     })
     //   return a.queueId - b.queueId
     // })
-    const fetchConstructor = async (
+    const fetchConstructor = (
       task: FetchTaskModel & { capture: CaptureModel },
     ) => {
-      const capture = new Capture(task.capture)
       const ft = new FetchTask(task)
+      const capture = new Capture(task.capture)
       if (task.type === TaskType.RT) {
         return async () => {
           const pool = await rt(
@@ -370,8 +370,7 @@ export class FetchTaskAsQueue {
       throw new HTTPError('Unknown task type', { statusCode: 500 })
     }
     const fetchers = taskToRun.map(fetchConstructor)
-    for (const af of fetchers) {
-      const f = await af
+    for (const f of fetchers) {
       await f()
     }
   }

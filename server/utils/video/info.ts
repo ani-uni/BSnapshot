@@ -1,7 +1,7 @@
 import { HTTPError } from 'nitro/h3'
 import { JSONBigInt } from '../bigint'
 import type { User } from '../common/user'
-import { FastQueue } from '../req-limit/p-queue'
+import queue from '../req-limit/p-queue'
 
 const urls = {
   view: 'https://api.bilibili.com/x/web-interface/view',
@@ -99,7 +99,7 @@ async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
 
   const queryParam = aid ? { aid } : { bvid }
 
-  return FastQueue.add(async () =>
+  return (await queue).FastQueue.add(async () =>
     user
       .kyInstance()
       .get(`${urls.wbi_view}?${await user.encWbi(queryParam)}`, {
