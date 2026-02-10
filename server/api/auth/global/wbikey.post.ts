@@ -5,9 +5,11 @@ import { AuthGlobalWbiKeyRefresh } from '~/server/tasks/auth/global/wbikey/refre
 export default defineHandler(async (event) => {
   const payload = await readValidatedBody(
     event,
-    z.object({
-      bauth_cookies: z.string().optional(),
-    }),
+    z
+      .object({
+        bauth_cookies: z.string().optional(),
+      })
+      .optional(),
   )
   const res = await AuthGlobalWbiKeyRefresh(payload)
   return res

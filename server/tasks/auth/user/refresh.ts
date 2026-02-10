@@ -39,7 +39,7 @@ export async function AuthUserRefresh(
 ): Promise<TaskAuthUserRefreshResult> {
   const user = await AuthUserGet(payload)
 
-  const bauth_cookies = new Cookies(user.bauth_cookies)
+  const bauth_cookies = new Cookies(user.userModel.bauth_cookies)
   // SESSDATA
   const SESSDATA = bauth_cookies.getOrThrow('SESSDATA')
   if (!SESSDATA) {

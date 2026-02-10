@@ -28,13 +28,16 @@ export default defineTask<TaskAuthGlobalWbikeyRefreshResult>({
 })
 
 export async function AuthGlobalWbiKeyRefresh(
-  payload: TaskAuthGlobalWbikeyRefreshPayload,
+  payload?: TaskAuthGlobalWbikeyRefreshPayload,
 ): Promise<TaskAuthGlobalWbikeyRefreshResult> {
   const storage = useStorage<KVAuth>('auth')
   const res =
-    (await getWbiKeys(new Cookies(payload.bauth_cookies))) ?? undefined
+    (await getWbiKeys(
+      payload ? new Cookies(payload.bauth_cookies) : undefined,
+    )) ?? undefined
   storage.set('img_key', res?.img_key ?? null)
   storage.set('sub_key', res?.sub_key ?? null)
-  if (!res) throw new HTTPError('Failed to refresh WBI keys', { statusCode: 500 })
+  if (!res)
+    throw new HTTPError('Failed to refresh WBI keys', { statusCode: 500 })
   return res
 }
