@@ -16,11 +16,13 @@ export default defineHandler(async (event) => {
   )
   const payload = await readValidatedBody(
     event,
-    z.object({
-      types: z.array(TaskTypeSchema).optional(),
-    }),
+    z
+      .object({
+        types: z.array(TaskTypeSchema).optional(),
+      })
+      .optional(),
   )
   const capture = await Capture.loadFromCID(BigInt(params.cid))
-  await capture.createOrToggleFetchTasks(payload.types)
+  await capture.createOrToggleFetchTasks(payload?.types)
   return { success: true }
 })

@@ -19,7 +19,7 @@ export default defineHandler(async (event) => {
     cid: BigInt(payload.cid),
     pubdate: payload.pubdate,
     upMid: payload.upMid ? BigInt(payload.upMid) : undefined,
-    taskTypes: payload.taskTypes,
+    // taskTypes: payload.taskTypes,
   })
   return data.toJSON
 })

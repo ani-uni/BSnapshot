@@ -88,12 +88,21 @@ export class FetchTask {
       }
     })
   }
+  static async listFromCID(cid: bigint) {
+    const fetchTasks = await prisma.fetchTask.findMany({
+      where: { cid },
+    })
+    return fetchTasks.map((ft) => new FetchTask(ft))
+  }
   // 由task每30min检测一次距离lastRunAt是否过了interval来调用下方FetchTaskAsQueue.add()来添加qid
   async run(manual = false) {
     // 已由下方add在isIdle中检测是否达到指定时间间隔和批次限制
     const qid = await new FetchTaskAsQueue().add(this, manual)
     return qid
   }
+  /**
+   * @deprecated 不应在上级单位存在时删除，应使用上方toggle方法禁用代替(软删除)
+   */
   async del() {
     await prisma.fetchTask.delete({
       where: { id: this.fetchTaskModel.id },
@@ -112,6 +121,9 @@ export class FetchTask {
         lastRunAt: new Date(),
       },
     })
+  }
+  get toJSON() {
+    return { ...this.fetchTaskModel, cid: this.fetchTaskModel.cid.toString() }
   }
 }
 

@@ -22,7 +22,7 @@ export interface CaptureCreate {
   cid: bigint
   pubdate?: number
   upMid?: bigint
-  taskTypes?: TaskType[]
+  // taskTypes?: TaskType[]
 }
 
 export class Capture {
@@ -173,6 +173,11 @@ export class Capture {
   async del() {
     await prisma.capture.delete({
       where: { cid: this.captureModel.cid },
+    })
+  }
+  static async del(cid: bigint) {
+    await prisma.capture.delete({
+      where: { cid },
     })
   }
   /**
@@ -428,11 +433,19 @@ export class Capture {
 
 export class Clip {
   constructor(public clipModel: ClipModel) {}
+  static async loadFromID(id: string) {
+    const clipModel = await prisma.clip.findUniqueOrThrow({
+      where: { id },
+    })
+    return new Clip(clipModel)
+  }
   static async listInfoFromCID(cid: bigint) {
     const clips = await prisma.clip.findMany({
       where: { cid },
       omit: { danmaku: true, danmakuUp: true },
     })
+    if (clips.length === 0)
+      throw new HTTPError('No clips found', { statusCode: 404 })
     return clips
   }
   private async saveDanmaku(danmaku: UniPool, up = false) {
