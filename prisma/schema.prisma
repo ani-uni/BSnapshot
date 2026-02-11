@@ -138,8 +138,8 @@ model Clip {
   cid       BigInt
   // collection   Collection? @relation(fields: [collectionId], references: [id])
   // collectionId String?
-  start     Int // 开始时间（秒）
-  end       Int // 结束时间（秒）
+  start     Float // 开始时间（秒）
+  end       Float // 结束时间（秒）
   danmaku   Bytes? // 导出为 .pb.bin 的 dan-any 标准弹幕库文件
   danmakuUp Bytes? // 同上，但是保存的是up接口的数据
 
