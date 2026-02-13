@@ -99,7 +99,7 @@ async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
 
   const queryParam = aid ? { aid } : { bvid }
 
-  return (await queue).FastQueue.add(async () =>
+  return (await queue()).FastQueue.add(async () =>
     user
       .kyInstance()
       .get(`${urls.wbi_view}?${await user.encWbi(queryParam)}`, {

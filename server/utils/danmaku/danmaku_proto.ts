@@ -7,7 +7,7 @@ const url = { seg: 'https://api.bilibili.com/x/v2/dm/wbi/web/seg.so' }
 export async function rt_seg(user: User, oid: bigint, seg: number = 1) {
   if (seg <= 0) throw new Error('seg参数错误')
 
-  return (await queue).SlowQueue.add(
+  return (await queue()).SlowQueue.add(
     async () =>
       user
         .kyInstance()

@@ -66,7 +66,7 @@ export async function his_index(user: User, oid: bigint, month: His) {
     throw new Error('month参数错误')
   }
 
-  return (await queue).SlowQueue.add(
+  return (await queue()).SlowQueue.add(
     () =>
       user
         .kyInstance()
@@ -115,7 +115,7 @@ export async function his_seg(user: User, oid: bigint, date: His) {
     throw new Error('date参数错误')
   }
 
-  return (await queue).SlowQueue.add(
+  return (await queue()).SlowQueue.add(
     () =>
       user
         .kyInstance()

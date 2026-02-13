@@ -215,7 +215,7 @@ export default async function up_seg(
   if (ctime_from) params.ctime_from = ctime_from
   if (ctime_to) params.ctime_to = ctime_to
 
-  return (await queue).SlowQueue.add(
+  return (await queue()).SlowQueue.add(
     () =>
       user
         .kyInstance()

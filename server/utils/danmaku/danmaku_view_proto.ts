@@ -17,7 +17,7 @@ export async function command_seg(user: User, oid: bigint, pid?: number) {
   if (oid <= 0) throw new Error('oid参数错误')
   if (pid && pid <= 0) throw new Error('pid参数错误')
 
-  return (await queue).SlowQueue.add(
+  return (await queue()).SlowQueue.add(
     () =>
       user
         .kyInstance()

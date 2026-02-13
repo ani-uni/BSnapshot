@@ -5,7 +5,15 @@
 import PQueue from 'p-queue'
 import { FetchTaskAsQueue } from '../common/fetchtask'
 
-const queue = (async () => {
+interface QueueInstance {
+  FastQueue: PQueue
+  SlowQueue: PQueue
+}
+
+let queueInstance: QueueInstance | null = null
+let initPromise: Promise<QueueInstance> | null = null
+
+async function initQueue(): Promise<QueueInstance> {
   const c = new FetchTaskAsQueue()
   await c.init()
 
@@ -23,6 +31,28 @@ const queue = (async () => {
   })
 
   return { FastQueue, SlowQueue }
-})()
+}
 
-export default queue
+export default async function getQueue(): Promise<QueueInstance> {
+  // 如果已成功初始化，直接返回缓存的实例
+  if (queueInstance) {
+    return queueInstance
+  }
+
+  // 如果正在初始化，等待同一个 Promise
+  if (initPromise) {
+    return initPromise
+  }
+
+  // 开始新的初始化
+  initPromise = initQueue()
+  
+  try {
+    queueInstance = await initPromise
+    return queueInstance
+  } catch (error) {
+    // 初始化失败，清空 initPromise 允许重试
+    initPromise = null
+    throw error
+  }
+}
