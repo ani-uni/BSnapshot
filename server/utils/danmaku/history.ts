@@ -1,5 +1,6 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
+import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
 import type { User } from '../common/user'
 import queue from '../req-limit/p-queue'
@@ -121,9 +122,15 @@ export async function his_seg(user: User, oid: bigint, date: His) {
         .kyInstance()
         .get(`${url.seg}?${qs.stringify({ type: 1, oid, date })}`)
         .then((res) => res.arrayBuffer())
-        .then((buf) =>
-          UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false }),
-        ),
+        .then((buf) => {
+          try {
+            return UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false })
+          } catch {
+            throw new HTTPError(Buffer.from(buf).toString(), {
+              statusCode: 500,
+            })
+          }
+        }),
     { priority: 104 },
   )
 }

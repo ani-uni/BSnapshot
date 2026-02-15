@@ -1,6 +1,7 @@
 import { md5 } from 'js-md5'
 import ky from 'ky'
 import qs from 'qs'
+import { bigint2string } from '../../bigint'
 import { Cookies } from '../../cookies'
 
 const mixinKeyEncTab = [
@@ -24,6 +25,7 @@ export function encWbi(
   sub_key: string,
 ) {
   if (typeof params === 'string') params = qs.parse(params)
+  else params = bigint2string(params)
 
   const mixin_key = getMixinKey(img_key + sub_key),
     curr_time = Math.round(Date.now() / 1000),
