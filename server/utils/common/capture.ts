@@ -429,6 +429,28 @@ export class Capture {
       upLatest: this.captureModel.upLatest?.getTime() ?? null,
     }
   }
+  async getDanmaku(up = false) {
+    let pool = UniPool.create({ dedupe: false, dmid: false })
+    await (up
+      ? prisma.clip
+          .findMany({
+            where: { cid: this.captureModel.cid },
+            select: { danmakuUp: true },
+          })
+          .then((clips) => clips.map((c) => c.danmakuUp))
+      : prisma.clip
+          .findMany({
+            where: { cid: this.captureModel.cid },
+            select: { danmaku: true },
+          })
+          .then((clips) => clips.map((c) => c.danmaku))
+    ).then((pbs) =>
+      pbs.forEach((pb) => {
+        if (pb) pool = pool.assign(UniPool.fromPb(pb))
+      }),
+    )
+    return pool
+  }
 }
 
 export class Clip {
