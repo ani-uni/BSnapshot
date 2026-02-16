@@ -469,8 +469,11 @@ export class Clip {
     const n = ori.assign(danmaku)
     await this.saveDanmaku(n, up)
   }
+  getDanmakuRaw(up = false) {
+    return up ? this.clipModel.danmakuUp : this.clipModel.danmaku
+  }
   async getDanmaku(up = false) {
-    const danmakuPb = up ? this.clipModel.danmakuUp : this.clipModel.danmaku
+    const danmakuPb = this.getDanmakuRaw(up)
     if (danmakuPb)
       return UniPool.fromPb(danmakuPb, { dedupe: false, dmid: false })
     return null

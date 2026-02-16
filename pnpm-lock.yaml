@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@dan-uni/dan-any':
-        specifier: ^1.2.7
-        version: 1.2.7
+        specifier: ^1.3.0
+        version: 1.3.0
       '@prisma/adapter-libsql':
         specifier: ^7.4.0
         version: 7.4.0
@@ -36,11 +36,11 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
       prisma-zod-generator:
-        specifier: ^2.1.2
-        version: 2.1.2(prisma@7.4.0(@types/react@19.2.7)(better-sqlite3@12.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)(zod@4.3.6)
+        specifier: ^2.1.4
+        version: 2.1.4(prisma@7.4.0(@types/react@19.2.7)(better-sqlite3@12.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)(zod@4.3.6)
       qs:
-        specifier: ^6.14.2
-        version: 6.14.2
+        specifier: ^6.15.0
+        version: 6.15.0
       tough-cookie:
         specifier: ^6.0.0
         version: 6.0.0
@@ -84,8 +84,8 @@ packages:
   '@chevrotain/utils@10.5.0':
     resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
 
-  '@dan-uni/dan-any@1.2.7':
-    resolution: {integrity: sha512-F60dvCZdWIomoC2YcblPGKpakxyMGK237kRHa/fy4h8B8yGo0sitWgdkG9cUJXovOZMzILgfCP+zbtZQkYHlYQ==}
+  '@dan-uni/dan-any@1.3.0':
+    resolution: {integrity: sha512-X+sWfPyxZPqCTKgPtBZ6dNv/X1xkekiq7XibbZkJ6IV6UB85fRXUPcZI13b790atX7qrs6mUPKCbIgFdf74Bbg==}
 
   '@electric-sql/pglite-socket@0.0.20':
     resolution: {integrity: sha512-J5nLGsicnD9wJHnno9r+DGxfcZWh+YJMCe0q/aCgtG6XOm9Z7fKeite8IZSNXgZeGltSigM9U/vAWZQWdgcSFg==}
@@ -1143,8 +1143,8 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
-  fast-xml-parser@5.3.5:
-    resolution: {integrity: sha512-JeaA2Vm9ffQKp9VjvfzObuMCjUYAp5WDYhRYL5LrBPY/jUDlUtOvDfot0vKSkB9tuX885BDHjtw4fZadD95wnA==}
+  fast-xml-parser@5.3.6:
+    resolution: {integrity: sha512-QNI3sAvSvaOiaMl8FYU4trnEzCwiRr8XMWgAHzlrWpTSj+QaCSvOf1h82OEP1s4hiAXhnbXSyFWCf4ldZzZRVA==}
     hasBin: true
 
   fdir@6.5.0:
@@ -1625,8 +1625,8 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  prisma-zod-generator@2.1.2:
-    resolution: {integrity: sha512-CL5hI/EAgj8Wa4iFhA9REVjcHtyGh2/kFuMFAThzjVjkTJzJVyJqjEdc05TuEmWaPwDs1JOq262ID89vOG5I4Q==}
+  prisma-zod-generator@2.1.4:
+    resolution: {integrity: sha512-fiNUD4unEXZqfnE23IM3beCR6+hNXi8wZglF1yJG079LqTqdZXFntvqM+Mk/k/Yc7bc0aPeZLYwie3qDRotAHQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
@@ -1665,8 +1665,8 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
-  qs@6.14.2:
-    resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
+  qs@6.15.0:
+    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
     engines: {node: '>=0.6'}
 
   range-parser@1.2.1:
@@ -2108,13 +2108,13 @@ snapshots:
 
   '@chevrotain/utils@10.5.0': {}
 
-  '@dan-uni/dan-any@1.2.7':
+  '@dan-uni/dan-any@1.3.0':
     dependencies:
       '@bufbuild/protobuf': 2.11.0
       base16384: 1.0.0
       class-transformer: 0.5.1
       class-validator: 0.14.3
-      fast-xml-parser: 5.3.5
+      fast-xml-parser: 5.3.6
       fs-extra: 11.3.3
       hh-mm-ss: 1.2.0
       json-bigint: 1.0.0
@@ -2771,7 +2771,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       on-finished: 2.4.1
-      qs: 6.14.2
+      qs: 6.15.0
       raw-body: 3.0.2
       type-is: 2.0.1
     transitivePeerDependencies:
@@ -3014,7 +3014,7 @@ snapshots:
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.7
-      qs: 6.14.2
+      qs: 6.15.0
       range-parser: 1.2.1
       router: 2.2.0
       send: 1.2.1
@@ -3035,7 +3035,7 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-xml-parser@5.3.5:
+  fast-xml-parser@5.3.6:
     dependencies:
       strnum: 2.1.2
 
@@ -3555,7 +3555,7 @@ snapshots:
 
   prettier@3.8.1: {}
 
-  prisma-zod-generator@2.1.2(prisma@7.4.0(@types/react@19.2.7)(better-sqlite3@12.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)(zod@4.3.6):
+  prisma-zod-generator@2.1.4(prisma@7.4.0(@types/react@19.2.7)(better-sqlite3@12.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@prisma/client': 7.4.0(prisma@7.4.0(@types/react@19.2.7)(better-sqlite3@12.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/generator-helper': 7.3.0
@@ -3621,7 +3621,7 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
-  qs@6.14.2:
+  qs@6.15.0:
     dependencies:
       side-channel: 1.1.0
 
