@@ -5,13 +5,14 @@ import {
 } from 'nitro/h3'
 import z from 'zod'
 import { TaskTypeSchema } from '~/generated/zod/schemas'
+import { stringToBigInt } from '~/server/utils/codecs'
 import { Capture } from '~/server/utils/common/capture'
 
 export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(
     event,
     z.object({
-      cid: z.string(),
+      cid: stringToBigInt,
     }),
   )
   const payload = await readValidatedBody(
@@ -22,7 +23,7 @@ export default defineHandler(async (event) => {
       })
       .optional(),
   )
-  const capture = await Capture.loadFromCID(BigInt(params.cid))
+  const capture = await Capture.loadFromCID(params.cid)
   await capture.createOrToggleFetchTasks(payload?.types)
   return { success: true }
 })
