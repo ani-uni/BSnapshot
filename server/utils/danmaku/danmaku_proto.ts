@@ -1,6 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { HTTPError } from 'nitro/h3'
 import type { User } from '../common/user'
+import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
 
 const url = { seg: 'https://api.bilibili.com/x/v2/dm/wbi/web/seg.so' }
@@ -25,6 +26,6 @@ export async function rt_seg(user: User, oid: bigint, seg: number = 1) {
             })
           }
         }),
-    { priority: 101 },
+    { priority: 101, id: queueID2params.encode({ type: 'rt_seg', oid, seg }) },
   )
 }

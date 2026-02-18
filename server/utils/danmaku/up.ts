@@ -1,6 +1,15 @@
 import { UniPool } from '@dan-uni/dan-any'
 import qs from 'qs'
+import z from 'zod'
+import {
+  StringFormatUpSegOptAttrs,
+  StringFormatUpSegOptCtime,
+  StringFormatUpSegOptMids,
+  StringFormatUpSegOptModes,
+  StringFormatUpSegOptPool,
+} from '~/server/types/utils/danmaku'
 import type { User } from '../common/user'
+import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
 
 const urls = {
@@ -10,110 +19,112 @@ const urls = {
 /**
  * 弹幕搜索分页信息
  */
-export interface DanmakuSearchPage {
-  /**
-   * 当前页码
-   */
-  num: number
-  /**
-   * 页大小
-   */
-  size: number
-  /**
-   * 搜索到的弹幕总数
-   */
-  total: number
-}
+export const DanmakuSearchPageSchema = z.object({
+  /** 当前页码 */
+  num: z.int(),
+  /** 页大小 */
+  size: z.int(),
+  /** 搜索到的弹幕总数 */
+  total: z.int(),
+})
+export type DanmakuSearchPage = z.infer<typeof DanmakuSearchPageSchema>
 
 /**
  * 弹幕搜索结果项
  */
-export interface DanmakuSearchItem {
-  id: bigint
-  id_str: string
-  type: number
-  aid: bigint
-  bvid: string
-  oid: bigint
-  mid: bigint
-  mid_hash: string
-  pool: number
-  attrs: string
-  progress: number
-  mode: number
-  msg: string
-  state: number
-  fontsize: number
-  color: string
-  ctime: number
-  uname: string
-  uface: string
-  title: string
-  self_seen: boolean
-  like_count: number
-  user_like: number
-  p_title: string
-  cover: string
-  is_charge: boolean
-  is_charge_plus: boolean
-  following: boolean
-  extra_cps: null
-}
+export const DanmakuSearchItemSchema = z.object({
+  id: z.bigint(),
+  id_str: z.string(),
+  type: z.int(),
+  aid: z.bigint(),
+  bvid: z.string(),
+  oid: z.bigint(),
+  mid: z.bigint(),
+  mid_hash: z.string(),
+  pool: z.int(),
+  attrs: z.string(),
+  progress: z.number(),
+  mode: z.int(),
+  msg: z.string(),
+  state: z.int(),
+  fontsize: z.int(),
+  color: z.string(),
+  ctime: z.int(),
+  uname: z.string(),
+  uface: z.string(),
+  title: z.string(),
+  self_seen: z.boolean(),
+  like_count: z.int(),
+  user_like: z.int(),
+  p_title: z.string(),
+  cover: z.string(),
+  is_charge: z.boolean(),
+  is_charge_plus: z.boolean(),
+  following: z.boolean(),
+  extra_cps: z.null(),
+})
+export type DanmakuSearchItem = z.infer<typeof DanmakuSearchItemSchema>
 
 /**
  * 弹幕搜索响应
  */
-export interface DanmakuSearchResponse {
-  code: number
-  message: string
-  ttl: number
-  data: {
-    page: DanmakuSearchPage
-    result: DanmakuSearchItem[]
-  }
-}
+export const DanmakuSearchResponseSchema = z.object({
+  code: z.int(),
+  message: z.string(),
+  ttl: z.int(),
+  data: z.object({
+    page: DanmakuSearchPageSchema,
+    result: DanmakuSearchItemSchema.array(),
+  }),
+})
+export type DanmakuSearchResponse = z.infer<typeof DanmakuSearchResponseSchema>
 
 /**
  * 弹幕搜索选项
  */
-export interface DanmakuSearchOptions {
+export const DanmakuSearchOptionsSchema = z.object({
   /** 视频cid */
-  oid: bigint
+  oid: z.bigint().positive(),
   /** 弹幕类选择，1为视频弹幕，2为漫画弹幕 */
-  type?: number
+  type: z
+    .union([z.literal(1), z.literal(2)])
+    .default(1)
+    .optional(),
   /** 0为全部弹幕，2为普通弹幕 */
-  select_type?: number
+  select_type: z
+    .union([z.literal(0), z.literal(2)])
+    .default(0)
+    .optional(),
   /** 搜索关键词（可为空） */
-  keyword?: string
+  keyword: z.string().optional(),
   /** 排序方法，默认为 ctime */
-  order?: 'ctime' | 'like_count'
+  order: z.enum(['ctime', 'like_count']).default('ctime').optional(),
   /** 正/倒序，默认 desc */
-  sort?: 'asc' | 'desc'
+  sort: z.enum(['asc', 'desc']).default('desc').optional(),
   /** 分页页数 */
-  pn?: number
+  pn: z.int().positive().default(1).optional(),
   /** 分页每页数量，默认为 50 */
-  ps?: number
+  ps: z.int().positive().default(50).optional(),
   /** cp过滤 */
-  cp_filter?: boolean
+  cp_filter: z.boolean().optional(),
   /** 发送者uid列表，以逗号分隔 */
-  mids?: string
+  mids: StringFormatUpSegOptMids.optional(),
   /** 视频进度起始值，单位为毫秒 */
-  progress_from?: number
+  progress_from: z.int().nonnegative().optional(),
   /** 视频进度结束值，单位为毫秒 */
-  progress_to?: number
+  progress_to: z.int().nonnegative().optional(),
   /** 弹幕模式列表，可为1,4,5,6,7,8,9的一个或多个，以逗号分隔 */
-  modes?: string
+  modes: StringFormatUpSegOptModes.optional(),
   /** 弹幕池列表，可为0,1,2的一个或多个，以逗号分隔 */
-  pool?: string
+  pool: StringFormatUpSegOptPool.optional(),
   /** 弹幕属性列表，可为1到22的一个或多个，以逗号分隔 */
-  attrs?: string
+  attrs: StringFormatUpSegOptAttrs.optional(),
   /** 发送时间起始值，格式为 YYYY-MM-DD+hh:mm:ss */
-  ctime_from?: string
+  ctime_from: StringFormatUpSegOptCtime.optional(),
   /** 发送时间结束值，格式为 YYYY-MM-DD+hh:mm:ss */
-  ctime_to?: string
-}
-
-const timeStrRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
+  ctime_to: StringFormatUpSegOptCtime.optional(),
+})
+export type DanmakuSearchOptions = z.infer<typeof DanmakuSearchOptionsSchema>
 
 /**
  * 搜索弹幕
@@ -125,95 +136,16 @@ const timeStrRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
 export default async function up_seg(
   user: User,
   oid: bigint,
-  options: Omit<DanmakuSearchOptions, 'oid'> = {},
+  options?: Omit<DanmakuSearchOptions, 'oid'>,
 ) {
-  const {
-    type = 1,
-    select_type = 0,
-    keyword = '',
-    order = 'ctime',
-    sort = 'desc',
-    pn = 1,
-    ps = 50,
-    cp_filter = false,
-    mids,
-    progress_from,
-    progress_to,
-    modes,
-    pool,
-    attrs,
-    ctime_from,
-    ctime_to,
-  } = options
-
-  // 参数验证
-  if (oid <= 0) throw new Error('oid参数错误')
-  if (type && type <= 0) throw new Error('type参数错误')
-  if (pn && pn <= 0) throw new Error('pn参数错误')
-  if (ps && ps <= 0) throw new Error('ps参数错误')
-
+  const params = z.parse(DanmakuSearchOptionsSchema, options)
   // 验证进度范围
-  if (progress_from && progress_from < 0)
-    throw new Error('progress_from参数错误：必须为非负整数')
-  if (progress_to && progress_to < 0)
-    throw new Error('progress_to参数错误：必须为非负整数')
-  if (progress_from && progress_to && progress_from > progress_to)
+  if (
+    params.progress_from &&
+    params.progress_to &&
+    params.progress_from > params.progress_to
+  )
     throw new Error('progress_from 不能大于 progress_to')
-
-  // 验证时间格式（YYYY-MM-DD hh:mm:ss）
-  if (ctime_from && timeStrRegex.test(ctime_from) === false)
-    throw new Error('ctime_from格式错误：应为 YYYY-MM-DD hh:mm:ss')
-  if (ctime_to && timeStrRegex.test(ctime_to) === false)
-    throw new Error('ctime_to格式错误：应为 YYYY-MM-DD hh:mm:ss')
-
-  // 验证 modes（可为1,4,5,6,7,8,9）
-  if (modes) {
-    const validModes = new Set(['1', '4', '5', '6', '7', '8', '9'])
-    if (!modes.split(',').every((m) => validModes.has(m.trim())))
-      throw new Error('modes参数错误：只能包含1,4,5,6,7,8,9，以逗号分隔')
-  }
-
-  // 验证 pool（可为0,1,2）
-  if (pool) {
-    const validPools = new Set(['0', '1', '2'])
-    if (!pool.split(',').every((p) => validPools.has(p.trim())))
-      throw new Error('pool参数错误：只能包含0,1,2，以逗号分隔')
-  }
-
-  // 验证 attrs（可为1到22）
-  if (attrs) {
-    const attrList = attrs.split(',')
-    for (const attr of attrList) {
-      if (Number(attr) < 1 || Number(attr) > 22)
-        throw new Error(`attrs参数错误：${attr} 必须在 1-22 范围内`)
-    }
-  }
-
-  // 验证 mids（应为数字列表）
-  if (mids && !mids.split(',').every((m) => /^\d+$/.test(m.trim())))
-    throw new Error('mids参数错误：必须为有效的整数列表，以逗号分隔')
-
-  const params: Record<string, unknown> = {
-    oid: oid.toString(),
-    type,
-    select_type,
-    keyword,
-    order,
-    sort,
-    pn,
-    ps,
-    cp_filter,
-  }
-
-  // 添加可选参数
-  if (mids) params.mids = mids
-  if (progress_from) params.progress_from = progress_from
-  if (progress_to) params.progress_to = progress_to
-  if (modes) params.modes = modes
-  if (pool) params.pool = pool
-  if (attrs) params.attrs = attrs
-  if (ctime_from) params.ctime_from = ctime_from
-  if (ctime_to) params.ctime_to = ctime_to
 
   return (await queue()).SlowQueue.add(
     () =>
@@ -229,6 +161,9 @@ export default async function up_seg(
           page: res.data.page,
           pool: UniPool.fromBiliUp(res, { dedupe: false, dmid: false }),
         })),
-    { priority: 102 },
+    {
+      priority: 102,
+      id: queueID2params.encode({ type: 'up_seg', oid, options: params }),
+    },
   )
 }

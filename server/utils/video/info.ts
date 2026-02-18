@@ -1,6 +1,8 @@
 import { HTTPError } from 'nitro/h3'
+import z from 'zod'
 import { JSONBigInt } from '../bigint'
 import type { User } from '../common/user'
+import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
 
 const urls = {
@@ -82,37 +84,39 @@ interface VideoInfo {
   }
 }
 
+export const VideoInfoOptSchema = z.xor([
+  z.object({ aid: z.bigint().positive() }),
+  z.object({ bvid: z.string() }),
+])
+export type VideoInfoOpt = z.infer<typeof VideoInfoOptSchema>
+
 /**
  * 获取视频详细信息(web端)
  * @param opt 查询选项，aid 和 bvid 任选一个
  * @returns 视频详细信息
  */
-async function view(user: User, opt: { aid?: bigint; bvid?: string }) {
-  const { aid, bvid } = opt
-
-  // 参数验证
-  if (!aid && !bvid)
-    throw new HTTPError('aid 和 bvid 必须提供一个', { statusCode: 400 })
-  if (aid && aid <= 0n) throw new HTTPError('aid 参数错误', { statusCode: 400 })
-  if (bvid && typeof bvid !== 'string')
-    throw new HTTPError('bvid 参数错误', { statusCode: 400 })
-
-  const queryParam = aid ? { aid } : { bvid }
-
-  return (await queue()).FastQueue.add(async () =>
-    user
-      .kyInstance()
-      .get(`${urls.wbi_view}?${await user.encWbi(queryParam)}`, {
-        parseJson: JSONBigInt.parse,
-      })
-      .json<VideoInfo>()
-      .then((res) => {
-        if (res.code !== 0)
-          throw new HTTPError(`获取视频信息失败: ${res.message}`, {
-            statusCode: 500,
-          })
-        return res.data
-      }),
+async function view(user: User, opt: VideoInfoOpt) {
+  return (await queue()).FastQueue.add(
+    async () =>
+      user
+        .kyInstance()
+        .get(
+          `${urls.wbi_view}?${await user.encWbi(VideoInfoOptSchema.parse(opt))}`,
+          {
+            parseJson: JSONBigInt.parse,
+          },
+        )
+        .json<VideoInfo>()
+        .then((res) => {
+          if (res.code !== 0)
+            throw new HTTPError(`获取视频信息失败: ${res.message}`, {
+              statusCode: 500,
+            })
+          return res.data
+        }),
+    {
+      id: queueID2params.encode({ type: 'view', opt }),
+    },
   )
 }
 

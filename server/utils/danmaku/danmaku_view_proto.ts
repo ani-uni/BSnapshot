@@ -2,6 +2,7 @@ import { UniPool } from '@dan-uni/dan-any'
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
 import type { User } from '../common/user'
+import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
 
 const url = { view: 'https://api.bilibili.com/x/v2/dm/web/view' }
@@ -36,6 +37,9 @@ export async function command_seg(user: User, oid: bigint, pid?: bigint) {
             })
           }
         }),
-    { priority: 103 },
+    {
+      priority: 103,
+      id: queueID2params.encode({ type: 'command_seg', oid }),
+    },
   )
 }

@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
 import type { User } from '../common/user'
+import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
 
 const url = {
@@ -94,7 +95,10 @@ export async function his_index(user: User, oid: bigint, month: His) {
                   }),
                 )
         }),
-    { priority: 100 },
+    {
+      priority: 100,
+      id: queueID2params.encode({ type: 'his_index', oid, month }),
+    },
   )
 }
 
@@ -131,6 +135,9 @@ export async function his_seg(user: User, oid: bigint, date: His) {
             })
           }
         }),
-    { priority: 104 },
+    {
+      priority: 104,
+      id: queueID2params.encode({ type: 'his_seg', oid, date }),
+    },
   )
 }
