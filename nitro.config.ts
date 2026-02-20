@@ -8,6 +8,7 @@ export default defineConfig({
     asyncContext: true,
     tasks: true,
     websocket: true,
+    openAPI: true,
   },
   openAPI: {
     meta: {
@@ -24,7 +25,7 @@ export default defineConfig({
   scheduledTasks: {
     '0 12 * * *': ['auth:user:check'],
     '0 */2 * * *': ['auth:global:wbikey:refresh'],
-    '*/5 * * * *': ['task:fetch:add'], // 每5分钟扫描并调度任务
-    '*/10 * * * *': ['task:fetch:run'], // 每10分钟执行任务队列
+    '*/2 * * * *': ['task:fetch:add'],
+    '*/1 * * * *': ['task:fetch:run'],
   },
 })
