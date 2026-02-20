@@ -1,39 +1,6 @@
 import { defineWebSocketHandler, HTTPError } from 'nitro/h3'
-import type { UserModel } from '~/generated/prisma/models'
 import { AuthUserLoginQr } from '~/server/tasks/auth/user/login_qr'
 import { bigint2string } from '~/server/utils/bigint'
-
-export interface WSAuthUserLoginQrGenMessage {
-  gen: {
-    qrcode_key: string
-    qrcode_url: string
-  }
-}
-
-export interface WSAuthUserLoginQrPingMessage {
-  ping: 'pong'
-}
-
-export interface WSAuthUserLoginQrUserMessage {
-  user: Omit<UserModel, 'mid'> & {
-    mid: string
-  }
-}
-
-export interface WSAuthUserLoginQrMsgMessage {
-  msg: string
-}
-
-export interface WSAuthUserLoginQrErrMessage {
-  err: string
-}
-
-export type WSAuthUserLoginQrMessage =
-  | WSAuthUserLoginQrGenMessage
-  | WSAuthUserLoginQrPingMessage
-  | WSAuthUserLoginQrUserMessage
-  | WSAuthUserLoginQrMsgMessage
-  | WSAuthUserLoginQrErrMessage
 
 export type WSAuthUserLoginQrPayload = { action: 'ping' | 'check' }
 
@@ -96,7 +63,7 @@ export default defineWebSocketHandler({
   },
 
   async message(peer, message) {
-    const payload = message.json() as WSAuthUserLoginQrPayload
+    const payload = message.json<WSAuthUserLoginQrPayload>()
 
     if (payload.action === 'check') {
       const peerData = peers.get(peer)
