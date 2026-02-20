@@ -6,26 +6,26 @@ import { VideoInfoOptSchema } from '../video/info'
 export const QueueIDParamsSchema = z.xor([
   z.object({
     type: z.literal('rt_seg'),
-    oid: z.bigint(),
+    oid: z.coerce.bigint(),
     seg: z.number(),
   }),
   z.object({
     type: z.literal('command_seg'),
-    oid: z.bigint(),
+    oid: z.coerce.bigint(),
   }),
   z.object({
     type: z.literal('his_index'),
-    oid: z.bigint(),
+    oid: z.coerce.bigint(),
     month: z.string(),
   }),
   z.object({
     type: z.literal('his_seg'),
-    oid: z.bigint(),
+    oid: z.coerce.bigint(),
     date: z.string(),
   }),
   z.object({
     type: z.literal('up_seg'),
-    oid: z.bigint(),
+    oid: z.coerce.bigint(),
     options: DanmakuSearchOptionsSchema.optional(),
   }),
   z.object({
