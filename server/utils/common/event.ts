@@ -24,4 +24,14 @@ export class Event {
   async err(msg: string, err: HTTPError) {
     return await Event.error(this.src, msg, err)
   }
+  static async listEvents(after?: number) {
+    const events = await prisma.event.findMany({
+      where: after ? { id: { gt: after } } : {},
+      orderBy: { ctime: 'asc' },
+    })
+    return events
+  }
+  static async clearEvents() {
+    await prisma.event.deleteMany({})
+  }
 }
