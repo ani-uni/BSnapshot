@@ -51,12 +51,7 @@ export default defineWebSocketHandler({
     }
 
     try {
-      const res = await AuthUserLoginQr().catch((err: Error) => {
-        throw new HTTPError('Failed to initiate QR code login', {
-          statusCode: 500,
-          cause: err,
-        })
-      })
+      const res = await AuthUserLoginQr()
 
       if (isClosed) return
 
