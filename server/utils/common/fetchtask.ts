@@ -72,7 +72,12 @@ export class FetchTask {
           } else {
             await tx.fetchTask.update({
               where: { id: ft.id },
-              data: { status: TaskStatus.DISABLED },
+              data: {
+                status: TaskStatus.DISABLED,
+                queueId: null,
+                lastRunAt:
+                  ft.status === TaskStatus.RUNNING ? new Date() : ft.lastRunAt,
+              },
             })
           }
         } else {
@@ -108,17 +113,23 @@ export class FetchTask {
       where: { id: this.fetchTaskModel.id },
     })
   }
-  async status(type: TaskStatus) {
-    await prisma.fetchTask.update({
-      where: { id: this.fetchTaskModel.id },
-      data: { status: type },
-    })
+  /**
+   * 不应在上方手动切换中被使用，仅运行时使用
+   */
+  async status(type: TaskStatus, manual = false) {
+    // 防止disable后被完成的任务覆盖状态
+    if (type === TaskStatus.RUNNING && manual === false)
+      await prisma.fetchTask.update({
+        where: { id: this.fetchTaskModel.id },
+        data: { status: type },
+      })
   }
   async afterRun() {
     await prisma.fetchTask.update({
       where: { id: this.fetchTaskModel.id },
       data: {
         lastRunAt: new Date(),
+        queueId: null,
       },
     })
   }
@@ -296,7 +307,14 @@ export class FetchTaskAsQueue {
             await User.fromRotating(),
             task.cid,
             task.capture.segs.split(',').map(Number),
-          )
+          ).catch(async (err) => {
+            await ft.status(TaskStatus.FAILED)
+            await ft.afterRun()
+            throw new HTTPError('Failed to fetch RT danmaku', {
+              statusCode: 500,
+              cause: err,
+            })
+          })
           if (pool.dans.length === 0) {
             // 获取实时弹幕若弹幕数为0,则：
             // 1. 新视频，还没人发 (至少等有一个人发过弹幕再抓把)
@@ -327,7 +345,14 @@ export class FetchTaskAsQueue {
             await User.fromRotating(),
             task.cid,
             toFetchDates,
-          )
+          ).catch(async (err) => {
+            await ft.status(TaskStatus.FAILED)
+            await ft.afterRun()
+            throw new HTTPError('Failed to fetch HIS danmaku', {
+              statusCode: 500,
+              cause: err,
+            })
+          })
           // 已经确保merge时的所有状态处理均完成
           await capture.mergeDanmaku(pool)
           await ft.status(TaskStatus.PENDING)
@@ -336,7 +361,16 @@ export class FetchTaskAsQueue {
         }
       } else if (task.type === TaskType.SP) {
         return async () => {
-          const pool = await sp(await User.fromRotating(), task.cid)
+          const pool = await sp(await User.fromRotating(), task.cid).catch(
+            async (err) => {
+              await ft.status(TaskStatus.FAILED)
+              await ft.afterRun()
+              throw new HTTPError('Failed to fetch SP danmaku', {
+                statusCode: 500,
+                cause: err,
+              })
+            },
+          )
           if (pool.dans.length === 0) {
             // 原因同rt
             await ft.status(TaskStatus.FAILED)
@@ -365,7 +399,14 @@ export class FetchTaskAsQueue {
             task.cid,
             cursor,
             conf.conf.upPool,
-          )
+          ).catch(async (err) => {
+            await ft.status(TaskStatus.FAILED)
+            await ft.afterRun()
+            throw new HTTPError('Failed to fetch UP danmaku', {
+              statusCode: 500,
+              cause: err,
+            })
+          })
           if (pool.dans.length === 0) {
             // 可能是到目前为止所有弹幕已获取完毕，故视为完成
             await ft.status(TaskStatus.DONE)
