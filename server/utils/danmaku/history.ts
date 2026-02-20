@@ -2,6 +2,7 @@ import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
+import { Event } from '../common/event'
 import type { User } from '../common/user'
 import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
@@ -25,7 +26,8 @@ export function his_pub_to_now(publish_time: His) {
     publish_time = DateTime.fromFormat(publish_time.slice(0, 7), 'yyyy-MM', {
       zone: 'Asia/Shanghai',
     }) // 月份后面的部分会自动截断
-  if (!publish_time.isValid) throw new Error('无效的时间格式')
+  if (!publish_time.isValid)
+    throw new HTTPError('无效的时间格式', { statusCode: 400 })
   const now = DateTime.now().setZone('Asia/Shanghai')
   const months: HisIndex<typeof publish_time> = []
 
@@ -65,7 +67,7 @@ export async function his_index(user: User, oid: bigint, month: His) {
   if (
     !DateTime.fromFormat(month, 'yyyy-MM', { zone: 'Asia/Shanghai' }).isValid
   ) {
-    throw new Error('month参数错误')
+    throw new HTTPError('month参数错误', { statusCode: 400 })
   }
 
   return (await queue()).SlowQueue.add(
@@ -81,7 +83,9 @@ export async function his_index(user: User, oid: bigint, month: His) {
         }>()
         .then((res) => {
           if (res.code !== 0)
-            throw new Error(`查询历史弹幕日期失败: ${res.message}`)
+            throw new HTTPError(`查询历史弹幕日期失败: ${res.message}`, {
+              statusCode: 500,
+            })
           return res.data
         })
         .then((data) => {
@@ -117,8 +121,11 @@ export async function his_seg(user: User, oid: bigint, date: His) {
   if (
     !DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: 'Asia/Shanghai' }).isValid
   ) {
-    throw new Error('date参数错误')
+    throw new HTTPError('date参数错误', { statusCode: 400 })
   }
+
+  const e = new Event(`请求历史弹幕 - oid: ${oid}, date: ${date}`)
+  await e.log('开始请求')
 
   return (await queue()).SlowQueue.add(
     () =>
@@ -129,11 +136,19 @@ export async function his_seg(user: User, oid: bigint, date: His) {
         .then((buf) => {
           try {
             return UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false })
-          } catch {
-            throw new HTTPError(Buffer.from(buf).toString(), {
-              statusCode: 500,
-            })
+          } catch (err) {
+            throw e.err(
+              '解析失败',
+              new HTTPError(Buffer.from(buf).toString(), {
+                statusCode: 500,
+                cause: err,
+              }),
+            )
           }
+        })
+        .then(async (pool) => {
+          await e.log('获取成功', `弹幕数: ${pool.dans.length}`)
+          return pool
         }),
     {
       priority: 104,

@@ -1,5 +1,6 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { HTTPError } from 'nitro/h3'
+import { Event } from '../common/event'
 import type { User } from '../common/user'
 import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
@@ -7,7 +8,10 @@ import queue from '../req-limit/p-queue'
 const url = { seg: 'https://api.bilibili.com/x/v2/dm/wbi/web/seg.so' }
 
 export async function rt_seg(user: User, oid: bigint, seg: number = 1) {
-  if (seg <= 0) throw new Error('seg参数错误')
+  if (seg <= 0) throw new HTTPError('seg参数错误', { statusCode: 400 })
+
+  const e = new Event(`请求实时弹幕 - oid: ${oid}, seg: ${seg}`)
+  await e.log('开始请求')
 
   return (await queue()).SlowQueue.add(
     async () =>
@@ -20,11 +24,19 @@ export async function rt_seg(user: User, oid: bigint, seg: number = 1) {
         .then((buf) => {
           try {
             return UniPool.fromBiliGrpc(buf, { dedupe: false, dmid: false })
-          } catch {
-            throw new HTTPError(Buffer.from(buf).toString(), {
-              statusCode: 500,
-            })
+          } catch (err) {
+            throw e.err(
+              '解析失败',
+              new HTTPError(Buffer.from(buf).toString(), {
+                statusCode: 500,
+                cause: err,
+              }),
+            )
           }
+        })
+        .then(async (pool) => {
+          await e.log('获取成功', `弹幕数: ${pool.dans.length}`)
+          return pool
         }),
     { priority: 101, id: queueID2params.encode({ type: 'rt_seg', oid, seg }) },
   )

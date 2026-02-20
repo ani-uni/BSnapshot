@@ -1,4 +1,5 @@
 import { UniPool } from '@dan-uni/dan-any'
+import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
 import z from 'zod'
 import {
@@ -8,6 +9,7 @@ import {
   StringFormatUpSegOptModes,
   StringFormatUpSegOptPool,
 } from '~/server/types/utils/danmaku'
+import { Event } from '../common/event'
 import type { User } from '../common/user'
 import { queueID2params } from '../req-limit/id-parser'
 import queue from '../req-limit/p-queue'
@@ -145,7 +147,14 @@ export default async function up_seg(
     params.progress_to &&
     params.progress_from > params.progress_to
   )
-    throw new Error('progress_from 不能大于 progress_to')
+    throw new HTTPError('progress_from 不能大于 progress_to', {
+      statusCode: 400,
+    })
+
+  const e = new Event(
+    `请求创作中心弹幕搜索 - oid: ${oid}, ctime_from: ${params.ctime_from}`,
+  )
+  await e.log('开始请求')
 
   return (await queue()).SlowQueue.add(
     () =>
@@ -154,13 +163,23 @@ export default async function up_seg(
         .get(`${urls.search}?${qs.stringify(params)}`)
         .json<DanmakuSearchResponse>()
         .then((res) => {
-          if (res.code !== 0) throw new Error(`搜索弹幕失败: ${res.message}`)
+          if (res.code !== 0)
+            throw e.err(
+              '获取失败',
+              new HTTPError(res.message, {
+                statusCode: 500,
+              }),
+            )
           return res
         })
         .then((res) => ({
           page: res.data.page,
           pool: UniPool.fromBiliUp(res, { dedupe: false, dmid: false }),
-        })),
+        }))
+        .then(async (res) => {
+          await e.log('获取成功', `弹幕数: ${res.pool.dans.length}`)
+          return res
+        }),
     {
       priority: 102,
       id: queueID2params.encode({ type: 'up_seg', oid, options: params }),

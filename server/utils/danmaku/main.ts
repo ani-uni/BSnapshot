@@ -1,5 +1,7 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
+import { HTTPError } from 'nitro/h3'
+import { Event } from '../common/event'
 import type { User } from '../common/user'
 import { rt_seg } from './danmaku_proto'
 import { command_seg } from './danmaku_view_proto'
@@ -10,7 +12,8 @@ import up_seg from './up'
  * @param duration 视频单P时长，单位: s
  */
 export function duration2segs(duration: number) {
-  if (duration <= 0) throw new Error('duration参数错误')
+  if (duration <= 0)
+    throw new HTTPError('duration参数错误', { statusCode: 400 })
 
   return Math.ceil(duration / 3600)
 }
@@ -21,11 +24,17 @@ export function duration2segs(duration: number) {
  * @returns
  */
 export async function rt(user: User, oid: bigint, segs: number[] = [1]) {
-  if (segs.some((seg) => seg <= 0)) throw new Error('seg参数错误')
+  if (segs.some((seg) => seg <= 0))
+    throw new HTTPError('seg参数错误', { statusCode: 400 })
 
   let pool = UniPool.create({ dedupe: false, dmid: false })
   for (const seg of segs) {
     pool = await rt_seg(user, oid, seg).then((p) => pool.assign(p))
+    await Event.info(
+      `获取实时弹幕 - oid: ${oid}`,
+      '本次请求获取弹幕数统计',
+      `弹幕总数: ${pool.dans.length}`,
+    )
   }
   return pool
 }
@@ -34,6 +43,11 @@ export async function his(user: User, oid: bigint, dates: HisIndex) {
   let pool = UniPool.create({ dedupe: false, dmid: false })
   for (const date of dates) {
     pool = await his_seg(user, oid, date).then((p) => pool.assign(p))
+    await Event.info(
+      `获取历史弹幕 - oid: ${oid}`,
+      '本次请求获取弹幕数统计',
+      `弹幕总数: ${pool.dans.length}`,
+    )
   }
   return pool
 }

@@ -5,7 +5,7 @@ generator client {
 
 generator zod {
   provider = "prisma-zod-generator"
-  output = "../generated/zod"
+  output   = "../generated/zod"
   // optional config = "./zod-generator.config.json" (relative to schema file)
 }
 
@@ -45,6 +45,18 @@ model Runtime {
   lastUserMid BigInt?
   // // 当前请求队列是否闲置
   // fetchTaskQueueIdle Boolean @default(true)
+}
+
+enum EventLevel {
+  INFO
+  ERROR
+}
+
+model Event {
+  id    Int        @id @default(autoincrement())
+  ctime DateTime   @default(now())
+  type  EventLevel @default(INFO)
+  msg   String
 }
 
 enum TaskStatus {
