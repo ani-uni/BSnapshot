@@ -46,7 +46,7 @@ export default async function getQueue(): Promise<QueueInstance> {
 
   // 开始新的初始化
   initPromise = initQueue()
-  
+
   try {
     queueInstance = await initPromise
     return queueInstance
