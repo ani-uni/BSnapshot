@@ -40,7 +40,7 @@ export function AuthUserLoginQr(
 export async function AuthUserLoginQr(
   payload?: TaskAuthUserLoginQrPayload,
 ): Promise<TaskAuthUserLoginQrResult> {
-  const headers = new Cookies().toHeaders()
+  const headers = new Cookies().toHeaders('bili_web')
   // 如果没有提供 qrcode_key，先获取二维码
   if (!payload?.qrcode_key) {
     return ky

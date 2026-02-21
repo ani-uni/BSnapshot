@@ -13,7 +13,7 @@ interface BuvidResponse {
 export async function Buvid(cookies: Cookies = new Cookies()) {
   return ky
     .get('https://api.bilibili.com/x/frontend/finger/spi', {
-      headers: cookies.toHeaders(),
+      headers: cookies.toHeaders('bili_web'),
     })
     .json<BuvidResponse>()
     .then((res) => {

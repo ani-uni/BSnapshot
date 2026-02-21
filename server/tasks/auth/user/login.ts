@@ -34,7 +34,7 @@ export async function AuthUserLogin(
   const cookies = new Cookies(payload.bauth_cookies)
   const res = await ky
     .get('https://api.bilibili.com/x/web-interface/nav', {
-      headers: cookies.toHeaders(),
+      headers: cookies.toHeaders('bili_web'),
       parseJson: JSONBigInt.parse,
     })
     .json<{

@@ -59,7 +59,7 @@ export function url2key(url?: string) {
 export async function getWbiKeys(cookies: Cookies = new Cookies()) {
   const res = await ky
     .get('https://api.bilibili.com/x/web-interface/nav', {
-      headers: cookies.toHeaders(),
+      headers: cookies.toHeaders('bili_web'),
     })
     .json<{
       code: 0

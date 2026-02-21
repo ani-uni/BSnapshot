@@ -43,7 +43,7 @@ export async function getBiliTicket(cookies: Cookies = new Cookies()) {
     csrf: cookies.getOrThrow('bili_jct'),
   })
   const response = await ky.post(`${url}?${params.toString()}`, {
-    headers: cookies.toHeaders(),
+    headers: cookies.toHeaders('bili_web'),
   })
   if (!response.ok) {
     throw new HTTPError(`HTTP error! status: ${response.status}`, {
