@@ -4,7 +4,7 @@ import { Event } from '~/server/utils/common/event'
 
 const cmds = z.xor([
   z.object({ cmd: z.literal('ping') }),
-  z.object({ cmd: z.literal('list'), after: z.number().optional() }),
+  z.object({ cmd: z.literal('list'), after: z.int().nonnegative().optional() }),
   z.object({ cmd: z.literal('toggle-auto-refresh') }),
 ])
 
