@@ -86,8 +86,8 @@ export class Cookies {
       ? this.cookies.map((cookie) => cookie.cookieString()).join('; ')
       : ''
   }
-  toHeaders(idn: keyof typeof headers): Headers {
-    const hds = headers[idn]
+  toHeaders(idn: typeof headers.idn): Headers {
+    const hds = headers.get(idn)
     if (this.hasCookies && this.cookies) hds.set('Cookie', this.toString())
     return hds
   }
