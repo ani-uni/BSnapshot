@@ -89,7 +89,7 @@ export class User {
   kyInstance() {
     const ck = new Cookies(this.userModel.bauth_cookies)
     return ky.create({
-      headers: ck.toHeaders(),
+      headers: ck.toHeaders('bili_web'),
     })
   }
   async encWbi(params: Record<string, unknown>) {

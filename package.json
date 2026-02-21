@@ -1,4 +1,12 @@
 {
+  "name": "bsnapshot",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ani-uni/BSnapshot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ani-uni/BSnapshot.git"
+  },
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "nitro build",
