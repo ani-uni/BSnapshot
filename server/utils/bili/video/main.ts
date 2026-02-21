@@ -1,5 +1,5 @@
-import type { User } from '../common/user'
-import view from './info'
+import type { User } from '~s/utils/common/user'
+import view, { type VideoInfoOpt } from './info'
 
 export type VideoPageBasic = {
   cid: bigint
@@ -24,7 +24,7 @@ export type VideoBasic = {
  */
 export async function getVideoBasic(
   user: User,
-  opt: { aid?: bigint; bvid?: string },
+  opt: VideoInfoOpt,
 ): Promise<VideoBasic> {
   const data = await view(user, opt)
   return {

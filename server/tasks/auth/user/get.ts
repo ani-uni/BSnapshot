@@ -1,9 +1,9 @@
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
 import type { UserModel } from '~/generated/prisma/models'
-import type { TaskPayload } from '~/server/types/tasks/payload'
-import type { TaskResult } from '~/server/types/tasks/result'
-import { User } from '~/server/utils/common/user'
+import type { TaskPayload } from '~s/types/tasks/payload'
+import type { TaskResult } from '~s/types/tasks/result'
+import { User } from '~s/utils/common/user'
 
 export interface TaskAuthUserGetPayload {
   mid: bigint

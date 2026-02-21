@@ -1,6 +1,6 @@
 import { useStorage } from 'nitro/storage'
 import { defineTask } from 'nitro/task'
-import type { KVAuth, WbiKeys } from '~/server/types/kv/auth'
+import type { KVAuth, WbiKeys } from '~s/types/kv/auth'
 
 export type TaskAuthGlobalWbiKeyGetResult = WbiKeys
 

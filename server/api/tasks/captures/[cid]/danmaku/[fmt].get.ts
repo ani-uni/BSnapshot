@@ -5,8 +5,8 @@ import {
   getValidatedRouterParams,
 } from 'nitro/h3'
 import z from 'zod'
-import { stringToBigInt } from '~/server/utils/codecs'
-import { Capture } from '~/server/utils/common/capture'
+import { stringToBigInt } from '~s/utils/codecs'
+import { Capture } from '~s/utils/common/capture'
 
 export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(

@@ -1,3 +1,3 @@
-import type { BigintToString } from '~/server/utils/bigint'
+import type { BigintToString } from '~s/utils/bigint'
 
 export type TaskResult<T> = BigintToString<T>

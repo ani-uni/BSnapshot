@@ -1,7 +1,7 @@
 import { defineHandler, getValidatedRouterParams } from 'nitro/h3'
 import z from 'zod'
-import { AuthUserGet } from '~/server/tasks/auth/user/get'
-import { stringToBigInt } from '~/server/utils/codecs'
+import { AuthUserGet } from '~s/tasks/auth/user/get'
+import { stringToBigInt } from '~s/utils/codecs'
 
 export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(

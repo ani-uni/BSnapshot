@@ -1,8 +1,8 @@
 import { md5 } from 'js-md5'
 import ky from 'ky'
 import qs from 'qs'
-import { bigint2string } from '../../bigint'
-import { Cookies } from '../../cookies'
+import { bigint2string } from '~s/utils/bigint'
+import { Cookies } from '~s/utils/cookies'
 
 const mixinKeyEncTab = [
   46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,

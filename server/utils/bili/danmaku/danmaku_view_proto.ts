@@ -1,10 +1,10 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
-import { Event } from '../common/event'
-import type { User } from '../common/user'
-import { queueID2params } from '../req-limit/id-parser'
-import queue from '../req-limit/p-queue'
+import { Event } from '~s/utils/common/event'
+import type { User } from '~s/utils/common/user'
+import { queueID2params } from '~s/utils/req-limit/id-parser'
+import getQueue from '~s/utils/req-limit/p-queue'
 
 const url = { view: 'https://api.bilibili.com/x/v2/dm/web/view' }
 
@@ -25,7 +25,7 @@ export async function command_seg(user: User, oid: bigint, pid?: bigint) {
   )
   await e.log('开始请求')
 
-  return (await queue()).SlowQueue.add(
+  return (await getQueue()).SlowQueue.add(
     async () =>
       user
         .kyInstance()

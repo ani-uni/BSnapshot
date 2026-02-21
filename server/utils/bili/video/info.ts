@@ -1,9 +1,9 @@
 import { HTTPError } from 'nitro/h3'
 import z from 'zod'
-import { JSONBigInt } from '../bigint'
-import type { User } from '../common/user'
-import { queueID2params } from '../req-limit/id-parser'
-import queue from '../req-limit/p-queue'
+import { JSONBigInt } from '~s/utils/bigint'
+import type { User } from '~s/utils/common/user'
+import { queueID2params } from '~s/utils/req-limit/id-parser'
+import getQueue from '~s/utils/req-limit/p-queue'
 
 const urls = {
   view: 'https://api.bilibili.com/x/web-interface/view',
@@ -96,7 +96,7 @@ export type VideoInfoOpt = z.infer<typeof VideoInfoOptSchema>
  * @returns 视频详细信息
  */
 async function view(user: User, opt: VideoInfoOpt) {
-  return (await queue()).FastQueue.add(
+  return (await getQueue()).FastQueue.add(
     async () =>
       user
         .kyInstance()

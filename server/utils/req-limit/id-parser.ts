@@ -1,7 +1,7 @@
 import TOML from 'smol-toml'
 import z from 'zod'
-import { DanmakuSearchOptionsSchema } from '../danmaku/up'
-import { VideoInfoOptSchema } from '../video/info'
+import { DanmakuSearchOptionsSchema } from '../bili/danmaku/up'
+import { VideoInfoOptSchema } from '../bili/video/info'
 
 export const QueueIDParamsSchema = z.xor([
   z.object({

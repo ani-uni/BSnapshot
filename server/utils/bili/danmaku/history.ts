@@ -2,10 +2,10 @@ import { UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
 import qs from 'qs'
-import { Event } from '../common/event'
-import type { User } from '../common/user'
-import { queueID2params } from '../req-limit/id-parser'
-import queue from '../req-limit/p-queue'
+import { Event } from '~s/utils/common/event'
+import type { User } from '~s/utils/common/user'
+import { queueID2params } from '~s/utils/req-limit/id-parser'
+import getQueue from '~s/utils/req-limit/p-queue'
 
 const url = {
   index: 'https://api.bilibili.com/x/v2/dm/history/index',
@@ -70,7 +70,7 @@ export async function his_index(user: User, oid: bigint, month: His) {
     throw new HTTPError('month参数错误', { statusCode: 400 })
   }
 
-  return (await queue()).SlowQueue.add(
+  return (await getQueue()).SlowQueue.add(
     () =>
       user
         .kyInstance()
@@ -127,7 +127,7 @@ export async function his_seg(user: User, oid: bigint, date: His) {
   const e = new Event(`请求历史弹幕 - oid: ${oid}, date: ${date}`)
   await e.log('开始请求')
 
-  return (await queue()).SlowQueue.add(
+  return (await getQueue()).SlowQueue.add(
     () =>
       user
         .kyInstance()

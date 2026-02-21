@@ -1,5 +1,5 @@
 import { defineTask } from 'nitro/task'
-import { Capture } from '~/server/utils/common/capture'
+import { Capture } from '~s/utils/common/capture'
 
 export default defineTask({
   meta: {

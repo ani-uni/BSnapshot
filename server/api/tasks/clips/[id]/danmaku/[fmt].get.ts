@@ -5,7 +5,7 @@ import {
   getValidatedRouterParams,
 } from 'nitro/h3'
 import z from 'zod'
-import { Clip } from '~/server/utils/common/capture'
+import { Clip } from '~s/utils/common/capture'
 
 export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(

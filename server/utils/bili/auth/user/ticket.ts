@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
-import { Cookies } from '../../cookies'
+import { Cookies } from '~s/utils/cookies'
 
 interface BiliTicket {
   code: 0

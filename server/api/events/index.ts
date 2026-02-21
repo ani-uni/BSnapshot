@@ -1,6 +1,6 @@
 import { defineWebSocketHandler, HTTPError } from 'nitro/h3'
 import z from 'zod'
-import { Event } from '~/server/utils/common/event'
+import { Event } from '~s/utils/common/event'
 
 const cmds = z.xor([
   z.object({ cmd: z.literal('ping') }),

@@ -1,8 +1,8 @@
 import { defineHandler, getValidatedRouterParams } from 'nitro/h3'
 import z from 'zod'
-import { TaskPreGen } from '~/server/tasks/task/pregen'
-import { bigint2string } from '~/server/utils/bigint'
-import { stringToBigInt } from '~/server/utils/codecs'
+import { TaskPreGen } from '~s/tasks/task/pregen'
+import { bigint2string } from '~s/utils/bigint'
+import { stringToBigInt } from '~s/utils/codecs'
 
 export default defineHandler(async (event) => {
   const payload = await getValidatedRouterParams(

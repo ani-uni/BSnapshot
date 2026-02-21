@@ -1,7 +1,7 @@
 import { defineTask } from 'nitro/task'
-import type { TaskResult } from '~/server/types/tasks/result'
-import { bigint2string } from '~/server/utils/bigint'
-import { prisma } from '~/server/utils/prisma'
+import type { TaskResult } from '~s/types/tasks/result'
+import { bigint2string } from '~s/utils/bigint'
+import { prisma } from '~s/utils/prisma'
 import { AuthUserLogin } from './login'
 
 export interface TaskAuthUserCheckResult {

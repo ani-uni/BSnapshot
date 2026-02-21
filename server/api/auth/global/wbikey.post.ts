@@ -1,6 +1,6 @@
 import { defineHandler, readValidatedBody } from 'nitro/h3'
 import z from 'zod'
-import { AuthGlobalWbiKeyRefresh } from '~/server/tasks/auth/global/wbikey/refresh'
+import { AuthGlobalWbiKeyRefresh } from '~s/tasks/auth/global/wbikey/refresh'
 
 export default defineHandler(async (event) => {
   const payload = await readValidatedBody(

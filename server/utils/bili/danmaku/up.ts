@@ -8,11 +8,11 @@ import {
   StringFormatUpSegOptMids,
   StringFormatUpSegOptModes,
   StringFormatUpSegOptPool,
-} from '~/server/types/utils/danmaku'
-import { Event } from '../common/event'
-import type { User } from '../common/user'
-import { queueID2params } from '../req-limit/id-parser'
-import queue from '../req-limit/p-queue'
+} from '~s/types/utils/danmaku'
+import { Event } from '~s/utils/common/event'
+import type { User } from '~s/utils/common/user'
+import { queueID2params } from '~s/utils/req-limit/id-parser'
+import getQueue from '~s/utils/req-limit/p-queue'
 
 const urls = {
   search: 'https://api.bilibili.com/x/v2/dm/search',
@@ -156,7 +156,7 @@ export default async function up_seg(
   )
   await e.log('开始请求')
 
-  return (await queue()).SlowQueue.add(
+  return (await getQueue()).SlowQueue.add(
     () =>
       user
         .kyInstance()

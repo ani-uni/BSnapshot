@@ -1,5 +1,5 @@
 import { defineTask } from 'nitro/task'
-import { FetchTaskAsQueue } from '~/server/utils/common/fetchtask'
+import { FetchTaskAsQueue } from '~s/utils/common/fetchtask'
 
 export default defineTask({
   meta: {

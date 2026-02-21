@@ -1,9 +1,9 @@
 import type { PromiseReturnType } from '@prisma/client/extension'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
-import type { TaskResult } from '~/server/types/tasks/result'
-import { bigint2string } from '~/server/utils/bigint'
-import { prisma } from '~/server/utils/prisma'
+import type { TaskResult } from '~s/types/tasks/result'
+import { bigint2string } from '~s/utils/bigint'
+import { prisma } from '~s/utils/prisma'
 
 export type TaskConfigGetResult = PromiseReturnType<typeof ConfigGet>
 

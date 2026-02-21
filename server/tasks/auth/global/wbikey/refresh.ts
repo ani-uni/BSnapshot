@@ -1,11 +1,11 @@
 import { HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import { defineTask } from 'nitro/task'
-import type { KVAuth, WbiKeys } from '~/server/types/kv/auth'
-import type { TaskPayload } from '~/server/types/tasks/payload'
-import { getWbiKeys } from '~/server/utils/auth/global/wbi'
-import { Event } from '~/server/utils/common/event'
-import { Cookies } from '~/server/utils/cookies'
+import type { KVAuth, WbiKeys } from '~s/types/kv/auth'
+import type { TaskPayload } from '~s/types/tasks/payload'
+import { getWbiKeys } from '~s/utils/bili/auth/global/wbi'
+import { Event } from '~s/utils/common/event'
+import { Cookies } from '~s/utils/cookies'
 import { AuthGlobalWbiKeyGet } from './get'
 
 export interface TaskAuthGlobalWbikeyRefreshPayload {

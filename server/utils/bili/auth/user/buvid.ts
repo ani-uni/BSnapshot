@@ -1,5 +1,5 @@
 import ky from 'ky'
-import { Cookies } from '../../cookies'
+import { Cookies } from '~s/utils/cookies'
 
 interface BuvidResponse {
   code: 0

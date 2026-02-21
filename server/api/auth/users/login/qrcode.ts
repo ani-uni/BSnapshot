@@ -1,6 +1,6 @@
 import { defineWebSocketHandler, HTTPError } from 'nitro/h3'
-import { AuthUserLoginQr } from '~/server/tasks/auth/user/login_qr'
-import { bigint2string } from '~/server/utils/bigint'
+import { AuthUserLoginQr } from '~s/tasks/auth/user/login_qr'
+import { bigint2string } from '~s/utils/bigint'
 
 export type WSAuthUserLoginQrPayload = { action: 'ping' | 'check' }
 

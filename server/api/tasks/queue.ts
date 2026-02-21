@@ -1,8 +1,8 @@
 import { defineHandler, getValidatedQuery } from 'nitro/h3'
 import z from 'zod'
-import { bigint2string } from '~/server/utils/bigint'
-import { queueID2params } from '~/server/utils/req-limit/id-parser'
-import getQueue from '~/server/utils/req-limit/p-queue'
+import { bigint2string } from '~s/utils/bigint'
+import { queueID2params } from '~s/utils/req-limit/id-parser'
+import getQueue from '~s/utils/req-limit/p-queue'
 
 export default defineHandler(async (event) => {
   const query = await getValidatedQuery(

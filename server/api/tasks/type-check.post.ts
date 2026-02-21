@@ -1,6 +1,6 @@
 import { defineHandler, readValidatedBody } from 'nitro/h3'
 import z from 'zod'
-import { ClipLintAndFmt } from '~/server/utils/clip-lint-fmt'
+import { ClipLintAndFmt } from '~s/utils/clip-lint-fmt'
 
 export default defineHandler(async (event) => {
   const payload = await readValidatedBody(

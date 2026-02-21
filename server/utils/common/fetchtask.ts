@@ -7,8 +7,8 @@ import type {
   FetchTaskModel,
   RuntimeModel,
 } from '~/generated/prisma/models'
-import { ConfigGet } from '~/server/tasks/config/get'
-import { his, rt, sp, up } from '../danmaku/main'
+import { ConfigGet } from '~s/tasks/config/get'
+import { his, rt, sp, up } from '../bili/danmaku/main'
 import { prisma } from '../prisma'
 import { Capture } from './capture'
 import { User } from './user'

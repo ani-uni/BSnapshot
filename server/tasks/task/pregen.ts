@@ -1,10 +1,10 @@
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
-import type { TaskPayload } from '~/server/types/tasks/payload'
-import type { TaskResult } from '~/server/types/tasks/result'
-import { bigint2string } from '~/server/utils/bigint'
-import { User } from '~/server/utils/common/user'
-import { getVideoBasic, type VideoBasic } from '~/server/utils/video/main'
+import type { TaskPayload } from '~s/types/tasks/payload'
+import type { TaskResult } from '~s/types/tasks/result'
+import { bigint2string } from '~s/utils/bigint'
+import { getVideoBasic, type VideoBasic } from '~s/utils/bili/video/main'
+import { User } from '~s/utils/common/user'
 
 export type TaskTaskPreGenPayload =
   | {
