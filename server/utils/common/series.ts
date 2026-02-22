@@ -4,13 +4,16 @@ import type { SeriesModel } from '~/generated/prisma/models'
 import { TMDBUrlCRawSchema } from '../3rd-ref/tmdb'
 import { prisma } from '../prisma'
 
-const seriesRefSchema = z.object({
+export const seriesRefSchema = z.object({
   src: z.literal('tmdb'),
   urlc: TMDBUrlCRawSchema.tv.season,
 })
 
 export class Series {
   constructor(public seriesModel: SeriesModel) {}
+  get toJSON() {
+    return this.seriesModel
+  }
   static async create() {
     const model = await prisma.series.create({})
     return new Series(model)
@@ -46,6 +49,16 @@ export class Series {
         },
       })
     }
+  }
+  async setSeasons(seasonIds: string[]) {
+    this.seriesModel = await prisma.series.update({
+      where: { id: this.seriesModel.id },
+      data: {
+        seasons: {
+          set: seasonIds.map((id) => ({ id })),
+        },
+      },
+    })
   }
   async addSeasons(seasonIds: string[]) {
     this.seriesModel = await prisma.series.update({
