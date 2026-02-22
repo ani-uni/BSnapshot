@@ -33,6 +33,12 @@ export class Episode {
     })
     return episodes
   }
+  static async listFromSeasonID(seasonId: string) {
+    const episodes = await prisma.episode.findMany({
+      where: { seasonId },
+    })
+    return episodes
+  }
   async editTitle(title: string) {
     this.episodeModel = await prisma.episode.update({
       where: { id: this.episodeModel.id },

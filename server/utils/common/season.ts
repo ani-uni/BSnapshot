@@ -33,6 +33,12 @@ export class Season {
     })
     return eps
   }
+  static async listFromSeriesID(seriesId: string) {
+    const series = await prisma.season.findMany({
+      where: { seriesId },
+    })
+    return series
+  }
   async editTitle(title: string) {
     this.seasonModel = await prisma.season.update({
       where: { id: this.seasonModel.id },

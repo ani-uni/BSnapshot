@@ -470,6 +470,15 @@ export class Clip {
       throw new HTTPError('No clips found', { statusCode: 404 })
     return clips
   }
+  static async listInfoFromEpisodeID(episodeId: string) {
+    const clips = await prisma.clip.findMany({
+      where: { episodeId },
+      omit: { danmaku: true, danmakuUp: true },
+    })
+    if (clips.length === 0)
+      throw new HTTPError('No clips found', { statusCode: 404 })
+    return clips
+  }
   private async saveDanmaku(danmaku: UniPool, up = false) {
     const d2save = danmaku.dans.length === 0 ? null : danmaku.toPb()
     if (up)
