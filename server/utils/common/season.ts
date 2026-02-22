@@ -4,13 +4,16 @@ import type { SeasonModel } from '~/generated/prisma/models'
 import { TMDBUrlCRawSchema } from '../3rd-ref/tmdb'
 import { prisma } from '../prisma'
 
-const ssRefSchema = z.discriminatedUnion('src', [
+export const ssRefSchema = z.discriminatedUnion('src', [
   z.object({ src: z.literal('bgmtv'), subject_id: z.int().positive() }),
   z.object({ src: z.literal('tmdb'), urlc: TMDBUrlCRawSchema.tv.season }),
 ])
 
 export class Season {
   constructor(public seasonModel: SeasonModel) {}
+  get toJSON() {
+    return this.seasonModel
+  }
   static async create() {
     const model = await prisma.season.create({})
     return new Season(model)
@@ -54,6 +57,16 @@ export class Season {
       })
     }
   }
+  async setEpisodes(clipIds: string[]) {
+    this.seasonModel = await prisma.season.update({
+      where: { id: this.seasonModel.id },
+      data: {
+        episodes: {
+          set: clipIds.map((id) => ({ id })),
+        },
+      },
+    })
+  }
   async addEpisodes(clipIds: string[]) {
     this.seasonModel = await prisma.season.update({
       where: { id: this.seasonModel.id },
@@ -74,7 +87,12 @@ export class Season {
       },
     })
   }
-  async addToSeries(seriesId: string) {
+  async setSeries(seriesId: string | null) {
+    seriesId
+      ? await this.#addToSeries(seriesId)
+      : await this.#removeFromSeries()
+  }
+  async #addToSeries(seriesId: string) {
     this.seasonModel = await prisma.season.update({
       where: { id: this.seasonModel.id },
       data: {
@@ -84,7 +102,7 @@ export class Season {
       },
     })
   }
-  async removeFromSeries() {
+  async #removeFromSeries() {
     this.seasonModel = await prisma.season.update({
       where: { id: this.seasonModel.id },
       data: {
