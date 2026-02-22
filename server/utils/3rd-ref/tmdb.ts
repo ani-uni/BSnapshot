@@ -119,16 +119,16 @@ const TMDBApiSchema = {
               z.object({
                 media_type: z.literal('movie'),
                 adult: z.boolean().optional(),
-                backdrop_path: z.string().nullable().optional(),
+                backdrop_path: z.string().nullish(),
                 id: z.int(),
                 title: z.string().optional(),
                 original_language: z.string().optional(),
                 original_title: z.string().optional(),
-                overview: z.string().nullable().optional(),
-                poster_path: z.string().nullable().optional(),
+                overview: z.string().nullish(),
+                poster_path: z.string().nullish(),
                 genre_ids: z.array(z.int()).optional(),
                 popularity: z.number().optional(),
-                release_date: z.string().nullable().optional(),
+                release_date: z.string().nullish(),
                 video: z.boolean().optional(),
                 vote_average: z.number().optional(),
                 vote_count: z.int().optional(),
@@ -136,16 +136,16 @@ const TMDBApiSchema = {
               z.object({
                 media_type: z.literal('tv'),
                 adult: z.boolean().optional(),
-                backdrop_path: z.string().nullable().optional(),
+                backdrop_path: z.string().nullish(),
                 id: z.int(),
                 name: z.string().optional(),
                 original_language: z.string().optional(),
                 original_name: z.string().optional(),
-                overview: z.string().nullable().optional(),
-                poster_path: z.string().nullable().optional(),
+                overview: z.string().nullish(),
+                poster_path: z.string().nullish(),
                 genre_ids: z.array(z.int()).optional(),
                 popularity: z.number().optional(),
-                first_air_date: z.string().nullable().optional(),
+                first_air_date: z.string().nullish(),
                 vote_average: z.number().optional(),
                 vote_count: z.int().optional(),
                 origin_country: z.array(z.string()).optional(),
@@ -164,13 +164,13 @@ const TMDBApiSchema = {
       '{movie_id}': {
         response: z.object({
           adult: z.boolean().optional(),
-          backdrop_path: z.string().nullable().optional(),
+          backdrop_path: z.string().nullish(),
           belongs_to_collection: z
             .object({
               id: z.int(),
               name: z.string(),
-              poster_path: z.string().nullable().optional(),
-              backdrop_path: z.string().nullable().optional(),
+              poster_path: z.string().nullish(),
+              backdrop_path: z.string().nullish(),
             })
             .nullable()
             .optional(),
@@ -183,21 +183,21 @@ const TMDBApiSchema = {
               }),
             )
             .optional(),
-          homepage: z.string().nullable().optional(),
+          homepage: z.string().nullish(),
           id: z.int(),
-          imdb_id: z.string().nullable().optional(),
+          imdb_id: z.string().nullish(),
           original_language: z.string().optional(),
           original_title: z.string().optional(),
-          overview: z.string().nullable().optional(),
+          overview: z.string().nullish(),
           popularity: z.number().optional(),
-          poster_path: z.string().nullable().optional(),
+          poster_path: z.string().nullish(),
           production_companies: z
             .array(
               z.object({
                 id: z.int(),
-                logo_path: z.string().nullable().optional(),
+                logo_path: z.string().nullish(),
                 name: z.string(),
-                origin_country: z.string().nullable().optional(),
+                origin_country: z.string().nullish(),
               }),
             )
             .optional(),
@@ -209,9 +209,9 @@ const TMDBApiSchema = {
               }),
             )
             .optional(),
-          release_date: z.string().nullable().optional(),
+          release_date: z.string().nullish(),
           revenue: z.int().optional(),
-          runtime: z.int().nullable().optional(),
+          runtime: z.int().nullish(),
           spoken_languages: z
             .array(
               z.object({
@@ -222,7 +222,7 @@ const TMDBApiSchema = {
             )
             .optional(),
           status: z.string().optional(),
-          tagline: z.string().nullable().optional(),
+          tagline: z.string().nullish(),
           title: z.string().optional(),
           video: z.boolean().optional(),
           vote_average: z.number(),
@@ -237,7 +237,7 @@ const TMDBApiSchema = {
             episode: {
               '{episode_number}': {
                 response: z.object({
-                  air_date: z.string().nullable().optional(),
+                  air_date: z.string().nullish(),
                   crew: z
                     .array(
                       z.object({
@@ -251,7 +251,7 @@ const TMDBApiSchema = {
                         name: z.string(),
                         original_name: z.string(),
                         popularity: z.number(),
-                        profile_path: z.string().nullable().optional(),
+                        profile_path: z.string().nullish(),
                       }),
                     )
                     .optional(),
@@ -269,17 +269,17 @@ const TMDBApiSchema = {
                         name: z.string(),
                         original_name: z.string(),
                         popularity: z.number(),
-                        profile_path: z.string().nullable().optional(),
+                        profile_path: z.string().nullish(),
                       }),
                     )
                     .optional(),
                   name: z.string(),
                   overview: z.string(),
                   id: z.int(),
-                  production_code: z.string().nullable().optional(),
-                  runtime: z.int().nullable().optional(),
+                  production_code: z.string().nullish(),
+                  runtime: z.int().nullish(),
                   season_number: z.int(),
-                  still_path: z.string().nullable().optional(),
+                  still_path: z.string().nullish(),
                   vote_average: z.number(),
                   vote_count: z.int(),
                 }),
@@ -287,21 +287,21 @@ const TMDBApiSchema = {
             },
             response: z.object({
               _id: z.string(),
-              air_date: z.string().nullable().optional(),
+              air_date: z.string().nullish(),
               episodes: z
                 .array(
                   z.object({
-                    air_date: z.string().nullable().optional(),
+                    air_date: z.string().nullish(),
                     episode_number: z.int(),
-                    episode_type: z.string().nullable().optional(),
+                    episode_type: z.string().nullish(),
                     id: z.int(),
                     name: z.string(),
                     overview: z.string(),
-                    production_code: z.string().nullable().optional(),
-                    runtime: z.int().nullable().optional(),
+                    production_code: z.string().nullish(),
+                    runtime: z.int().nullish(),
                     season_number: z.int(),
                     show_id: z.int(),
-                    still_path: z.string().nullable().optional(),
+                    still_path: z.string().nullish(),
                     vote_average: z.number(),
                     vote_count: z.int(),
                     crew: z
@@ -317,7 +317,7 @@ const TMDBApiSchema = {
                           name: z.string(),
                           original_name: z.string(),
                           popularity: z.number(),
-                          profile_path: z.string().nullable().optional(),
+                          profile_path: z.string().nullish(),
                         }),
                       )
                       .optional(),
@@ -334,7 +334,7 @@ const TMDBApiSchema = {
                           name: z.string(),
                           original_name: z.string(),
                           popularity: z.number(),
-                          profile_path: z.string().nullable().optional(),
+                          profile_path: z.string().nullish(),
                         }),
                       )
                       .optional(),
@@ -346,15 +346,15 @@ const TMDBApiSchema = {
                 .array(
                   z.object({
                     id: z.int(),
-                    logo_path: z.string().nullable().optional(),
+                    logo_path: z.string().nullish(),
                     name: z.string(),
                     origin_country: z.string(),
                   }),
                 )
                 .optional(),
-              overview: z.string().nullable().optional(),
+              overview: z.string().nullish(),
               id: z.int(),
-              poster_path: z.string().nullable().optional(),
+              poster_path: z.string().nullish(),
               season_number: z.int(),
               vote_average: z.number(),
             }),
@@ -362,7 +362,7 @@ const TMDBApiSchema = {
         },
         response: z.object({
           adult: z.boolean().optional(),
-          backdrop_path: z.string().nullable().optional(),
+          backdrop_path: z.string().nullish(),
           created_by: z
             .array(
               z.object({
@@ -370,12 +370,12 @@ const TMDBApiSchema = {
                 credit_id: z.string().optional(),
                 name: z.string(),
                 gender: z.int().optional(),
-                profile_path: z.string().nullable().optional(),
+                profile_path: z.string().nullish(),
               }),
             )
             .optional(),
           episode_run_time: z.array(z.int()).optional(),
-          first_air_date: z.string().nullable().optional(),
+          first_air_date: z.string().nullish(),
           genres: z
             .array(
               z.object({
@@ -384,23 +384,23 @@ const TMDBApiSchema = {
               }),
             )
             .optional(),
-          homepage: z.string().nullable().optional(),
+          homepage: z.string().nullish(),
           id: z.int(),
           in_production: z.boolean().optional(),
           languages: z.array(z.string()).optional(),
-          last_air_date: z.string().nullable().optional(),
+          last_air_date: z.string().nullish(),
           last_episode_to_air: z
             .object({
-              air_date: z.string().nullable().optional(),
+              air_date: z.string().nullish(),
               episode_number: z.int(),
               id: z.int(),
               name: z.string(),
               overview: z.string(),
-              production_code: z.string().nullable().optional(),
-              runtime: z.int().nullable().optional(),
+              production_code: z.string().nullish(),
+              runtime: z.int().nullish(),
               season_number: z.int(),
               show_id: z.int().optional(),
-              still_path: z.string().nullable().optional(),
+              still_path: z.string().nullish(),
               vote_average: z.number(),
               vote_count: z.int(),
             })
@@ -409,16 +409,16 @@ const TMDBApiSchema = {
           name: z.string(),
           next_episode_to_air: z
             .object({
-              air_date: z.string().nullable().optional(),
+              air_date: z.string().nullish(),
               episode_number: z.int(),
               id: z.int(),
               name: z.string(),
               overview: z.string(),
-              production_code: z.string().nullable().optional(),
-              runtime: z.int().nullable().optional(),
+              production_code: z.string().nullish(),
+              runtime: z.int().nullish(),
               season_number: z.int(),
               show_id: z.int().optional(),
-              still_path: z.string().nullable().optional(),
+              still_path: z.string().nullish(),
               vote_average: z.number(),
               vote_count: z.int(),
             })
@@ -428,7 +428,7 @@ const TMDBApiSchema = {
             .array(
               z.object({
                 id: z.int(),
-                logo_path: z.string().nullable().optional(),
+                logo_path: z.string().nullish(),
                 name: z.string(),
                 origin_country: z.string(),
               }),
@@ -439,16 +439,16 @@ const TMDBApiSchema = {
           origin_country: z.array(z.string()).optional(),
           original_language: z.string().optional(),
           original_name: z.string().optional(),
-          overview: z.string().nullable().optional(),
+          overview: z.string().nullish(),
           popularity: z.number().optional(),
-          poster_path: z.string().nullable().optional(),
+          poster_path: z.string().nullish(),
           production_companies: z
             .array(
               z.object({
                 id: z.int(),
-                logo_path: z.string().nullable().optional(),
+                logo_path: z.string().nullish(),
                 name: z.string(),
-                origin_country: z.string().nullable().optional(),
+                origin_country: z.string().nullish(),
               }),
             )
             .optional(),
@@ -463,12 +463,12 @@ const TMDBApiSchema = {
           seasons: z
             .array(
               z.object({
-                air_date: z.string().nullable().optional(),
+                air_date: z.string().nullish(),
                 episode_count: z.int().optional(),
                 id: z.int(),
                 name: z.string(),
-                overview: z.string().nullable().optional(),
-                poster_path: z.string().nullable().optional(),
+                overview: z.string().nullish(),
+                poster_path: z.string().nullish(),
                 season_number: z.int(),
                 vote_average: z.number().optional(),
               }),
@@ -484,7 +484,7 @@ const TMDBApiSchema = {
             )
             .optional(),
           status: z.string().optional(),
-          tagline: z.string().nullable().optional(),
+          tagline: z.string().nullish(),
           type: z.string().optional(),
           vote_average: z.number(),
           vote_count: z.int(),

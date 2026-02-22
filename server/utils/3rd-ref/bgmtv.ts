@@ -94,7 +94,7 @@ const BgmTvApiSchema = {
                 rating: z.array(z.string()).optional(),
                 rating_count: z.array(z.string()).optional(),
                 rank: z.array(z.string()).optional(),
-                nsfw: z.boolean().nullable().optional(),
+                nsfw: z.boolean().nullish(),
               }),
             }),
           },
