@@ -145,16 +145,61 @@ model FetchTask {
 
 // 数据管理的最小单位
 model Clip {
-  id        String  @id @default(cuid())
-  capture   Capture @relation(fields: [cid], references: [cid], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  capture   Capture  @relation(fields: [cid], references: [cid], onDelete: Cascade)
   cid       BigInt
-  // collection   Collection? @relation(fields: [collectionId], references: [id])
-  // collectionId String?
   start     Float // 开始时间（秒）
   end       Float // 结束时间（秒）
   danmaku   Bytes? // 导出为 .pb.bin 的 dan-any 标准弹幕库文件
   danmakuUp Bytes? // 同上，但是保存的是up接口的数据
+  // 父类
+  episode   Episode? @relation(fields: [episodeId], references: [id])
+  episodeId String?
 
   @@unique([cid, start])
   @@unique([cid, end])
+}
+
+// 由一或多个Clip组成的可表示1集/1个视频的弹幕单位
+model Episode {
+  id       String  @id @default(cuid())
+  title    String? // 优先显示，为空时尝试从ref获取title
+  // 引用链接
+  // episode id
+  bgmtv    Int?
+  // movie/{movie_id}
+  // tv/{series_id}/season/{season_number}/episode/{episode_number}
+  tmdb     String?
+  // 子项
+  clips    Clip[]
+  // 父类
+  season   Season? @relation(fields: [seasonId], references: [id])
+  seasonId String?
+}
+
+// 由多个相关ep聚合，对应1季/1个合集
+model Season {
+  id       String    @id @default(cuid())
+  title    String?
+  // 引用链接
+  // subject id
+  bgmtv    Int?
+  // tv/{series_id}/season/{season_number}
+  tmdb     String?
+  // 子项
+  episodes Episode[]
+  // 父类
+  series   Series?   @relation(fields: [seriesId], references: [id])
+  seriesId String?
+}
+
+// 由多个相关ss聚合，对应1个系列
+model Series {
+  id      String   @id @default(cuid())
+  title   String?
+  // 引用链接
+  // tv/{series_id}
+  tmdb    String?
+  // 子项
+  seasons Season[]
 }
