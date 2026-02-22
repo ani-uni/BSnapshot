@@ -8,11 +8,11 @@ import {
   type TaskType,
 } from '~/generated/prisma/enums'
 import type { CaptureModel, ClipModel } from '~/generated/prisma/models'
-import type { Clip as ClipSimple } from '~/server/types/task'
+import type { Clip as ClipSimple } from '~s/types/task'
+import { his_index, his_pub_to_now } from '~s/utils/bili/danmaku/main'
 import { zeroDate } from '../bili-zero-date'
 import { ClipLintAndFmt } from '../clip-lint-fmt'
 import { clips2segs } from '../clips2segs'
-import { his_index, his_pub_to_now } from '../danmaku/history'
 import { prisma } from '../prisma'
 import { FetchTask } from './fetchtask'
 import { User } from './user'
@@ -499,5 +499,25 @@ export class Clip {
     if (danmakuPb)
       return UniPool.fromPb(danmakuPb, { dedupe: false, dmid: false })
     return null
+  }
+  async addToEpisode(epId: string) {
+    await prisma.episode.update({
+      where: { id: epId },
+      data: {
+        clips: {
+          connect: { id: this.clipModel.id },
+        },
+      },
+    })
+  }
+  async removeFromEpisode() {
+    await prisma.clip.update({
+      where: { id: this.clipModel.id },
+      data: {
+        episode: {
+          disconnect: true,
+        },
+      },
+    })
   }
 }
