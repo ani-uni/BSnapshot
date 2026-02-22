@@ -1,0 +1,669 @@
+import 'dotenv/config'
+import ky from 'ky'
+import { HTTPError } from 'nitro/h3'
+import { useStorage } from 'nitro/storage'
+import qs from 'qs'
+import z from 'zod'
+import { headers } from '../headers'
+
+export const TMDBConfigSchema = z.object({
+  api_url: z.url().optional(),
+  // 当使用tmdb api代理时，可以指定api_key为"proxy"，此时不会在请求头中添加Authorization
+  api_key: z.union([z.literal('proxy'), z.string()]).optional(),
+})
+
+// const TMDBUrlCTitle = z.stringFormat(
+//   'tmdb_urlc_title',
+//   (v) => v.startsWith('-') && !v.includes('/') && v.length > 1,
+// )
+
+export const TMDBUrlCRawSchema = {
+  movie: z.templateLiteral([z.literal('movie/'), z.string()]),
+  tv: {
+    episode: z.templateLiteral([
+      z.literal('tv/'),
+      z.int32(),
+      z.literal('/season/'),
+      z.int32(),
+      z.literal('/episode/'),
+      z.int32(),
+    ]),
+    season: z.templateLiteral([
+      z.literal('tv/'),
+      z.int32(),
+      z.literal('/season/'),
+      z.int32(),
+    ]),
+    series: z.templateLiteral([z.literal('tv/'), z.int32()]),
+  },
+}
+// const TMDBUrlCRawStringSchema = z.xor([
+//   TMDBUrlCRawSchema.movie,
+//   TMDBUrlCRawSchema.tv.episode,
+//   TMDBUrlCRawSchema.tv.season,
+//   TMDBUrlCRawSchema.tv.series,
+// ])
+
+// const TMDBClassSchema = {
+//   getTVEpisodeInfo: z.xor([
+//     TMDBUrlCRawSchema.movie,
+//     TMDBUrlCRawSchema.tv.episode,
+//   ]),
+// }
+
+const TMDBIdSchema = z.int32().positive()
+export function parseTMDBUrlC(urlc: string) {
+  const input = urlc.trim()
+  const parseId = (value?: string) => {
+    if (!value) return null
+    return TMDBIdSchema.parse(Number.parseInt(value, 10))
+  }
+  const patterns = [
+    {
+      kind: 'episode' as const,
+      regex: /tv\/(\d+)(-[^/\s]+)?\/season\/(\d+)\/episode\/(\d+)/,
+    },
+    {
+      kind: 'season' as const,
+      regex: /tv\/(\d+)(-[^/\s]+)?\/season\/(\d+)/,
+    },
+    {
+      kind: 'series' as const,
+      regex: /tv\/(\d+)(-[^/\s]+)?/,
+    },
+    {
+      kind: 'movie' as const,
+      regex: /movie\/(\d+)(-[^/\s]+)?/,
+    },
+  ]
+
+  for (const { kind, regex } of patterns) {
+    const match = input.match(regex)
+    if (!match) continue
+    if (kind === 'movie') {
+      const movie_id = parseId(match[1])
+      if (movie_id === null) return null
+      return { movie_id }
+    } else if (kind === 'series') {
+      const series_id = parseId(match[1])
+      if (series_id === null) return null
+      if (kind === 'series') return { series_id }
+      const season_number = parseId(match[3])
+      if (season_number === null) return null
+      if (kind === 'season') return { series_id, season_number }
+      const episode_number = parseId(match[4])
+      if (episode_number === null) return null
+      if (kind === 'episode')
+        return { series_id, season_number, episode_number }
+    }
+  }
+
+  return null
+}
+
+const TMDBApiSchema = {
+  3: {
+    authentication: {
+      response: z.object({
+        success: z.literal(true),
+        status_code: z.int(),
+        status_message: z.string(),
+      }),
+    },
+    search: {
+      multi: {
+        response: z.object({
+          page: z.int(),
+          results: z.array(
+            z.discriminatedUnion('media_type', [
+              z.object({
+                media_type: z.literal('movie'),
+                adult: z.boolean().optional(),
+                backdrop_path: z.string().nullable().optional(),
+                id: z.int(),
+                title: z.string().optional(),
+                original_language: z.string().optional(),
+                original_title: z.string().optional(),
+                overview: z.string().nullable().optional(),
+                poster_path: z.string().nullable().optional(),
+                genre_ids: z.array(z.int()).optional(),
+                popularity: z.number().optional(),
+                release_date: z.string().nullable().optional(),
+                video: z.boolean().optional(),
+                vote_average: z.number().optional(),
+                vote_count: z.int().optional(),
+              }),
+              z.object({
+                media_type: z.literal('tv'),
+                adult: z.boolean().optional(),
+                backdrop_path: z.string().nullable().optional(),
+                id: z.int(),
+                name: z.string().optional(),
+                original_language: z.string().optional(),
+                original_name: z.string().optional(),
+                overview: z.string().nullable().optional(),
+                poster_path: z.string().nullable().optional(),
+                genre_ids: z.array(z.int()).optional(),
+                popularity: z.number().optional(),
+                first_air_date: z.string().nullable().optional(),
+                vote_average: z.number().optional(),
+                vote_count: z.int().optional(),
+                origin_country: z.array(z.string()).optional(),
+              }),
+              z.object({
+                media_type: z.string(),
+              }),
+            ]),
+          ),
+          total_pages: z.int(),
+          total_results: z.int(),
+        }),
+      },
+    },
+    movie: {
+      '{movie_id}': {
+        response: z.object({
+          adult: z.boolean().optional(),
+          backdrop_path: z.string().nullable().optional(),
+          belongs_to_collection: z
+            .object({
+              id: z.int(),
+              name: z.string(),
+              poster_path: z.string().nullable().optional(),
+              backdrop_path: z.string().nullable().optional(),
+            })
+            .nullable()
+            .optional(),
+          budget: z.int().optional(),
+          genres: z
+            .array(
+              z.object({
+                id: z.int(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          homepage: z.string().nullable().optional(),
+          id: z.int(),
+          imdb_id: z.string().nullable().optional(),
+          original_language: z.string().optional(),
+          original_title: z.string().optional(),
+          overview: z.string().nullable().optional(),
+          popularity: z.number().optional(),
+          poster_path: z.string().nullable().optional(),
+          production_companies: z
+            .array(
+              z.object({
+                id: z.int(),
+                logo_path: z.string().nullable().optional(),
+                name: z.string(),
+                origin_country: z.string().nullable().optional(),
+              }),
+            )
+            .optional(),
+          production_countries: z
+            .array(
+              z.object({
+                iso_3166_1: z.string(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          release_date: z.string().nullable().optional(),
+          revenue: z.int().optional(),
+          runtime: z.int().nullable().optional(),
+          spoken_languages: z
+            .array(
+              z.object({
+                english_name: z.string().optional(),
+                iso_639_1: z.string(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          status: z.string().optional(),
+          tagline: z.string().nullable().optional(),
+          title: z.string().optional(),
+          video: z.boolean().optional(),
+          vote_average: z.number(),
+          vote_count: z.int(),
+        }),
+      },
+    },
+    tv: {
+      '{series_id}': {
+        season: {
+          '{season_number}': {
+            episode: {
+              '{episode_number}': {
+                response: z.object({
+                  air_date: z.string().nullable().optional(),
+                  crew: z
+                    .array(
+                      z.object({
+                        department: z.string(),
+                        job: z.string(),
+                        credit_id: z.string(),
+                        adult: z.boolean(),
+                        gender: z.int(),
+                        id: z.int(),
+                        known_for_department: z.string(),
+                        name: z.string(),
+                        original_name: z.string(),
+                        popularity: z.number(),
+                        profile_path: z.string().nullable().optional(),
+                      }),
+                    )
+                    .optional(),
+                  episode_number: z.int(),
+                  guest_stars: z
+                    .array(
+                      z.object({
+                        character: z.string(),
+                        credit_id: z.string(),
+                        order: z.int(),
+                        adult: z.boolean(),
+                        gender: z.int(),
+                        id: z.int(),
+                        known_for_department: z.string(),
+                        name: z.string(),
+                        original_name: z.string(),
+                        popularity: z.number(),
+                        profile_path: z.string().nullable().optional(),
+                      }),
+                    )
+                    .optional(),
+                  name: z.string(),
+                  overview: z.string(),
+                  id: z.int(),
+                  production_code: z.string().nullable().optional(),
+                  runtime: z.int().nullable().optional(),
+                  season_number: z.int(),
+                  still_path: z.string().nullable().optional(),
+                  vote_average: z.number(),
+                  vote_count: z.int(),
+                }),
+              },
+            },
+            response: z.object({
+              _id: z.string(),
+              air_date: z.string().nullable().optional(),
+              episodes: z
+                .array(
+                  z.object({
+                    air_date: z.string().nullable().optional(),
+                    episode_number: z.int(),
+                    episode_type: z.string().nullable().optional(),
+                    id: z.int(),
+                    name: z.string(),
+                    overview: z.string(),
+                    production_code: z.string().nullable().optional(),
+                    runtime: z.int().nullable().optional(),
+                    season_number: z.int(),
+                    show_id: z.int(),
+                    still_path: z.string().nullable().optional(),
+                    vote_average: z.number(),
+                    vote_count: z.int(),
+                    crew: z
+                      .array(
+                        z.object({
+                          department: z.string(),
+                          job: z.string(),
+                          credit_id: z.string(),
+                          adult: z.boolean(),
+                          gender: z.int(),
+                          id: z.int(),
+                          known_for_department: z.string(),
+                          name: z.string(),
+                          original_name: z.string(),
+                          popularity: z.number(),
+                          profile_path: z.string().nullable().optional(),
+                        }),
+                      )
+                      .optional(),
+                    guest_stars: z
+                      .array(
+                        z.object({
+                          character: z.string(),
+                          credit_id: z.string(),
+                          order: z.int(),
+                          adult: z.boolean(),
+                          gender: z.int(),
+                          id: z.int(),
+                          known_for_department: z.string(),
+                          name: z.string(),
+                          original_name: z.string(),
+                          popularity: z.number(),
+                          profile_path: z.string().nullable().optional(),
+                        }),
+                      )
+                      .optional(),
+                  }),
+                )
+                .optional(),
+              name: z.string(),
+              networks: z
+                .array(
+                  z.object({
+                    id: z.int(),
+                    logo_path: z.string().nullable().optional(),
+                    name: z.string(),
+                    origin_country: z.string(),
+                  }),
+                )
+                .optional(),
+              overview: z.string().nullable().optional(),
+              id: z.int(),
+              poster_path: z.string().nullable().optional(),
+              season_number: z.int(),
+              vote_average: z.number(),
+            }),
+          },
+        },
+        response: z.object({
+          adult: z.boolean().optional(),
+          backdrop_path: z.string().nullable().optional(),
+          created_by: z
+            .array(
+              z.object({
+                id: z.int(),
+                credit_id: z.string().optional(),
+                name: z.string(),
+                gender: z.int().optional(),
+                profile_path: z.string().nullable().optional(),
+              }),
+            )
+            .optional(),
+          episode_run_time: z.array(z.int()).optional(),
+          first_air_date: z.string().nullable().optional(),
+          genres: z
+            .array(
+              z.object({
+                id: z.int(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          homepage: z.string().nullable().optional(),
+          id: z.int(),
+          in_production: z.boolean().optional(),
+          languages: z.array(z.string()).optional(),
+          last_air_date: z.string().nullable().optional(),
+          last_episode_to_air: z
+            .object({
+              air_date: z.string().nullable().optional(),
+              episode_number: z.int(),
+              id: z.int(),
+              name: z.string(),
+              overview: z.string(),
+              production_code: z.string().nullable().optional(),
+              runtime: z.int().nullable().optional(),
+              season_number: z.int(),
+              show_id: z.int().optional(),
+              still_path: z.string().nullable().optional(),
+              vote_average: z.number(),
+              vote_count: z.int(),
+            })
+            .nullable()
+            .optional(),
+          name: z.string(),
+          next_episode_to_air: z
+            .object({
+              air_date: z.string().nullable().optional(),
+              episode_number: z.int(),
+              id: z.int(),
+              name: z.string(),
+              overview: z.string(),
+              production_code: z.string().nullable().optional(),
+              runtime: z.int().nullable().optional(),
+              season_number: z.int(),
+              show_id: z.int().optional(),
+              still_path: z.string().nullable().optional(),
+              vote_average: z.number(),
+              vote_count: z.int(),
+            })
+            .nullable()
+            .optional(),
+          networks: z
+            .array(
+              z.object({
+                id: z.int(),
+                logo_path: z.string().nullable().optional(),
+                name: z.string(),
+                origin_country: z.string(),
+              }),
+            )
+            .optional(),
+          number_of_episodes: z.int().optional(),
+          number_of_seasons: z.int().optional(),
+          origin_country: z.array(z.string()).optional(),
+          original_language: z.string().optional(),
+          original_name: z.string().optional(),
+          overview: z.string().nullable().optional(),
+          popularity: z.number().optional(),
+          poster_path: z.string().nullable().optional(),
+          production_companies: z
+            .array(
+              z.object({
+                id: z.int(),
+                logo_path: z.string().nullable().optional(),
+                name: z.string(),
+                origin_country: z.string().nullable().optional(),
+              }),
+            )
+            .optional(),
+          production_countries: z
+            .array(
+              z.object({
+                iso_3166_1: z.string(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          seasons: z
+            .array(
+              z.object({
+                air_date: z.string().nullable().optional(),
+                episode_count: z.int().optional(),
+                id: z.int(),
+                name: z.string(),
+                overview: z.string().nullable().optional(),
+                poster_path: z.string().nullable().optional(),
+                season_number: z.int(),
+                vote_average: z.number().optional(),
+              }),
+            )
+            .optional(),
+          spoken_languages: z
+            .array(
+              z.object({
+                english_name: z.string().optional(),
+                iso_639_1: z.string(),
+                name: z.string(),
+              }),
+            )
+            .optional(),
+          status: z.string().optional(),
+          tagline: z.string().nullable().optional(),
+          type: z.string().optional(),
+          vote_average: z.number(),
+          vote_count: z.int(),
+        }),
+      },
+    },
+  },
+}
+
+export class TMDB {
+  public api_url = new URL('https://api.themoviedb.org')
+  public api_key = process.env.TMDB_API_KEY
+  static async init() {
+    const storage = useStorage('tmdb')
+    const url = await storage.get<string>('api_url')
+    const key = await storage.get<string>('api_key')
+    const tmdb = new TMDB()
+    if (url) tmdb.api_url = new URL(url)
+    if (key) tmdb.api_key = key
+    return tmdb
+  }
+  static async setConfig(data: z.infer<typeof TMDBConfigSchema>) {
+    data = TMDBConfigSchema.parse(data)
+    const storage = useStorage('tmdb')
+    if (data.api_url) await storage.set('api_url', data.api_url)
+    if (data.api_key) await storage.set('api_key', data.api_key)
+  }
+  kyInstance() {
+    const hds = headers.get('app')
+    hds.set('Accept', 'application/json')
+    if (this.api_key && this.api_key !== 'proxy')
+      hds.set('Authorization', `Bearer ${this.api_key}`)
+    return ky.create({
+      headers: hds,
+      prefixUrl: this.api_url,
+    })
+  }
+  /**
+   * 检查api配置
+   * 若配置正确，则会返回true，否则会抛出异常
+   */
+  async check() {
+    const res = await this.kyInstance()
+      .get('3/authentication')
+      .json()
+      .then((res) => TMDBApiSchema[3].authentication.response.parse(res))
+      .then((res) => res.success)
+    return res
+  }
+  private check_input_of_getTVEpisodeOrMovieInfo(i: string) {
+    const c = parseTMDBUrlC(i)
+    if (c?.episode_number || c?.movie_id) return c
+    else
+      throw new HTTPError('Invalid input for getTVEpisodeOrMovieInfo', {
+        statusCode: 400,
+      })
+  }
+  async getTVEpisodeOrMovieInfo(
+    input:
+      | string
+      | ReturnType<typeof this.check_input_of_getTVEpisodeOrMovieInfo>,
+  ) {
+    const id =
+      typeof input === 'string'
+        ? this.check_input_of_getTVEpisodeOrMovieInfo(input)
+        : input
+    const ky = this.kyInstance()
+    if (id.movie_id) {
+      const res = await ky
+        .get(`3/movie/${id.movie_id}?language=zh-CN`)
+        .json()
+        .then((res) => TMDBApiSchema[3].movie['{movie_id}'].response.parse(res))
+      return {
+        movie: res,
+      }
+    } else if (id.episode_number) {
+      const res = await ky
+        .get(
+          `3/tv/${id.series_id}/season/${id.season_number}/episode/${id.episode_number}?language=zh-CN`,
+        )
+        .json()
+        .then((res) =>
+          TMDBApiSchema[3].tv['{series_id}'].season['{season_number}'].episode[
+            '{episode_number}'
+          ].response.parse(res),
+        )
+      return {
+        tv: {
+          episode: res,
+        },
+      }
+    }
+    // 理论上不应该走到这里，因为#check_input_of_getTVEpisodeOrMovieInfo已经验证过输入了
+    else
+      throw new HTTPError('Invalid input for getTVEpisodeOrMovieInfo', {
+        statusCode: 400,
+      })
+  }
+  private check_input_of_getTVSeasonInfo(i: string) {
+    const c = parseTMDBUrlC(i)
+    if (c?.season_number) return c
+    else
+      throw new HTTPError('Invalid input for getTVSeasonInfo', {
+        statusCode: 400,
+      })
+  }
+  async getTVSeasonInfo(
+    input: string | ReturnType<typeof this.check_input_of_getTVSeasonInfo>,
+  ) {
+    const id =
+      typeof input === 'string'
+        ? this.check_input_of_getTVSeasonInfo(input)
+        : input
+    const ky = this.kyInstance()
+    const res = await ky
+      .get(`3/tv/${id.series_id}/season/${id.season_number}?language=zh-CN`)
+      .json()
+      .then((res) =>
+        TMDBApiSchema[3].tv['{series_id}'].season[
+          '{season_number}'
+        ].response.parse(res),
+      )
+    return {
+      tv: {
+        season: res,
+      },
+    }
+  }
+  private check_input_of_getTVSeriesInfo(i: string) {
+    const c = parseTMDBUrlC(i)
+    if (c?.series_id) return c
+    else
+      throw new HTTPError('Invalid input for getTVSeriesInfo', {
+        statusCode: 400,
+      })
+  }
+  async getTVSeriesInfo(
+    input: string | ReturnType<typeof this.check_input_of_getTVSeriesInfo>,
+  ) {
+    const id =
+      typeof input === 'string'
+        ? this.check_input_of_getTVSeriesInfo(input)
+        : input
+    const ky = this.kyInstance()
+    const res = await ky
+      .get(`3/tv/${id.series_id}?language=zh-CN`)
+      .json()
+      .then((res) => TMDBApiSchema[3].tv['{series_id}'].response.parse(res))
+    return {
+      tv: {
+        series: res,
+      },
+    }
+  }
+  async searchMulti(
+    query: string,
+    page = 1,
+  ): Promise<{
+    search: {
+      multi: z.infer<(typeof TMDBApiSchema)[3]['search']['multi']['response']>
+    }
+  }> {
+    const ky = this.kyInstance()
+    const res = await ky
+      .get(
+        `3/search/multi?${qs.stringify({ query, include_adult: true, language: 'zh-CN', page })}`,
+      )
+      .json()
+      .then((res) => TMDBApiSchema[3].search.multi.response.parse(res))
+      .then((res) => ({
+        ...res,
+        results: res.results.filter(
+          (r) => r.media_type === 'movie' || r.media_type === 'tv',
+        ),
+      }))
+    return {
+      search: {
+        multi: res,
+      },
+    }
+  }
+}
