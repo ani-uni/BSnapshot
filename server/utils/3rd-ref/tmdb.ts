@@ -7,9 +7,9 @@ import z from 'zod'
 import { headers } from '../headers'
 
 export const TMDBConfigSchema = z.object({
-  api_url: z.url().optional(),
+  api_url: z.url().nullish(),
   // 当使用tmdb api代理时，可以指定api_key为"proxy"，此时不会在请求头中添加Authorization
-  api_key: z.union([z.literal('proxy'), z.string()]).optional(),
+  api_key: z.union([z.literal('proxy'), z.string()]).nullish(),
 })
 
 // const TMDBUrlCTitle = z.stringFormat(
@@ -497,6 +497,12 @@ const TMDBApiSchema = {
 export class TMDB {
   public api_url = new URL('https://api.themoviedb.org')
   public api_key = process.env.TMDB_API_KEY
+  get toJSON() {
+    return {
+      api_url: this.api_url.toString(),
+      api_key: this.api_key,
+    }
+  }
   static async init() {
     const storage = useStorage('tmdb')
     const url = await storage.get<string>('api_url')
@@ -509,8 +515,10 @@ export class TMDB {
   static async setConfig(data: z.infer<typeof TMDBConfigSchema>) {
     data = TMDBConfigSchema.parse(data)
     const storage = useStorage('tmdb')
-    if (data.api_url) await storage.set('api_url', data.api_url)
-    if (data.api_key) await storage.set('api_key', data.api_key)
+    // 设置null重置为默认值
+    if (data.api_url !== undefined) await storage.set('api_url', data.api_url)
+    if (data.api_key !== undefined) await storage.set('api_key', data.api_key)
+    return TMDB.init()
   }
   kyInstance() {
     const hds = headers.get('app')
