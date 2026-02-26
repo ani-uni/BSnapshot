@@ -7,8 +7,13 @@ export default defineConfig({
   experimental: {
     asyncContext: true,
     tasks: true,
-    websocket: true,
     openAPI: true,
+  },
+  features: {
+    websocket: true,
+  },
+  future: {
+    nativeSWR: true,
   },
   openAPI: {
     meta: {
