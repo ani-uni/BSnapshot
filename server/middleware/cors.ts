@@ -1,6 +1,6 @@
-import { defineEventHandler, handleCors } from 'nitro/h3'
+import { defineHandler, handleCors } from 'nitro/h3'
 
-export default defineEventHandler((e) => {
+export default defineHandler((e) => {
   const corsRes = handleCors(e, {
     origin: '*',
     preflight: {
