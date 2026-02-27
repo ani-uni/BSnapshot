@@ -87,62 +87,6 @@ export class Capture {
   //     },
   //   })
   // }
-  /**
-   * 将弹幕库根据clips拆分/削减后保存到各个clip中
-   */
-  async mergeDanmaku(
-    /**
-     * 根据该Capture的segs获取到的全部弹幕
-     */
-    danmaku: UniPool,
-    up = false,
-    updateCursor = false,
-    /**
-     * 仅 his 类需要提供
-     */
-    query_history_date?: string,
-  ) {
-    const clips = await prisma.clip.findMany({
-      where: { cid: this.captureModel.cid },
-    })
-    // 怎么会呢，既然没有clips，就不会有segs，更不会获取到弹幕了
-    if (!clips || clips.length === 0)
-      throw new HTTPError('No clips', { statusCode: 500 })
-    for (const clip of clips) {
-      await new Clip(clip).mergeDanmaku(
-        new UniPool(
-          danmaku.dans.filter(
-            (d) => clip.start <= d.progress && d.progress <= clip.end,
-          ),
-          { dedupe: false, dmid: false },
-        ).pipe(bili.bili_dedupe.to_bili_deduped),
-        up,
-      )
-    }
-    if (updateCursor) {
-      if (up) {
-        // up接口
-        const cursor = danmaku.pipe(stats.getLatestDan)?.ctime
-        // 以上返回null的条件是弹幕池为空，在前面的检查已保证不会出现这种情况
-        if (!cursor)
-          throw new HTTPError('No cursor found from danmaku', {
-            statusCode: 500,
-          })
-        await prisma.capture.update({
-          where: { cid: this.captureModel.cid },
-          data: { upLatest: cursor },
-        })
-      } else {
-        // his接口
-        if (!query_history_date)
-          throw new HTTPError('query_history_date required', {
-            statusCode: 500,
-          })
-        await this.hisDateMapEnlight(danmaku, query_history_date)
-      }
-    }
-  }
-  // TODO tasks 里定时调用 static runAll() 来调用这里
   async run(types?: TaskType[], manual = false) {
     if (!types) {
       const fts = await prisma.fetchTask.findMany({
@@ -427,6 +371,61 @@ export class Capture {
         ? this.captureModel.upMid.toString()
         : null,
       upLatest: this.captureModel.upLatest?.getTime() ?? null,
+    }
+  }
+  /**
+   * 将弹幕库根据clips拆分/削减后保存到各个clip中
+   */
+  async mergeDanmaku(
+    /**
+     * 根据该Capture的segs获取到的全部弹幕
+     */
+    danmaku: UniPool,
+    up = false,
+    updateCursor = false,
+    /**
+     * 仅 his 类需要提供
+     */
+    query_history_date?: string,
+  ) {
+    const clips = await prisma.clip.findMany({
+      where: { cid: this.captureModel.cid },
+    })
+    // 怎么会呢，既然没有clips，就不会有segs，更不会获取到弹幕了
+    if (!clips || clips.length === 0)
+      throw new HTTPError('No clips', { statusCode: 500 })
+    for (const clip of clips) {
+      await new Clip(clip).mergeDanmaku(
+        new UniPool(
+          danmaku.dans.filter(
+            (d) => clip.start <= d.progress && d.progress <= clip.end,
+          ),
+          { dedupe: false, dmid: false },
+        ).pipe(bili.bili_dedupe.to_bili_deduped),
+        up,
+      )
+    }
+    if (updateCursor) {
+      if (up) {
+        // up接口
+        const cursor = danmaku.pipe(stats.getLatestDan)?.ctime
+        // 以上返回null的条件是弹幕池为空，在前面的检查已保证不会出现这种情况
+        if (!cursor)
+          throw new HTTPError('No cursor found from danmaku', {
+            statusCode: 500,
+          })
+        await prisma.capture.update({
+          where: { cid: this.captureModel.cid },
+          data: { upLatest: cursor },
+        })
+      } else {
+        // his接口
+        if (!query_history_date)
+          throw new HTTPError('query_history_date required', {
+            statusCode: 500,
+          })
+        await this.hisDateMapEnlight(danmaku, query_history_date)
+      }
     }
   }
   async getDanmaku(up = false) {
