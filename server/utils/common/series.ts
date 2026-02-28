@@ -1,4 +1,3 @@
-import { UniPool } from '@dan-uni/dan-any'
 import z from 'zod'
 import type { SeriesModel } from '~/generated/prisma/models'
 import { TMDBUrlCRawSchema } from '../3rd-ref/tmdb'
@@ -79,27 +78,5 @@ export class Series {
         },
       },
     })
-  }
-  async getDanmaku(up = false) {
-    let pool = UniPool.create({ dedupe: false, dmid: false })
-    await (up
-      ? prisma.clip
-          .findMany({
-            where: { episode: { season: { seriesId: this.seriesModel.id } } },
-            select: { danmakuUp: true },
-          })
-          .then((clips) => clips.map((c) => c.danmakuUp))
-      : prisma.clip
-          .findMany({
-            where: { episode: { season: { seriesId: this.seriesModel.id } } },
-            select: { danmaku: true },
-          })
-          .then((clips) => clips.map((c) => c.danmaku))
-    ).then((pbs) =>
-      pbs.forEach((pb) => {
-        if (pb) pool = pool.assign(UniPool.fromPb(pb))
-      }),
-    )
-    return pool
   }
 }
