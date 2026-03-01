@@ -27,8 +27,14 @@ export class Episode {
     })
     return new Episode(model)
   }
-  static async list() {
+  static async list(
+    /**
+     * 是否仅列出无上级(season)的剧集
+     */
+    def = true,
+  ) {
     const episodes = await prisma.episode.findMany({
+      where: def ? { seasonId: null } : undefined,
       select: { id: true, title: true },
     })
     return episodes

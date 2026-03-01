@@ -26,8 +26,14 @@ export class Season {
     })
     return new Season(model)
   }
-  static async list() {
+  static async list(
+    /**
+     * 是否仅列出无上级(series)的季度
+     */
+    def = true,
+  ) {
     const eps = await prisma.season.findMany({
+      where: def ? { seriesId: null } : undefined,
       select: { id: true, title: true },
     })
     return eps
