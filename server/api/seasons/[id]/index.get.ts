@@ -6,9 +6,17 @@ export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(
     event,
     z.object({
-      id: z.cuid2(),
+      id: z.union([z.cuid2(), z.literal('default')]),
     }),
   )
+  if (params.id === 'default')
+    return {
+      id: 'default',
+      title: '无所属剧集',
+      bgmtv: null,
+      tmdb: null,
+      seriesId: 'default',
+    }
   const season = await Season.loadFromID(params.id)
   return season.toJSON()
 })

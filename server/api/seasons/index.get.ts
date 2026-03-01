@@ -1,12 +1,8 @@
-import { defineHandler, getValidatedQuery } from 'nitro/h3'
-import z from 'zod'
+import { defineHandler } from 'nitro/h3'
 import { Season } from '~s/utils/common/season'
 
-export default defineHandler(async (event) => {
-  const query = await getValidatedQuery(
-    event,
-    z.object({ def: z.stringbool().optional() }),
-  )
-  const seasons = await Season.list(query.def)
+// 用于获取全部的季度，包含 有/无 所属系列状态
+export default defineHandler(async () => {
+  const seasons = await Season.list(false)
   return seasons
 })
