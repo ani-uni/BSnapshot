@@ -10,7 +10,7 @@ export const ssRefSchema = z.discriminatedUnion('src', [
 
 export class Season {
   constructor(public seasonModel: SeasonModel) {}
-  get toJSON() {
+  toJSON() {
     return this.seasonModel
   }
   static async create() {

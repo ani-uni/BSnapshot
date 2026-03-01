@@ -10,7 +10,7 @@ export const seriesRefSchema = z.object({
 
 export class Series {
   constructor(public seriesModel: SeriesModel) {}
-  get toJSON() {
+  toJSON() {
     return this.seriesModel
   }
   static async create() {

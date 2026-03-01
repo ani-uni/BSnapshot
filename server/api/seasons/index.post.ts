@@ -3,5 +3,5 @@ import { Season } from '~s/utils/common/season'
 
 export default defineHandler(async () => {
   const season = await Season.create()
-  return season.toJSON
+  return season.toJSON()
 })

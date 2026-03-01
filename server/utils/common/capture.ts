@@ -362,7 +362,7 @@ export class Capture {
           .toFormat('yyyy-MM-dd+HH:mm:ss')
       : undefined
   }
-  get toJSON() {
+  toJSON() {
     return {
       ...this.captureModel,
       cid: this.captureModel.cid.toString(),

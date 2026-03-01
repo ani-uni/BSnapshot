@@ -27,5 +27,5 @@ export default defineHandler(async (event) => {
   if (body.ref) await season.editRef(body.ref)
   if (body.episodes) await season.setEpisodes(body.episodes)
   if (body.series !== undefined) await season.setSeries(body.series)
-  return season.toJSON
+  return season.toJSON()
 })

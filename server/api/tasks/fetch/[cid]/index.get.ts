@@ -10,6 +10,6 @@ export default defineHandler(async (event) => {
       cid: stringToBigInt,
     }),
   )
-  const ft = (await FetchTask.listFromCID(params.cid)).map((t) => t.toJSON)
+  const ft = (await FetchTask.listFromCID(params.cid)).map((t) => t.toJSON())
   return ft
 })

@@ -133,7 +133,7 @@ export class FetchTask {
       },
     })
   }
-  get toJSON() {
+  toJSON() {
     return { ...this.fetchTaskModel, cid: this.fetchTaskModel.cid.toString() }
   }
 }

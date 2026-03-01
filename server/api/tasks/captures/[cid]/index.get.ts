@@ -11,5 +11,5 @@ export default defineHandler(async (event) => {
     }),
   )
   const capture = await Capture.loadFromCID(params.cid)
-  return capture.toJSON
+  return capture.toJSON()
 })

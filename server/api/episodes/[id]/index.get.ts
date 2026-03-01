@@ -10,5 +10,5 @@ export default defineHandler(async (event) => {
     }),
   )
   const episode = await Episode.loadFromID(params.id)
-  return episode.toJSON
+  return episode.toJSON()
 })

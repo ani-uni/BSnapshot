@@ -83,7 +83,7 @@ export class User {
     })
     return use
   }
-  get toJSON() {
+  toJSON() {
     return { ...this.userModel, mid: this.userModel.mid.toString() }
   }
   kyInstance() {

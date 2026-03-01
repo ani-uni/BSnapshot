@@ -22,5 +22,5 @@ export default defineHandler(async (event) => {
     upMid: payload.upMid,
     // taskTypes: payload.taskTypes,
   })
-  return data.toJSON
+  return data.toJSON()
 })

@@ -10,5 +10,5 @@ export default defineHandler(async (event) => {
     }),
   )
   const season = await Season.loadFromID(params.id)
-  return season.toJSON
+  return season.toJSON()
 })

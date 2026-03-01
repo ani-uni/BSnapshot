@@ -11,5 +11,5 @@ export default defineHandler(async (event) => {
     }),
   )
   const res = await AuthUserGet({ mid: params.mid })
-  return res.toJSON
+  return res.toJSON()
 })

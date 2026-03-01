@@ -11,7 +11,7 @@ export const epRefSchema = z.discriminatedUnion('src', [
 
 export class Episode {
   constructor(public episodeModel: EpisodeModel) {}
-  get toJSON() {
+  toJSON() {
     return this.episodeModel
   }
   static async create() {

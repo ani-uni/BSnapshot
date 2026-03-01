@@ -497,7 +497,7 @@ const TMDBApiSchema = {
 export class TMDB {
   public api_url = new URL('https://api.themoviedb.org')
   public api_key = process.env.TMDB_API_KEY
-  get toJSON() {
+  toJSON() {
     return {
       api_url: this.api_url.toString(),
       api_key: this.api_key,
