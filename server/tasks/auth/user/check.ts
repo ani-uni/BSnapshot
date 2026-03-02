@@ -1,6 +1,7 @@
 import { defineTask } from 'nitro/task'
 import type { TaskResult } from '~s/types/tasks/result'
 import { bigint2string } from '~s/utils/bigint'
+import { Event } from '~s/utils/common/event'
 import { prisma } from '~s/utils/prisma'
 import { AuthUserLogin } from './login'
 
@@ -20,6 +21,7 @@ export default defineTask<TaskResult<TaskAuthUserCheckResult>>({
 })
 
 export async function AuthUserCheck(): Promise<TaskAuthUserCheckResult> {
+  const e = new Event('auth:user:check')
   const users = await prisma.user.findMany({
     select: { mid: true, bauth_cookies: true },
   })
@@ -37,5 +39,9 @@ export async function AuthUserCheck(): Promise<TaskAuthUserCheckResult> {
   await prisma.user.deleteMany({
     where: { mid: { in: toDelMids } },
   })
+  e.warn(
+    '登录状态刷新',
+    `${toDelMids.length} 个用户登录失效：${toDelMids.join(', ')}`,
+  )
   return { deletedUserMids: toDelMids }
 }

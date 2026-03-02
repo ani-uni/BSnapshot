@@ -49,6 +49,7 @@ model Runtime {
 
 enum EventLevel {
   INFO
+  WARNING
   ERROR
 }
 

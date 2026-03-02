@@ -1,4 +1,5 @@
 import type { HTTPError } from 'nitro/h3'
+import { EventLevel } from '~/generated/prisma/enums'
 import { prisma } from '../prisma'
 
 export class Event {
@@ -6,6 +7,15 @@ export class Event {
   static async info(src: string, msg: string, params: string = '') {
     await prisma.event.create({
       data: {
+        type: EventLevel.INFO,
+        msg: `[${src}] <${msg}> ${params}`,
+      },
+    })
+  }
+  static async warning(src: string, msg: string, params: string = '') {
+    await prisma.event.create({
+      data: {
+        type: EventLevel.WARNING,
         msg: `[${src}] <${msg}> ${params}`,
       },
     })
@@ -13,6 +23,7 @@ export class Event {
   static async error(src: string, msg: string, err: HTTPError) {
     await prisma.event.create({
       data: {
+        type: EventLevel.ERROR,
         msg: `[${src}] <${msg}> ${err.message}`,
       },
     })
@@ -20,6 +31,9 @@ export class Event {
   }
   async log(msg: string, params: string = '') {
     await Event.info(this.src, msg, params)
+  }
+  async warn(msg: string, params: string = '') {
+    await Event.warning(this.src, msg, params)
   }
   async err(msg: string, err: HTTPError) {
     return await Event.error(this.src, msg, err)
