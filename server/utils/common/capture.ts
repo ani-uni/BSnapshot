@@ -474,8 +474,6 @@ export class Clip {
       where: { episodeId },
       omit: { danmaku: true, danmakuUp: true },
     })
-    if (clips.length === 0)
-      throw new HTTPError('No clips found', { statusCode: 404 })
     return clips
   }
   private async saveDanmaku(danmaku: UniPool, up = false) {
