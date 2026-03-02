@@ -10,8 +10,9 @@ export default defineHandler(async (event) => {
       id: z.union([z.cuid2(), z.literal('default')]),
     }),
   )
-  const seasons = await (params.id === 'default'
-    ? Season.list(true)
-    : Season.listFromSeriesID(params.id))
+  const seasons =
+    params.id === 'default'
+      ? [{ id: 'default', title: '无所属剧集' }, ...(await Season.list(true))]
+      : await Season.listFromSeriesID(params.id)
   return seasons
 })
