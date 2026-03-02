@@ -12,7 +12,10 @@ export const epRefSchema = z.discriminatedUnion('src', [
 export class Episode {
   constructor(public episodeModel: EpisodeModel) {}
   toJSON() {
-    return this.episodeModel
+    return {
+      ...this.episodeModel,
+      seasonId: this.episodeModel.seasonId ?? 'default',
+    }
   }
   static async create() {
     const model = await prisma.episode.create({})

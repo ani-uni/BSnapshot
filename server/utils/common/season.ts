@@ -11,7 +11,10 @@ export const ssRefSchema = z.discriminatedUnion('src', [
 export class Season {
   constructor(public seasonModel: SeasonModel) {}
   toJSON() {
-    return this.seasonModel
+    return {
+      ...this.seasonModel,
+      seriesId: this.seasonModel.seriesId ?? 'default',
+    }
   }
   static async create() {
     const model = await prisma.season.create({})
