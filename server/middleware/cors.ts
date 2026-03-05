@@ -4,7 +4,7 @@ export default defineHandler((e) => {
   const corsRes = handleCors(e, {
     origin: '*',
     preflight: {
-      statusCode: 204,
+      status: 204,
     },
     methods: '*',
   })

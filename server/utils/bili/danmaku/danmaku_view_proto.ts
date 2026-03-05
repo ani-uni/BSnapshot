@@ -17,8 +17,8 @@ const url = { view: 'https://api.bilibili.com/x/v2/dm/web/view' }
  * @throws 参数验证失败或 API 请求错误时抛出异常
  */
 export async function command_seg(user: User, oid: bigint, pid?: bigint) {
-  if (oid <= 0) throw new HTTPError('oid参数错误', { statusCode: 400 })
-  if (pid && pid <= 0) throw new HTTPError('pid参数错误', { statusCode: 400 })
+  if (oid <= 0) throw new HTTPError('oid参数错误', { status: 400 })
+  if (pid && pid <= 0) throw new HTTPError('pid参数错误', { status: 400 })
 
   const e = new Event(
     `请求 互动/UP主/命令/BAS/高级 弹幕 - oid: ${oid}, pid: ${pid}`,
@@ -41,7 +41,7 @@ export async function command_seg(user: User, oid: bigint, pid?: bigint) {
             throw e.err(
               '解析失败',
               new HTTPError(Buffer.from(buf).toString(), {
-                statusCode: 500,
+                status: 500,
                 cause: err,
               }),
             )

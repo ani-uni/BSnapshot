@@ -35,7 +35,7 @@ export default defineTask<TaskResult<TaskTaskPreGenResult>>({
       (payload.type === 'aid' && typeof payload.id !== 'bigint') ||
       (payload.type === 'bvid' && typeof payload.id !== 'string')
     )
-      throw new HTTPError('Invalid payload', { statusCode: 400 })
+      throw new HTTPError('Invalid payload', { status: 400 })
     const res = await TaskPreGen(payload as TaskTaskPreGenPayload)
     return { result: bigint2string(res) }
   },

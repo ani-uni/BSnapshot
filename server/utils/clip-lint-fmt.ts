@@ -8,7 +8,7 @@ export function ClipLintAndFmt(clips: Clip[]): Clip[] {
     if (clip[0] >= clip[1]) {
       throw new HTTPError(
         `Invalid clip: start time (${clip[0]}) must be less than end time (${clip[1]})`,
-        { statusCode: 400 },
+        { status: 400 },
       )
     }
   }

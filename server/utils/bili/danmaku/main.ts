@@ -12,8 +12,7 @@ import up_seg from './up'
  * @param duration 视频单P时长，单位: s
  */
 export function duration2segs(duration: number) {
-  if (duration <= 0)
-    throw new HTTPError('duration参数错误', { statusCode: 400 })
+  if (duration <= 0) throw new HTTPError('duration参数错误', { status: 400 })
 
   return Math.ceil(duration / 3600)
 }
@@ -25,7 +24,7 @@ export function duration2segs(duration: number) {
  */
 export async function rt(user: User, oid: bigint, segs: number[] = [1]) {
   if (segs.some((seg) => seg <= 0))
-    throw new HTTPError('seg参数错误', { statusCode: 400 })
+    throw new HTTPError('seg参数错误', { status: 400 })
 
   let pool = UniPool.create({ dedupe: false, dmid: false })
   for (const seg of segs) {

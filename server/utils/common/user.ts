@@ -13,7 +13,7 @@ export class User {
   static async load(userModel: UserModel) {
     if (!userModel.bauth_cookies) {
       await prisma.user.delete({ where: { mid: userModel.mid } })
-      throw new HTTPError('User is not logged in', { statusCode: 500 })
+      throw new HTTPError('User is not logged in', { status: 500 })
     }
     return new User(userModel)
   }
@@ -28,7 +28,7 @@ export class User {
       })
       .catch((err: Error) => {
         throw new HTTPError(`User with mid ${mid.toString()} not found`, {
-          statusCode: 404,
+          status: 404,
           cause: err,
         })
       })
@@ -39,7 +39,7 @@ export class User {
     if (count === 0)
       throw new HTTPError(
         'No available users, please login at least one user',
-        { statusCode: 500 },
+        { status: 500 },
       )
     const skip = Math.floor(Math.random() * count)
     const u = await prisma.user
@@ -50,7 +50,7 @@ export class User {
       })
       .catch((err: Error) => {
         throw new HTTPError('Failed to get random user', {
-          statusCode: 500,
+          status: 500,
           cause: err,
         })
       })
@@ -95,7 +95,7 @@ export class User {
   async encWbi(params: Record<string, unknown>) {
     const wbiKey = await AuthGlobalWbiKeyGet()
     if (!wbiKey.img_key || !wbiKey.sub_key)
-      throw new HTTPError('WBI key is not available', { statusCode: 500 })
+      throw new HTTPError('WBI key is not available', { status: 500 })
     return encWbi(params, wbiKey.img_key, wbiKey.sub_key)
   }
 }

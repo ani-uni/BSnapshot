@@ -47,7 +47,7 @@ export async function getBiliTicket(cookies: Cookies = new Cookies()) {
   })
   if (!response.ok) {
     throw new HTTPError(`HTTP error! status: ${response.status}`, {
-      statusCode: 500,
+      status: 500,
     })
   }
   return response.json<BiliTicket>().then((res) => {

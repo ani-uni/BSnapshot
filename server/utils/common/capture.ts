@@ -30,7 +30,7 @@ export class Capture {
   static async create(data: CaptureCreate) {
     const clips = ClipLintAndFmt(data.clips)
     if (clips.length === 0)
-      throw new HTTPError('No valid clips provided', { statusCode: 400 })
+      throw new HTTPError('No valid clips provided', { status: 400 })
     const capture_c = await prisma.capture.create({
       data: {
         cid: data.cid,
@@ -51,7 +51,7 @@ export class Capture {
       })
       .catch((err) => {
         throw new HTTPError('Capture not found', {
-          statusCode: 404,
+          status: 404,
           cause: err,
         })
       })
@@ -208,7 +208,7 @@ export class Capture {
       }
     } catch (e) {
       throw new HTTPError('Update History Date Map failed', {
-        statusCode: 500,
+        status: 500,
         cause: e,
       })
     }
@@ -393,7 +393,7 @@ export class Capture {
     })
     // 怎么会呢，既然没有clips，就不会有segs，更不会获取到弹幕了
     if (!clips || clips.length === 0)
-      throw new HTTPError('No clips', { statusCode: 500 })
+      throw new HTTPError('No clips', { status: 500 })
     for (const clip of clips) {
       await new Clip(clip).mergeDanmaku(
         new UniPool(
@@ -412,7 +412,7 @@ export class Capture {
         // 以上返回null的条件是弹幕池为空，在前面的检查已保证不会出现这种情况
         if (!cursor)
           throw new HTTPError('No cursor found from danmaku', {
-            statusCode: 500,
+            status: 500,
           })
         await prisma.capture.update({
           where: { cid: this.captureModel.cid },
@@ -422,7 +422,7 @@ export class Capture {
         // his接口
         if (!query_history_date)
           throw new HTTPError('query_history_date required', {
-            statusCode: 500,
+            status: 500,
           })
         await this.hisDateMapEnlight(danmaku, query_history_date)
       }
@@ -466,7 +466,7 @@ export class Clip {
       omit: { danmaku: true, danmakuUp: true },
     })
     if (clips.length === 0)
-      throw new HTTPError('No clips found', { statusCode: 404 })
+      throw new HTTPError('No clips found', { status: 404 })
     return clips
   }
   static async listInfoFromEpisodeID(episodeId: string) {

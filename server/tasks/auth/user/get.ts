@@ -17,9 +17,10 @@ export default defineTask<TaskResult<UserModel>>({
     description: 'Get user by mid',
   },
   async run({ payload }: { payload: TaskPayload<TaskAuthUserGetPayload> }) {
-    if (!payload.mid) throw new HTTPError('Missing mid', { statusCode: 400 })
-    const result = (await AuthUserGet({ ...payload, mid: BigInt(payload.mid) }))
-      .toJSON()
+    if (!payload.mid) throw new HTTPError('Missing mid', { status: 400 })
+    const result = (
+      await AuthUserGet({ ...payload, mid: BigInt(payload.mid) })
+    ).toJSON()
     return { result }
   },
 })

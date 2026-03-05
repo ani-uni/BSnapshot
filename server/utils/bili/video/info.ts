@@ -110,7 +110,7 @@ async function view(user: User, opt: VideoInfoOpt) {
         .then((res) => {
           if (res.code !== 0)
             throw new HTTPError(`获取视频信息失败: ${res.message}`, {
-              statusCode: 500,
+              status: 500,
             })
           return res.data
         }),

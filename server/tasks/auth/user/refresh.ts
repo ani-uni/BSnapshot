@@ -25,7 +25,7 @@ export default defineTask<TaskResult<TaskAuthUserRefreshResult>>({
     description: 'Refresh user auth',
   },
   async run({ payload }: { payload: TaskPayload<TaskAuthUserRefreshPayload> }) {
-    if (!payload.mid) throw new HTTPError('Missing mid', { statusCode: 400 })
+    if (!payload.mid) throw new HTTPError('Missing mid', { status: 400 })
     const result = await AuthUserRefresh({
       ...payload,
       mid: BigInt(payload.mid),
@@ -44,7 +44,7 @@ export async function AuthUserRefresh(
   const SESSDATA = bauth_cookies.getOrThrow('SESSDATA')
   if (!SESSDATA) {
     await prisma.user.delete({ where: { mid: BigInt(payload.mid) } })
-    throw new HTTPError('User not logged in', { statusCode: 500 })
+    throw new HTTPError('User not logged in', { status: 500 })
   }
   // buvid
   const buvid3 = bauth_cookies.get('buvid3')

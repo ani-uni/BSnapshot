@@ -16,6 +16,6 @@ export default defineHandler(async (event) => {
   else if (p.movie_id) return tmdb.getMovieInfo(p)
   else
     throw new HTTPError('不合法的 TMDB UrlC (你输入的类型是电影)!', {
-      statusCode: 400,
+      status: 400,
     })
 })

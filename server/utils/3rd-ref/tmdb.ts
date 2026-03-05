@@ -604,7 +604,7 @@ export class TMDB {
     if (c?.episode_number) return c
     else
       throw new HTTPError('Invalid input for getTVEpisodeInfo', {
-        statusCode: 400,
+        status: 400,
       })
   }
   async getTVEpisodeInfo(
@@ -635,7 +635,7 @@ export class TMDB {
     if (c?.movie_id) return c
     else
       throw new HTTPError('Invalid input for getMovieInfo', {
-        statusCode: 400,
+        status: 400,
       })
   }
   async getMovieInfo(
@@ -659,7 +659,7 @@ export class TMDB {
     if (c?.season_number) return c
     else
       throw new HTTPError('Invalid input for getTVSeasonInfo', {
-        statusCode: 400,
+        status: 400,
       })
   }
   async getTVSeasonInfo(
@@ -689,7 +689,7 @@ export class TMDB {
     if (c?.series_id) return c
     else
       throw new HTTPError('Invalid input for getTVSeriesInfo', {
-        statusCode: 400,
+        status: 400,
       })
   }
   async getTVSeriesInfo(

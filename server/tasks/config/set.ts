@@ -30,7 +30,7 @@ export async function ConfigSet(payload: TaskConfigSetPayload) {
     })
     .catch((err: Error) => {
       throw new HTTPError('Config update failed', {
-        statusCode: 500,
+        status: 500,
         cause: err,
       })
     })

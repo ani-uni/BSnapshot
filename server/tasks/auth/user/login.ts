@@ -22,7 +22,7 @@ export default defineTask<TaskResult<TaskAuthUserLoginResult>>({
   },
   async run({ payload }: { payload: TaskPayload<TaskAuthUserLoginPayload> }) {
     if (!payload.bauth_cookies)
-      throw new HTTPError('Missing bauth_cookies', { statusCode: 400 })
+      throw new HTTPError('Missing bauth_cookies', { status: 400 })
     const result = await AuthUserLogin(payload as TaskAuthUserLoginPayload)
     return bigint2string({ result })
   },
@@ -46,17 +46,17 @@ export async function AuthUserLogin(
     .then(async (res) => {
       if (res.code !== 0)
         throw new HTTPError(`获取个人信息失败: ${res.message}`, {
-          statusCode: 500,
+          status: 500,
         })
       const { uname, vip } = res.data
       const mid = BigInt(res.data.mid)
       if (!mid || !uname || !vip)
         throw new HTTPError('获取个人信息失败: 无法获取mid/uname/vip', {
-          statusCode: 500,
+          status: 500,
         })
       const bauth_cookies = cookies.toString()
       if (!bauth_cookies)
-        throw new HTTPError('Invalid bauth_cookies', { statusCode: 500 })
+        throw new HTTPError('Invalid bauth_cookies', { status: 500 })
       await prisma.user.upsert({
         where: { mid },
         update: {

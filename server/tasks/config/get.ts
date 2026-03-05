@@ -23,7 +23,7 @@ export async function ConfigGet() {
     .upsert({ where: { id: 0 }, update: {}, create: { id: 0 } })
     .catch((err: Error) => {
       throw new HTTPError('Config not available', {
-        statusCode: 500,
+        status: 500,
         cause: err,
       })
     })
@@ -31,7 +31,7 @@ export async function ConfigGet() {
     .upsert({ where: { id: 0 }, update: {}, create: { id: 0 } })
     .catch((err: Error) => {
       throw new HTTPError('Runtime not available', {
-        statusCode: 500,
+        status: 500,
         cause: err,
       })
     })

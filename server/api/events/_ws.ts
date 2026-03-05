@@ -80,7 +80,7 @@ export default defineWebSocketHandler({
     }
     peerStates.delete(peer)
     throw new HTTPError('WebSocket error', {
-      statusCode: 500,
+      status: 500,
       cause: error,
       body: { peer },
     })

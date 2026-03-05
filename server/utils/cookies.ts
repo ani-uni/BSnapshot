@@ -64,7 +64,7 @@ export class Cookies {
   getOrThrow(k: string) {
     const v = this.get(k)
     if (v === null)
-      throw new HTTPError(`Cookie ${k} not found`, { statusCode: 500 })
+      throw new HTTPError(`Cookie ${k} not found`, { status: 500 })
     return v
   }
   set(k: string | ((ck: typeof CK) => void), v?: string) {

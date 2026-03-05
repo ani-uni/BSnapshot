@@ -58,7 +58,7 @@ export async function AuthUserLoginQr(
       .then((res) => {
         if (res.code !== 0)
           throw new HTTPError(`获取二维码失败: ${res.message}`, {
-            statusCode: 500,
+            status: 500,
           })
         return res.data
       })
@@ -84,7 +84,7 @@ export async function AuthUserLoginQr(
           throw new HTTPError(
             `尝试检测是否完成扫码登录失败: ${res.body.message}`,
             {
-              statusCode: 500,
+              status: 500,
             },
           )
         return res
@@ -93,21 +93,21 @@ export async function AuthUserLoginQr(
         const { code: statusCode, message } = res.body.data
         switch (statusCode) {
           case 86101:
-            throw new HTTPError('未扫码', { statusCode: 400 })
+            throw new HTTPError('未扫码', { status: 400 })
           case 86090:
-            throw new HTTPError('已扫码未确认', { statusCode: 400 })
+            throw new HTTPError('已扫码未确认', { status: 400 })
           case 0: {
             if (res.cookies.hasCookies)
               return AuthUserLogin({ bauth_cookies: res.cookies.toString() })
             else
               throw new HTTPError('登录失败: 未获取到Cookies', {
-                statusCode: 500,
+                status: 500,
               })
           }
           case 86038:
-            throw new HTTPError('二维码已失效', { statusCode: 500 })
+            throw new HTTPError('二维码已失效', { status: 500 })
           default:
-            throw new HTTPError(`未知状态: ${message}`, { statusCode: 500 })
+            throw new HTTPError(`未知状态: ${message}`, { status: 500 })
         }
       })
   }

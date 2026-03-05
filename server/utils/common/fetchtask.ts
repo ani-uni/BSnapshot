@@ -188,7 +188,7 @@ export class FetchTaskAsQueue {
           batch = this.conf.upBatch
         } else
           throw new HTTPError('Unknown task type in isIdle', {
-            statusCode: 500,
+            status: 500,
           })
         const subInterval =
           Date.now() >=
@@ -224,7 +224,7 @@ export class FetchTaskAsQueue {
     })
     if (lastTask) {
       if (lastTask.queueId === null)
-        throw new HTTPError('Unexpected null queueId', { statusCode: 500 })
+        throw new HTTPError('Unexpected null queueId', { status: 500 })
       return lastTask.queueId + 1
     }
     return minQID
@@ -241,7 +241,7 @@ export class FetchTaskAsQueue {
     // done只有手动状态下才能加入
     if (ft.fetchTaskModel.status === TaskStatus.DISABLED)
       throw new HTTPError('Cannot add DISABLED task to queue', {
-        statusCode: 400,
+        status: 400,
       })
     if (ft.fetchTaskModel.status === TaskStatus.RUNNING) return null
     else if (
@@ -251,7 +251,7 @@ export class FetchTaskAsQueue {
       throw new HTTPError(
         'Cannot add DONE/FAILED task to queue automatically',
         {
-          statusCode: 400,
+          status: 400,
         },
       )
     if (manual === false && !(await this.isIdle(ft))) return null
@@ -292,7 +292,7 @@ export class FetchTaskAsQueue {
     // .toSorted((a, b) => {
     //   if (a.queueId === null || b.queueId === null)
     //     throw new HTTPError('Unexpected null queueId in run', {
-    //       statusCode: 500,
+    //       status: 500,
     //     })
     //   return a.queueId - b.queueId
     // })
@@ -311,7 +311,7 @@ export class FetchTaskAsQueue {
             await ft.status(TaskStatus.FAILED)
             await ft.afterRun()
             throw new HTTPError('Failed to fetch RT danmaku', {
-              statusCode: 500,
+              status: 500,
               cause: err,
             })
           })
@@ -323,7 +323,7 @@ export class FetchTaskAsQueue {
             await ft.status(TaskStatus.FAILED)
             await ft.afterRun()
             throw new HTTPError('No danmaku fetched in RT task', {
-              statusCode: 500,
+              status: 500,
             })
           }
           await capture.mergeDanmaku(pool)
@@ -349,7 +349,7 @@ export class FetchTaskAsQueue {
             await ft.status(TaskStatus.FAILED)
             await ft.afterRun()
             throw new HTTPError('Failed to fetch HIS danmaku', {
-              statusCode: 500,
+              status: 500,
               cause: err,
             })
           })
@@ -366,7 +366,7 @@ export class FetchTaskAsQueue {
               await ft.status(TaskStatus.FAILED)
               await ft.afterRun()
               throw new HTTPError('Failed to fetch SP danmaku', {
-                statusCode: 500,
+                status: 500,
                 cause: err,
               })
             },
@@ -376,7 +376,7 @@ export class FetchTaskAsQueue {
             await ft.status(TaskStatus.FAILED)
             await ft.afterRun()
             throw new HTTPError('No danmaku fetched in SP task', {
-              statusCode: 500,
+              status: 500,
             })
           }
           await capture.mergeDanmaku(pool)
@@ -389,7 +389,7 @@ export class FetchTaskAsQueue {
           // 当然，add之前本来就有检查的
           if (!task.capture.upMid)
             throw new HTTPError('UP task should not run without upMid', {
-              statusCode: 500,
+              status: 500,
             })
           const cursor = capture.upLatest
           const conf = new FetchTaskAsQueue()
@@ -403,7 +403,7 @@ export class FetchTaskAsQueue {
             await ft.status(TaskStatus.FAILED)
             await ft.afterRun()
             throw new HTTPError('Failed to fetch UP danmaku', {
-              statusCode: 500,
+              status: 500,
               cause: err,
             })
           })
@@ -420,7 +420,7 @@ export class FetchTaskAsQueue {
         }
       }
       // 已遍历所有种类的任务，正常情况不会报错
-      throw new HTTPError('Unknown task type', { statusCode: 500 })
+      throw new HTTPError('Unknown task type', { status: 500 })
     }
     const fetchers = taskToRun.map(fetchConstructor)
     for (const f of fetchers) {

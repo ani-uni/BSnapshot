@@ -148,7 +148,7 @@ export default async function up_seg(
     params.progress_from > params.progress_to
   )
     throw new HTTPError('progress_from 不能大于 progress_to', {
-      statusCode: 400,
+      status: 400,
     })
 
   const e = new Event(
@@ -167,7 +167,7 @@ export default async function up_seg(
             throw e.err(
               '获取失败',
               new HTTPError(res.message, {
-                statusCode: 500,
+                status: 500,
               }),
             )
           return res

@@ -40,7 +40,7 @@ export async function AuthGlobalWbiKeyRefresh(
   if (!res)
     throw e.err(
       'WBI刷新失败',
-      new HTTPError('Failed to refresh WBI keys', { statusCode: 500 }),
+      new HTTPError('Failed to refresh WBI keys', { status: 500 }),
     )
   const original = await AuthGlobalWbiKeyGet()
   if (res.img_key === original.img_key) {
