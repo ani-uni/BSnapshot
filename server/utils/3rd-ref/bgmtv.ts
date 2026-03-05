@@ -27,7 +27,14 @@ const BgmTvApiModelSchema = {
       small: z.string(),
       grid: z.string(),
     }),
-    infobox: z.array(z.record(z.string(), z.string())).optional(),
+    infobox: z
+      .array(
+        z.record(
+          z.string(),
+          z.union([z.string(), z.array(z.object({ v: z.string() }))]),
+        ),
+      )
+      .optional(),
     volumes: z.int(),
     eps: z.int(),
     total_episodes: z.int(),
@@ -145,7 +152,13 @@ export class BgmTv {
       .then((res) =>
         BgmTvApiSchema.v0.episodes['{episode_id}'].response.parse(res),
       )
-    return res
+    return {
+      v0: {
+        episodes: {
+          '{episode_id}': res,
+        },
+      },
+    }
   }
   async getSubjectInfo(subject_id: number) {
     const res = await this.kyInstance()
@@ -154,7 +167,13 @@ export class BgmTv {
       .then((res) =>
         BgmTvApiSchema.v0.subjects['{subject_id}'].response.parse(res),
       )
-    return res
+    return {
+      v0: {
+        subjects: {
+          '{subject_id}': res,
+        },
+      },
+    }
   }
   async listEpisodes(subject_id: number) {
     const res = await this.kyInstance()
@@ -165,7 +184,11 @@ export class BgmTv {
       })
       .json()
       .then((res) => BgmTvApiSchema.v0.episodes.response.parse(res))
-    return res
+    return {
+      v0: {
+        episodes: res,
+      },
+    }
   }
   async searchSubjects(keyword: string) {
     const res = await this.kyInstance()
@@ -179,6 +202,14 @@ export class BgmTv {
       .then((res) =>
         BgmTvApiSchema.v0.search.subjects['<post>'].response.parse(res),
       )
-    return res
+    return {
+      v0: {
+        search: {
+          subjects: {
+            '<post>': res,
+          },
+        },
+      },
+    }
   }
 }

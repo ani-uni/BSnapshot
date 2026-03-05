@@ -26,6 +26,7 @@ export default defineConfig({
   storage: {
     base: { driver: 'fs', base: '.data/db/base' },
     auth: { driver: 'fs', base: '.data/db/auth' },
+    tmdb: { driver: 'fs', base: '.data/db/tmdb' },
   },
   scheduledTasks: {
     '0 12 * * *': ['auth:user:check'],

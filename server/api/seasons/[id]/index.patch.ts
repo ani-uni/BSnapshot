@@ -19,13 +19,11 @@ export default defineHandler(async (event) => {
       ref: ssRefSchema.optional(),
       title: z.string().optional(),
       episodes: z.array(z.cuid2()).optional(),
-      series: z.cuid2().nullish(),
     }),
   )
   const season = await Season.loadFromID(params.id)
   if (body.title) await season.editTitle(body.title)
   if (body.ref) await season.editRef(body.ref)
   if (body.episodes) await season.setEpisodes(body.episodes)
-  if (body.series !== undefined) await season.setSeries(body.series)
   return season.toJSON()
 })

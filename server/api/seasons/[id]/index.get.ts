@@ -12,6 +12,7 @@ export default defineHandler(async (event) => {
   if (params.id === 'default')
     return {
       id: 'default',
+      sn: -1,
       title: '无所属剧集',
       bgmtv: null,
       tmdb: null,

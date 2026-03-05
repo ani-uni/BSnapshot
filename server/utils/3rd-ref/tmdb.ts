@@ -2,7 +2,6 @@ import 'dotenv/config'
 import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
-import qs from 'qs'
 import z from 'zod'
 import { headers } from '../headers'
 
@@ -84,7 +83,7 @@ export function parseTMDBUrlC(urlc: string) {
       const movie_id = parseId(match[1])
       if (movie_id === null) return null
       return { movie_id }
-    } else if (kind === 'series') {
+    } else {
       const series_id = parseId(match[1])
       if (series_id === null) return null
       if (kind === 'series') return { series_id }
@@ -106,11 +105,34 @@ const TMDBApiSchema = {
     authentication: {
       response: z.object({
         success: z.literal(true),
-        status_code: z.int(),
-        status_message: z.string(),
       }),
     },
     search: {
+      movie: {
+        response: z.object({
+          page: z.int(),
+          results: z.array(
+            z.object({
+              adult: z.boolean().optional(),
+              backdrop_path: z.string().nullish(),
+              id: z.int(),
+              title: z.string().optional(),
+              original_language: z.string().optional(),
+              original_title: z.string().optional(),
+              overview: z.string().nullish(),
+              poster_path: z.string().nullish(),
+              genre_ids: z.array(z.int()).optional(),
+              popularity: z.number().optional(),
+              release_date: z.string().nullish(),
+              video: z.boolean().optional(),
+              vote_average: z.number().optional(),
+              vote_count: z.int().optional(),
+            }),
+          ),
+          total_pages: z.int(),
+          total_results: z.int(),
+        }),
+      },
       multi: {
         response: z.object({
           page: z.int(),
@@ -154,6 +176,31 @@ const TMDBApiSchema = {
                 media_type: z.string(),
               }),
             ]),
+          ),
+          total_pages: z.int(),
+          total_results: z.int(),
+        }),
+      },
+      tv: {
+        response: z.object({
+          page: z.int(),
+          results: z.array(
+            z.object({
+              adult: z.boolean().optional(),
+              backdrop_path: z.string().nullish(),
+              id: z.int(),
+              name: z.string().optional(),
+              original_language: z.string().optional(),
+              original_name: z.string().optional(),
+              overview: z.string().nullish(),
+              poster_path: z.string().nullish(),
+              genre_ids: z.array(z.int()).optional(),
+              popularity: z.number().optional(),
+              first_air_date: z.string().nullish(),
+              vote_average: z.number().optional(),
+              vote_count: z.int().optional(),
+              origin_country: z.array(z.string()).optional(),
+            }),
           ),
           total_pages: z.int(),
           total_results: z.int(),
@@ -503,13 +550,21 @@ export class TMDB {
       api_key: this.api_key,
     }
   }
-  static async init() {
+  static async init(
+    /**
+     * 传入数据创建临时实例(overlay)
+     */
+    data?: z.infer<typeof TMDBConfigSchema>,
+  ) {
+    const tmdb = new TMDB()
+    if (data) data = TMDBConfigSchema.parse(data)
     const storage = useStorage('tmdb')
     const url = await storage.get<string>('api_url')
     const key = await storage.get<string>('api_key')
-    const tmdb = new TMDB()
     if (url) tmdb.api_url = new URL(url)
     if (key) tmdb.api_key = key
+    if (data?.api_url) tmdb.api_url = new URL(data.api_url)
+    if (data?.api_key) tmdb.api_key = data.api_key
     return tmdb
   }
   static async setConfig(data: z.infer<typeof TMDBConfigSchema>) {
@@ -522,10 +577,12 @@ export class TMDB {
   }
   kyInstance() {
     const hds = headers.get('app')
-    hds.set('Accept', 'application/json')
-    if (this.api_key && this.api_key !== 'proxy')
-      hds.set('Authorization', `Bearer ${this.api_key}`)
     return ky.create({
+      searchParams: {
+        api_key: this.api_key === 'proxy' ? undefined : this.api_key,
+        language: 'zh-CN',
+        include_image_language: 'zh,null',
+      },
       headers: hds,
       prefixUrl: this.api_url,
     })
@@ -542,54 +599,60 @@ export class TMDB {
       .then((res) => res.success)
     return res
   }
-  private check_input_of_getTVEpisodeOrMovieInfo(i: string) {
+  private check_input_of_getTVEpisodeInfo(i: string) {
     const c = parseTMDBUrlC(i)
-    if (c?.episode_number || c?.movie_id) return c
+    if (c?.episode_number) return c
     else
-      throw new HTTPError('Invalid input for getTVEpisodeOrMovieInfo', {
+      throw new HTTPError('Invalid input for getTVEpisodeInfo', {
         statusCode: 400,
       })
   }
-  async getTVEpisodeOrMovieInfo(
-    input:
-      | string
-      | ReturnType<typeof this.check_input_of_getTVEpisodeOrMovieInfo>,
+  async getTVEpisodeInfo(
+    input: string | ReturnType<typeof this.check_input_of_getTVEpisodeInfo>,
   ) {
     const id =
       typeof input === 'string'
-        ? this.check_input_of_getTVEpisodeOrMovieInfo(input)
+        ? this.check_input_of_getTVEpisodeInfo(input)
         : input
-    const ky = this.kyInstance()
-    if (id.movie_id) {
-      const res = await ky
-        .get(`3/movie/${id.movie_id}?language=zh-CN`)
-        .json()
-        .then((res) => TMDBApiSchema[3].movie['{movie_id}'].response.parse(res))
-      return {
-        movie: res,
-      }
-    } else if (id.episode_number) {
-      const res = await ky
-        .get(
-          `3/tv/${id.series_id}/season/${id.season_number}/episode/${id.episode_number}?language=zh-CN`,
-        )
-        .json()
-        .then((res) =>
-          TMDBApiSchema[3].tv['{series_id}'].season['{season_number}'].episode[
-            '{episode_number}'
-          ].response.parse(res),
-        )
-      return {
-        tv: {
-          episode: res,
-        },
-      }
+    const res = await this.kyInstance()
+      .get(
+        `3/tv/${id.series_id}/season/${id.season_number}/episode/${id.episode_number}`,
+      )
+      .json()
+      .then((res) =>
+        TMDBApiSchema[3].tv['{series_id}'].season['{season_number}'].episode[
+          '{episode_number}'
+        ].response.parse(res),
+      )
+    return {
+      tv: {
+        episode: res,
+      },
     }
-    // 理论上不应该走到这里，因为#check_input_of_getTVEpisodeOrMovieInfo已经验证过输入了
+  }
+  private check_input_of_getMovieInfo(i: string) {
+    const c = parseTMDBUrlC(i)
+    if (c?.movie_id) return c
     else
-      throw new HTTPError('Invalid input for getTVEpisodeOrMovieInfo', {
+      throw new HTTPError('Invalid input for getMovieInfo', {
         statusCode: 400,
       })
+  }
+  async getMovieInfo(
+    input: string | ReturnType<typeof this.check_input_of_getMovieInfo>,
+  ) {
+    const id =
+      typeof input === 'string'
+        ? this.check_input_of_getMovieInfo(input)
+        : input
+    const ky = this.kyInstance()
+    const res = await ky
+      .get(`3/movie/${id.movie_id}`)
+      .json()
+      .then((res) => TMDBApiSchema[3].movie['{movie_id}'].response.parse(res))
+    return {
+      movie: res,
+    }
   }
   private check_input_of_getTVSeasonInfo(i: string) {
     const c = parseTMDBUrlC(i)
@@ -608,7 +671,7 @@ export class TMDB {
         : input
     const ky = this.kyInstance()
     const res = await ky
-      .get(`3/tv/${id.series_id}/season/${id.season_number}?language=zh-CN`)
+      .get(`3/tv/${id.series_id}/season/${id.season_number}`)
       .json()
       .then((res) =>
         TMDBApiSchema[3].tv['{series_id}'].season[
@@ -638,12 +701,54 @@ export class TMDB {
         : input
     const ky = this.kyInstance()
     const res = await ky
-      .get(`3/tv/${id.series_id}?language=zh-CN`)
+      .get(`3/tv/${id.series_id}`)
       .json()
       .then((res) => TMDBApiSchema[3].tv['{series_id}'].response.parse(res))
     return {
       tv: {
         series: res,
+      },
+    }
+  }
+  async searchMovie(
+    query: string,
+    page = 1,
+  ): Promise<{
+    search: {
+      movie: z.infer<(typeof TMDBApiSchema)[3]['search']['movie']['response']>
+    }
+  }> {
+    const ky = this.kyInstance()
+    const res = await ky
+      .get('3/search/movie', {
+        searchParams: { query, include_adult: true, page },
+      })
+      .json()
+      .then((res) => TMDBApiSchema[3].search.movie.response.parse(res))
+    return {
+      search: {
+        movie: res,
+      },
+    }
+  }
+  async searchTV(
+    query: string,
+    page = 1,
+  ): Promise<{
+    search: {
+      tv: z.infer<(typeof TMDBApiSchema)[3]['search']['tv']['response']>
+    }
+  }> {
+    const ky = this.kyInstance()
+    const res = await ky
+      .get('3/search/tv', {
+        searchParams: { query, include_adult: true, page },
+      })
+      .json()
+      .then((res) => TMDBApiSchema[3].search.tv.response.parse(res))
+    return {
+      search: {
+        tv: res,
       },
     }
   }
@@ -657,9 +762,9 @@ export class TMDB {
   }> {
     const ky = this.kyInstance()
     const res = await ky
-      .get(
-        `3/search/multi?${qs.stringify({ query, include_adult: true, language: 'zh-CN', page })}`,
-      )
+      .get('3/search/multi', {
+        searchParams: { query, include_adult: true, page },
+      })
       .json()
       .then((res) => TMDBApiSchema[3].search.multi.response.parse(res))
       .then((res) => ({

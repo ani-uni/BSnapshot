@@ -17,8 +17,8 @@ export class Episode {
       seasonId: this.episodeModel.seasonId ?? 'default',
     }
   }
-  static async create() {
-    const model = await prisma.episode.create({})
+  static async create(seasonId: string, sn: number) {
+    const model = await prisma.episode.create({ data: { seasonId, sn } })
     return new Episode(model)
   }
   async del() {
