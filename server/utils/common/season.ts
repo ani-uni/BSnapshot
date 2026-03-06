@@ -21,7 +21,13 @@ export class Season {
     return new Season(model)
   }
   async del() {
-    await prisma.season.delete({ where: { id: this.seasonModel.id } })
+    await prisma.$transaction([
+      prisma.episode.updateMany({
+        where: { seasonId: this.seasonModel.id },
+        data: { seasonId: null, sn: null },
+      }),
+      prisma.season.delete({ where: { id: this.seasonModel.id } }),
+    ])
   }
   static async loadFromID(id: string) {
     const model = await prisma.season.findUniqueOrThrow({
