@@ -13,10 +13,7 @@ export default defineHandler(async (event) => {
       id: z.union([z.cuid2()]),
     }),
   )
-  const body = await readValidatedBody(
-    event,
-    z.object({ sn: z.int().positive() }),
-  )
+  const body = await readValidatedBody(event, z.object({ sn: z.int() }))
   const episode = await Episode.create(params.id, body.sn)
   return episode
 })

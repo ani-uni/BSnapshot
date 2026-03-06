@@ -11,7 +11,7 @@ export default defineHandler(async (event) => {
   )
   const tmdb = await TMDB.init()
   const p = parseTMDBUrlC(query.query)
-  if (p === null) return tmdb.searchTV(query.query)
+  if (p === null) return tmdb.searchMulti(query.query)
   else if (p.season_number) return tmdb.getTVSeasonInfo(p)
   else if (p.movie_id) return tmdb.getMovieInfo(p)
   else

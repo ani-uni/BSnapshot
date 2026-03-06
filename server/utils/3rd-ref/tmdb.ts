@@ -100,6 +100,41 @@ export function parseTMDBUrlC(urlc: string) {
   return null
 }
 
+const TMDBApiSchemaSearch = {
+  movie: z.object({
+    adult: z.boolean().optional(),
+    backdrop_path: z.string().nullish(),
+    id: z.int(),
+    title: z.string().optional(),
+    original_language: z.string().optional(),
+    original_title: z.string().optional(),
+    overview: z.string().nullish(),
+    poster_path: z.string().nullish(),
+    genre_ids: z.array(z.int()).optional(),
+    popularity: z.number().optional(),
+    release_date: z.string().nullish(),
+    video: z.boolean().optional(),
+    vote_average: z.number().optional(),
+    vote_count: z.int().optional(),
+  }),
+  tv: z.object({
+    adult: z.boolean().optional(),
+    backdrop_path: z.string().nullish(),
+    id: z.int(),
+    name: z.string().optional(),
+    original_language: z.string().optional(),
+    original_name: z.string().optional(),
+    overview: z.string().nullish(),
+    poster_path: z.string().nullish(),
+    genre_ids: z.array(z.int()).optional(),
+    popularity: z.number().optional(),
+    first_air_date: z.string().nullish(),
+    vote_average: z.number().optional(),
+    vote_count: z.int().optional(),
+    origin_country: z.array(z.string()).optional(),
+  }),
+}
+
 const TMDBApiSchema = {
   3: {
     authentication: {
@@ -111,24 +146,7 @@ const TMDBApiSchema = {
       movie: {
         response: z.object({
           page: z.int(),
-          results: z.array(
-            z.object({
-              adult: z.boolean().optional(),
-              backdrop_path: z.string().nullish(),
-              id: z.int(),
-              title: z.string().optional(),
-              original_language: z.string().optional(),
-              original_title: z.string().optional(),
-              overview: z.string().nullish(),
-              poster_path: z.string().nullish(),
-              genre_ids: z.array(z.int()).optional(),
-              popularity: z.number().optional(),
-              release_date: z.string().nullish(),
-              video: z.boolean().optional(),
-              vote_average: z.number().optional(),
-              vote_count: z.int().optional(),
-            }),
-          ),
+          results: z.array(TMDBApiSchemaSearch.movie),
           total_pages: z.int(),
           total_results: z.int(),
         }),
@@ -138,42 +156,11 @@ const TMDBApiSchema = {
           page: z.int(),
           results: z.array(
             z.discriminatedUnion('media_type', [
-              z.object({
+              TMDBApiSchemaSearch.movie.safeExtend({
                 media_type: z.literal('movie'),
-                adult: z.boolean().optional(),
-                backdrop_path: z.string().nullish(),
-                id: z.int(),
-                title: z.string().optional(),
-                original_language: z.string().optional(),
-                original_title: z.string().optional(),
-                overview: z.string().nullish(),
-                poster_path: z.string().nullish(),
-                genre_ids: z.array(z.int()).optional(),
-                popularity: z.number().optional(),
-                release_date: z.string().nullish(),
-                video: z.boolean().optional(),
-                vote_average: z.number().optional(),
-                vote_count: z.int().optional(),
               }),
-              z.object({
+              TMDBApiSchemaSearch.tv.safeExtend({
                 media_type: z.literal('tv'),
-                adult: z.boolean().optional(),
-                backdrop_path: z.string().nullish(),
-                id: z.int(),
-                name: z.string().optional(),
-                original_language: z.string().optional(),
-                original_name: z.string().optional(),
-                overview: z.string().nullish(),
-                poster_path: z.string().nullish(),
-                genre_ids: z.array(z.int()).optional(),
-                popularity: z.number().optional(),
-                first_air_date: z.string().nullish(),
-                vote_average: z.number().optional(),
-                vote_count: z.int().optional(),
-                origin_country: z.array(z.string()).optional(),
-              }),
-              z.object({
-                media_type: z.string(),
               }),
             ]),
           ),
@@ -184,24 +171,7 @@ const TMDBApiSchema = {
       tv: {
         response: z.object({
           page: z.int(),
-          results: z.array(
-            z.object({
-              adult: z.boolean().optional(),
-              backdrop_path: z.string().nullish(),
-              id: z.int(),
-              name: z.string().optional(),
-              original_language: z.string().optional(),
-              original_name: z.string().optional(),
-              overview: z.string().nullish(),
-              poster_path: z.string().nullish(),
-              genre_ids: z.array(z.int()).optional(),
-              popularity: z.number().optional(),
-              first_air_date: z.string().nullish(),
-              vote_average: z.number().optional(),
-              vote_count: z.int().optional(),
-              origin_country: z.array(z.string()).optional(),
-            }),
-          ),
+          results: z.array(TMDBApiSchemaSearch.tv),
           total_pages: z.int(),
           total_results: z.int(),
         }),
@@ -604,7 +574,7 @@ export class TMDB {
     if (c?.episode_number) return c
     else
       throw new HTTPError('Invalid input for getTVEpisodeInfo', {
-        status: 400,
+        statusCode: 400,
       })
   }
   async getTVEpisodeInfo(
@@ -635,7 +605,7 @@ export class TMDB {
     if (c?.movie_id) return c
     else
       throw new HTTPError('Invalid input for getMovieInfo', {
-        status: 400,
+        statusCode: 400,
       })
   }
   async getMovieInfo(
@@ -659,7 +629,7 @@ export class TMDB {
     if (c?.season_number) return c
     else
       throw new HTTPError('Invalid input for getTVSeasonInfo', {
-        status: 400,
+        statusCode: 400,
       })
   }
   async getTVSeasonInfo(
@@ -689,7 +659,7 @@ export class TMDB {
     if (c?.series_id) return c
     else
       throw new HTTPError('Invalid input for getTVSeriesInfo', {
-        status: 400,
+        statusCode: 400,
       })
   }
   async getTVSeriesInfo(
@@ -766,13 +736,15 @@ export class TMDB {
         searchParams: { query, include_adult: true, page },
       })
       .json()
-      .then((res) => TMDBApiSchema[3].search.multi.response.parse(res))
-      .then((res) => ({
+      // biome-ignore lint/suspicious/noExplicitAny: pre-handle
+      .then((res: any) => ({
         ...res,
         results: res.results.filter(
-          (r) => r.media_type === 'movie' || r.media_type === 'tv',
+          // biome-ignore lint/suspicious/noExplicitAny: pre-handle
+          (r: any) => r.media_type === 'movie' || r.media_type === 'tv',
         ),
       }))
+      .then((res) => TMDBApiSchema[3].search.multi.response.parse(res))
     return {
       search: {
         multi: res,
