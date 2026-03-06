@@ -1,4 +1,5 @@
 import { UniPool } from '@dan-uni/dan-any'
+import { HTTPError } from 'nitro/h3'
 import z from 'zod'
 import type { EpisodeModel } from '~/generated/prisma/models'
 import { TMDBUrlCRawSchema } from '../3rd-ref/tmdb'
@@ -17,7 +18,19 @@ export class Episode {
       seasonId: this.episodeModel.seasonId ?? 'default',
     }
   }
-  static async create(seasonId: string, sn: number) {
+  static async create(seasonId: null): Promise<Episode>
+  static async create(seasonId: string, sn: number): Promise<Episode>
+  static async create(seasonId: string | null, sn?: number): Promise<Episode> {
+    if (seasonId === null) {
+      const model = await prisma.episode.create({
+        data: { seasonId: null, sn: null },
+      })
+      return new Episode(model)
+    }
+    if (sn === undefined)
+      throw new HTTPError('sn is required when seasonId is set', {
+        status: 400,
+      })
     const model = await prisma.episode.create({ data: { seasonId, sn } })
     return new Episode(model)
   }
@@ -102,10 +115,25 @@ export class Episode {
       },
     })
   }
-  async setSeason(seasonId: string | null) {
-    seasonId
-      ? await this.#addToSeason(seasonId)
-      : await this.#removeFromSeason()
+  async setSeason(seasonId: null): Promise<void>
+  async setSeason(seasonId: string, sn: number): Promise<void>
+  async setSeason(seasonId: string | null, sn?: number): Promise<void>
+  async setSeason(seasonId: string | null, sn?: number): Promise<void> {
+    if (seasonId === null) await this.#removeFromSeason()
+    else if (sn !== undefined) {
+      await this.#addToSeason(seasonId)
+      await this.#editSN(sn)
+    } else {
+      throw new HTTPError('sn is required when seasonId is set', {
+        status: 400,
+      })
+    }
+  }
+  async #editSN(sn: number) {
+    this.episodeModel = await prisma.episode.update({
+      where: { id: this.episodeModel.id },
+      data: { sn },
+    })
   }
   async #addToSeason(seasonId: string) {
     this.episodeModel = await prisma.episode.update({
@@ -121,6 +149,7 @@ export class Episode {
     this.episodeModel = await prisma.episode.update({
       where: { id: this.episodeModel.id },
       data: {
+        sn: null,
         season: {
           disconnect: true,
         },

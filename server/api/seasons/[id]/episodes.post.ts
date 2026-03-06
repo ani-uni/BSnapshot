@@ -10,9 +10,10 @@ export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(
     event,
     z.object({
-      id: z.union([z.cuid2()]),
+      id: z.union([z.cuid2(), z.literal('default')]),
     }),
   )
+  if (params.id === 'default') return Episode.create(null)
   const body = await readValidatedBody(event, z.object({ sn: z.int() }))
   const episode = await Episode.create(params.id, body.sn)
   return episode

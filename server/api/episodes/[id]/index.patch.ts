@@ -19,13 +19,18 @@ export default defineHandler(async (event) => {
       ref: epRefSchema.optional(),
       title: z.string().optional(),
       clips: z.array(z.cuid2()).optional(),
-      season: z.cuid2().nullish(),
+      season: z
+        .xor([
+          z.object({ id: z.cuid2(), sn: z.int() }),
+          z.object({ id: z.null(), sn: z.undefined().optional() }),
+        ])
+        .optional(),
     }),
   )
   const episode = await Episode.loadFromID(params.id)
   if (body.title) await episode.editTitle(body.title)
   if (body.ref) await episode.editRef(body.ref)
   if (body.clips) await episode.setClips(body.clips)
-  if (body.season !== undefined) await episode.setSeason(body.season)
+  if (body.season) await episode.setSeason(body.season.id, body.season.sn)
   return episode.toJSON()
 })

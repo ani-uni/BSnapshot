@@ -164,7 +164,7 @@ model Clip {
 // 由一或多个Clip组成的可表示1集/1个视频的弹幕单位
 model Episode {
   id       String  @id @default(cuid())
-  sn       Int     @unique
+  sn       Int?
   title    String? // 优先显示，为空时尝试从ref获取title
   // 引用链接
   // episode id
@@ -177,6 +177,8 @@ model Episode {
   // 父类
   season   Season? @relation(fields: [seasonId], references: [id])
   seasonId String?
+
+  @@unique([seasonId, sn])
 }
 
 // 由多个相关ep聚合，对应1季/1个合集
