@@ -14,7 +14,7 @@ export default defineCachedHandler(
     const tmdb = await TMDB.init()
     const p = parseTMDBUrlC(query.query)
     if (p === null) return tmdb.searchTV(query.query)
-    else if (p.episode_number) return tmdb.getTVEpisodeInfo(p)
+    else if (p.episode_number !== undefined) return tmdb.getTVEpisodeInfo(p)
     else
       throw new HTTPError('不合法的 TMDB UrlC (你输入的类型必须是剧集)!', {
         status: 400,

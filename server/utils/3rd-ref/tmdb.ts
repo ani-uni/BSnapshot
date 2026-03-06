@@ -50,7 +50,7 @@ export const TMDBUrlCRawSchema = {
 //   ]),
 // }
 
-const TMDBIdSchema = z.int32().positive()
+const TMDBIdSchema = z.int32()
 export function parseTMDBUrlC(urlc: string) {
   const input = urlc.trim()
   const parseId = (value?: string) => {
@@ -571,7 +571,7 @@ export class TMDB {
   }
   private check_input_of_getTVEpisodeInfo(i: string) {
     const c = parseTMDBUrlC(i)
-    if (c?.episode_number) return c
+    if (c?.episode_number !== undefined) return c
     else
       throw new HTTPError('Invalid input for getTVEpisodeInfo', {
         statusCode: 400,
@@ -602,7 +602,7 @@ export class TMDB {
   }
   private check_input_of_getMovieInfo(i: string) {
     const c = parseTMDBUrlC(i)
-    if (c?.movie_id) return c
+    if (c?.movie_id !== undefined) return c
     else
       throw new HTTPError('Invalid input for getMovieInfo', {
         statusCode: 400,
@@ -626,7 +626,7 @@ export class TMDB {
   }
   private check_input_of_getTVSeasonInfo(i: string) {
     const c = parseTMDBUrlC(i)
-    if (c?.season_number) return c
+    if (c?.season_number !== undefined) return c
     else
       throw new HTTPError('Invalid input for getTVSeasonInfo', {
         statusCode: 400,
@@ -656,7 +656,7 @@ export class TMDB {
   }
   private check_input_of_getTVSeriesInfo(i: string) {
     const c = parseTMDBUrlC(i)
-    if (c?.series_id) return c
+    if (c?.series_id !== undefined) return c
     else
       throw new HTTPError('Invalid input for getTVSeriesInfo', {
         statusCode: 400,

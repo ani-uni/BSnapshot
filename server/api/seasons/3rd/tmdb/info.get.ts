@@ -13,8 +13,8 @@ export default defineCachedHandler(
     )
     const tmdb = await TMDB.init()
     const parsed = parseTMDBUrlC(query.urlc)
-    if (parsed?.season_number) return tmdb.getTVSeriesInfo(parsed)
-    else if (parsed?.movie_id) return tmdb.getMovieInfo(parsed)
+    if (parsed?.season_number !== undefined) return tmdb.getTVSeriesInfo(parsed)
+    else if (parsed?.movie_id !== undefined) return tmdb.getMovieInfo(parsed)
     throw new HTTPError('不合法的 TMDB UrlC!', { status: 400 })
   },
   { maxAge: 60 * 60 },
