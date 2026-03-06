@@ -27,6 +27,7 @@ export default defineConfig({
     base: { driver: 'fs', base: '.data/db/base' },
     auth: { driver: 'fs', base: '.data/db/auth' },
     tmdb: { driver: 'fs', base: '.data/db/tmdb' },
+    cache: { driver: 'lru-cache' }, // nitro内置缓存
   },
   scheduledTasks: {
     '0 12 * * *': ['auth:user:check'],
