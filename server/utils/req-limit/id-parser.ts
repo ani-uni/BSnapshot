@@ -3,7 +3,7 @@ import z from 'zod'
 import { DanmakuSearchOptionsSchema } from '../bili/danmaku/up'
 import { VideoInfoOptSchema } from '../bili/video/info'
 
-export const QueueIDParamsSchema = z.xor([
+export const QueueIDParamsSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('rt_seg'),
     oid: z.coerce.bigint(),

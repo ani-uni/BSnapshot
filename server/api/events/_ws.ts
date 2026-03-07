@@ -2,7 +2,7 @@ import { defineWebSocketHandler, HTTPError } from 'nitro/h3'
 import z from 'zod'
 import { Event } from '~s/utils/common/event'
 
-const cmds = z.xor([
+const cmds = z.discriminatedUnion('cmd', [
   z.object({ cmd: z.literal('ping') }),
   z.object({ cmd: z.literal('list'), after: z.int().nonnegative().optional() }),
   z.object({ cmd: z.literal('toggle-auto-refresh') }),

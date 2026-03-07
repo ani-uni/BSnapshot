@@ -7,7 +7,7 @@ import { stringToBigInt } from '~s/utils/codecs'
 export default defineHandler(async (event) => {
   const payload = await getValidatedRouterParams(
     event,
-    z.xor([
+    z.discriminatedUnion('type', [
       z.object({
         type: z.literal('aid'),
         id: stringToBigInt,
