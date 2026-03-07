@@ -1,6 +1,5 @@
 import { defineHandler, readValidatedBody } from 'nitro/h3'
 import z from 'zod'
-import { TaskTypeSchema } from '~/generated/zod/schemas'
 import { ClipsSchema } from '~s/types/task'
 import { stringToBigInt } from '~s/utils/codecs'
 import { Capture } from '~s/utils/common/capture'
@@ -13,7 +12,6 @@ export default defineHandler(async (event) => {
       cid: stringToBigInt,
       pubdate: z.number().optional(),
       upMid: stringToBigInt.optional(),
-      taskTypes: z.array(TaskTypeSchema).min(0).max(4).optional(),
     }),
   )
   const data = await Capture.create({
@@ -21,7 +19,6 @@ export default defineHandler(async (event) => {
     cid: payload.cid,
     pubdate: payload.pubdate,
     upMid: payload.upMid,
-    // taskTypes: payload.taskTypes,
   })
   return data.toJSON()
 })

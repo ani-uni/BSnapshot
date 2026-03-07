@@ -22,7 +22,6 @@ export interface CaptureCreate {
   cid: bigint
   pubdate?: number
   upMid?: bigint
-  // taskTypes?: TaskType[]
 }
 
 export class Capture {
