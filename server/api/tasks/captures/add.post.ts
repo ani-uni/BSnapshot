@@ -1,6 +1,7 @@
 import { defineHandler, readValidatedBody } from 'nitro/h3'
 import z from 'zod'
 import { TaskTypeSchema } from '~/generated/zod/schemas'
+import { ClipsSchema } from '~s/types/task'
 import { stringToBigInt } from '~s/utils/codecs'
 import { Capture } from '~s/utils/common/capture'
 
@@ -8,7 +9,7 @@ export default defineHandler(async (event) => {
   const payload = await readValidatedBody(
     event,
     z.object({
-      clips: z.array(z.tuple([z.number(), z.number()])),
+      clips: ClipsSchema,
       cid: stringToBigInt,
       pubdate: z.number().optional(),
       upMid: stringToBigInt.optional(),

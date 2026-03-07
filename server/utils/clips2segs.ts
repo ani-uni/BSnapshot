@@ -1,5 +1,7 @@
+import type { Clips } from "~s/types/task"
+
 export const clips2segs = (
-  clips: [number, number][],
+  clips: Clips,
   duration: number = Infinity,
 ): number[] => {
   const SEG_DURATION = 360 // 6分钟 = 360秒

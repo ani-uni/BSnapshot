@@ -8,7 +8,7 @@ import {
   type TaskType,
 } from '~/generated/prisma/enums'
 import type { CaptureModel, ClipModel } from '~/generated/prisma/models'
-import type { Clip as ClipSimple } from '~s/types/task'
+import type { Clips } from '~s/types/task'
 import { his_index, his_pub_to_now } from '~s/utils/bili/danmaku/main'
 import { zeroDate } from '../bili-zero-date'
 import { ClipLintAndFmt } from '../clip-lint-fmt'
@@ -18,7 +18,7 @@ import { FetchTask } from './fetchtask'
 import { User } from './user'
 
 export interface CaptureCreate {
-  clips: ClipSimple[]
+  clips: Clips
   cid: bigint
   pubdate?: number
   upMid?: bigint
