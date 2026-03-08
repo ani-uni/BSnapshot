@@ -15,6 +15,33 @@ import { User } from './user'
 
 export class FetchTask {
   constructor(public fetchTaskModel: FetchTaskModel) {}
+  static async initForCapture(cid: bigint) {
+    const base = {
+      cid,
+      status: TaskStatus.DISABLED,
+      lastRunAt: new Date(0),
+    }
+    await prisma.fetchTask.createMany({
+      data: [
+        {
+          ...base,
+          type: TaskType.RT,
+        },
+        {
+          ...base,
+          type: TaskType.HIS,
+        },
+        {
+          ...base,
+          type: TaskType.SP,
+        },
+        {
+          ...base,
+          type: TaskType.UP,
+        },
+      ],
+    })
+  }
   /**
    * @deprecated 由方法 Capture.createCaptureTasks 替代
    */

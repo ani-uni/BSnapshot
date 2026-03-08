@@ -41,6 +41,7 @@ export class Capture {
         segs: clips2segs(clips).join(','),
       },
     })
+    await FetchTask.initForCapture(capture_c.cid)
     return new Capture(capture_c)
   }
   static async loadFromCID(cid: bigint) {
