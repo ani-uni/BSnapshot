@@ -30,9 +30,12 @@ export async function AuthUserCheck(): Promise<TaskAuthUserCheckResult> {
     if (u.bauth_cookies === null) {
       toDelMids.push(u.mid)
     } else {
-      await AuthUserLogin({ bauth_cookies: u.bauth_cookies }).catch(() => {
-        toDelMids.push(u.mid)
-      })
+      await AuthUserLogin({ bauth_cookies: u.bauth_cookies }).catch(
+        (err: Error) => {
+          e.err('登录状态异常', err)
+          toDelMids.push(u.mid)
+        },
+      )
     }
   }
   if (toDelMids.length === 0) return { deletedUserMids: [] }
