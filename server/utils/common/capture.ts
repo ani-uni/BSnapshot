@@ -99,7 +99,10 @@ export class Capture {
       manual = true // 指定类型时均为手动执行
       for (const t of types) {
         const ft = await prisma.fetchTask.findUnique({
-          where: { cid_type: { cid: this.captureModel.cid, type: t } },
+          where: {
+            cid_type: { cid: this.captureModel.cid, type: t },
+            status: { notIn: [TaskStatus.DISABLED, TaskStatus.RUNNING] },
+          },
         })
         if (ft) await new FetchTask(ft).run(manual)
       }
