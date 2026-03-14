@@ -145,7 +145,7 @@ export class FetchTask {
    */
   async status(type: TaskStatus, manual = false) {
     // 防止disable后被完成的任务覆盖状态
-    if (this.fetchTaskModel.status === TaskStatus.RUNNING && manual === false)
+    if (this.fetchTaskModel.status === TaskStatus.RUNNING || manual === true)
       await prisma.fetchTask.update({
         where: { id: this.fetchTaskModel.id },
         data: { status: type },
