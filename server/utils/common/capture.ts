@@ -472,7 +472,8 @@ export class Capture {
           .then((clips) => clips.map((c) => c.danmaku))
     ).then((pbs) =>
       pbs.forEach((pb) => {
-        if (pb) pool = pool.assign(UniPool.fromPb(pb))
+        if (pb)
+          pool = pool.assign(UniPool.fromPb(pb, { dedupe: false, dmid: false }))
       }),
     )
     return pool
@@ -521,7 +522,7 @@ export class Clip {
     const ori = this.clipModel.danmaku
       ? UniPool.fromPb(this.clipModel.danmaku, { dedupe: false, dmid: false })
       : UniPool.create({ dedupe: false, dmid: false })
-    const n = ori.assign(danmaku)
+    const n = ori.assign(danmaku).pipe(bili.bili_dedupe.to_bili_deduped)
     await this.saveDanmaku(n, up)
   }
   getDanmakuRaw(up = false) {
