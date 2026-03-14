@@ -305,12 +305,36 @@ export class Capture {
             },
           })
       }
+      // 快进所得最早的弹幕不一定完全，所以下一次需从此日开始获取
+      if (res.earliest) {
+        const el = DateTime.fromFormat(res.earliest, 'yyyy-MM-dd', {
+          zone: 'Asia/Shanghai',
+        })
+          .setZone('Asia/Shanghai')
+          .toJSDate()
+        await tx.hisDate.upsert({
+          where: {
+            cid_date: {
+              cid: this.captureModel.cid,
+              date: el,
+            },
+          },
+          update: {
+            cached: LocalHisCacheStatus.Await,
+          },
+          create: {
+            cid: this.captureModel.cid,
+            date: el,
+            cached: LocalHisCacheStatus.Await,
+          },
+        })
+      }
     })
   }
   async getHisDates(count = 1) {
     // 向前追溯终止日期
     const endPub = this.captureModel.pub
-      ? DateTime.fromJSDate(this.captureModel.pub)
+      ? DateTime.fromJSDate(this.captureModel.pub).startOf('day')
       : zeroDate
     const datesMap = new Set<string>()
     // 找到追溯范围内最晚应该获取的日期
@@ -327,7 +351,7 @@ export class Capture {
     //   select: { date: true },
     // })
     // 从 今天 开始向前确定需要的日期
-    let current = DateTime.now().setZone('Asia/Shanghai')
+    let current = DateTime.now().setZone('Asia/Shanghai').startOf('day')
     while (datesMap.size < count) {
       if (current < endPub) break
       const cDate = await prisma.hisDate.findUnique({

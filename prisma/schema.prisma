@@ -89,7 +89,7 @@ model Capture {
 
 enum LocalHisCacheStatus {
   Null // 通过算法确认该日期没有弹幕
-  Await // 存在该日期但暂未获取过弹幕
+  Await // 存在该日期但暂未获取过弹幕/不确定弹幕是否获取完整
   FastForward // 通过算法快进确认
   SpecificDate // 通过指定获取日期确定
 }
