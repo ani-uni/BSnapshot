@@ -384,7 +384,7 @@ export class FetchTaskAsQueue {
               })
             })
             // 已经确保merge时的所有状态处理均完成
-            await capture.mergeDanmaku(pool)
+            await capture.mergeDanmaku(pool, false, true, toFetchDates[0])
           }
           await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
@@ -444,7 +444,7 @@ export class FetchTaskAsQueue {
             await ft.afterRun()
             return
           }
-          await capture.mergeDanmaku(pool, true)
+          await capture.mergeDanmaku(pool, true, true)
           await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
