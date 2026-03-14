@@ -67,20 +67,25 @@ export class User {
             })
             .catch(() => null)
         )?.lastUserMid ?? null
+    const update = async (mid: bigint) =>
+      await prisma.runtime.upsert({
+        where: { id: 0 },
+        update: { lastUserMid: mid },
+        create: { id: 0, lastUserMid: mid },
+      })
     for (let i = 0; i < 3; i++) {
       const u = await User.fromRandom()
-      if (u.userModel.mid !== (lastMid ?? 0n)) return u
+      if (u.userModel.mid !== (lastMid ?? 0n)) {
+        await update(u.userModel.mid)
+        return u
+      }
     }
     const alt = await prisma.user.findFirst({
       where: lastMid ? { mid: { not: lastMid } } : undefined,
       orderBy: { mid: 'asc' },
     })
     const use = await (alt ? User.fromMid(alt.mid) : User.fromRandom())
-    await prisma.runtime.upsert({
-      where: { id: 0 },
-      update: { lastUserMid: use.userModel.mid },
-      create: { id: 0, lastUserMid: use.userModel.mid },
-    })
+    await update(use.userModel.mid)
     return use
   }
   toJSON() {
