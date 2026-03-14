@@ -323,6 +323,8 @@ export class FetchTaskAsQueue {
     //     })
     //   return a.queueId - b.queueId
     // })
+    const conf = new FetchTaskAsQueue()
+    await conf.init()
     const fetchConstructor = (
       task: FetchTaskModel & { capture: CaptureModel },
     ) => {
@@ -360,28 +362,30 @@ export class FetchTaskAsQueue {
         }
       } else if (task.type === TaskType.HIS) {
         return async () => {
-          const toFetchDates = await capture.getHisDates(1)
-          // 当没有需要获取的日期时，说明历史弹幕已经获取完毕
-          if (toFetchDates.length === 0) {
-            await ft.status(TaskStatus.DONE)
-            await ft.afterRun()
-            return
-          }
-          // 当尝试获取的某天不存在时，his会返回空UniPool
-          const pool = await his(
-            await User.fromRotating(),
-            task.cid,
-            toFetchDates,
-          ).catch(async (err) => {
-            await ft.status(TaskStatus.FAILED)
-            await ft.afterRun()
-            throw new HTTPError('Failed to fetch HIS danmaku', {
-              status: 500,
-              cause: err,
+          for (let i = 0; i < conf.conf.hisBatch; i++) {
+            const toFetchDates = await capture.getHisDates(1)
+            // 当没有需要获取的日期时，说明历史弹幕已经获取完毕
+            if (toFetchDates.length === 0) {
+              await ft.status(TaskStatus.DONE)
+              await ft.afterRun()
+              return
+            }
+            // 当尝试获取的某天不存在时，his会返回空UniPool
+            const pool = await his(
+              await User.fromRotating(),
+              task.cid,
+              toFetchDates,
+            ).catch(async (err) => {
+              await ft.status(TaskStatus.FAILED)
+              await ft.afterRun()
+              throw new HTTPError('Failed to fetch HIS danmaku', {
+                status: 500,
+                cause: err,
+              })
             })
-          })
-          // 已经确保merge时的所有状态处理均完成
-          await capture.mergeDanmaku(pool)
+            // 已经确保merge时的所有状态处理均完成
+            await capture.mergeDanmaku(pool)
+          }
           await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
