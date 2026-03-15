@@ -220,6 +220,8 @@ export class Capture {
   // TODO cloud同步系统
   // async syncHisDateMap() {}
   async hisDateMapEnlight(danmaku: UniPool, query_history_date: string) {
+    // 这里基本上不会出现null情况
+    // 该可能已被调用层处理
     const nullOrSD =
       danmaku.dans.length === 0
         ? LocalHisCacheStatus.Null
@@ -260,17 +262,25 @@ export class Capture {
           cid: this.captureModel.cid,
           date: skipDate,
         }
-        await tx.hisDate.upsert({
+        const skipRes = await tx.hisDate.findUnique({
           where: { cid_date },
-          create: {
-            cid: this.captureModel.cid,
-            date: skipDate,
-            cached: LocalHisCacheStatus.Null,
-          },
-          update: {
-            cached: LocalHisCacheStatus.Null,
-          },
+          select: { cached: true },
         })
+        if (skipRes) {
+          if (skipRes.cached === LocalHisCacheStatus.Await)
+            // 万一挤掉弹幕了呢，以前有过就算有吧
+            await tx.hisDate.update({
+              where: { cid_date },
+              data: { cached: LocalHisCacheStatus.Null },
+            })
+        } else
+          await tx.hisDate.create({
+            data: {
+              cid: this.captureModel.cid,
+              date: skipDate,
+              cached: LocalHisCacheStatus.Null,
+            },
+          })
       }
       for (const d of res.FastForward) {
         const ffDate = DateTime.fromFormat(d, 'yyyy-MM-dd', {
@@ -312,22 +322,35 @@ export class Capture {
         })
           .setZone('Asia/Shanghai')
           .toJSDate()
-        await tx.hisDate.upsert({
+        const eRes = await tx.hisDate.findUnique({
           where: {
             cid_date: {
               cid: this.captureModel.cid,
               date: el,
             },
           },
-          update: {
-            cached: LocalHisCacheStatus.Await,
-          },
-          create: {
-            cid: this.captureModel.cid,
-            date: el,
-            cached: LocalHisCacheStatus.Await,
-          },
+          select: { cached: true },
         })
+        if (eRes) {
+          if (eRes.cached === LocalHisCacheStatus.Null)
+            // 凭空冒出来弹幕，很神奇吧(其实不可能)
+            await tx.hisDate.update({
+              where: {
+                cid_date: {
+                  cid: this.captureModel.cid,
+                  date: el,
+                },
+              },
+              data: { cached: LocalHisCacheStatus.Await },
+            })
+        } else
+          await tx.hisDate.create({
+            data: {
+              cid: this.captureModel.cid,
+              date: el,
+              cached: LocalHisCacheStatus.Await,
+            },
+          })
       }
     })
   }
@@ -350,8 +373,11 @@ export class Capture {
     //   orderBy: { date: 'desc' },
     //   select: { date: true },
     // })
-    // 从 今天 开始向前确定需要的日期
-    let current = DateTime.now().setZone('Asia/Shanghai').startOf('day')
+    // 从 昨天 开始向前确定需要的日期(防止 今天 还没过完就已被确定性标记)
+    let current = DateTime.now()
+      .setZone('Asia/Shanghai')
+      .startOf('day')
+      .minus({ days: 1 })
     while (datesMap.size < count) {
       if (current < endPub) break
       const cDate = await prisma.hisDate.findUnique({

@@ -383,6 +383,13 @@ export class FetchTaskAsQueue {
                 cause: err,
               })
             })
+            if (pool.dans.length === 0) {
+              // 只有该日期往前一条弹幕都没有才会出现这种情况吧
+              // 考虑到历史弹幕获取是从当天的前一天开始的，一旦出现该情况，只能说明之前已经没有弹幕了，视为完成
+              await ft.status(TaskStatus.DONE)
+              await ft.afterRun()
+              return
+            }
             // 已经确保merge时的所有状态处理均完成
             await capture.mergeDanmaku(pool, false, true, toFetchDates[0])
           }
