@@ -36,7 +36,12 @@ export class Capture {
         pub: data.pubdate ? new Date(data.pubdate * 1000) : zeroDate.toJSDate(),
         upMid: data.upMid ?? null,
         clips: {
-          create: clips.map((clip) => ({ start: clip[0], end: clip[1] })),
+          create: clips.map((clip) => ({
+            start: clip[0],
+            end: clip[1],
+            epOffset: clip[2],
+            episodeId: clip[3],
+          })),
         },
         segs: clips2segs(clips).join(','),
       },
