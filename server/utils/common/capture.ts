@@ -72,6 +72,12 @@ export class Capture {
     })
     return captures.map((c) => new Capture(c).toJSON())
   }
+  static async listInfoFromSeasonID(seasonId: string) {
+    const captures = await prisma.capture.findMany({
+      where: { clips: { some: { episode: { seasonId } } } },
+    })
+    return captures.map((c) => new Capture(c).toJSON())
+  }
   /**
    * @deprecated 由方法 Capture.createOrToggleFetchTasks 替代
    */
