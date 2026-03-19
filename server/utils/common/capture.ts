@@ -66,6 +66,12 @@ export class Capture {
     const captures = await prisma.capture.findMany({ select: { cid: true } })
     return captures
   }
+  static async listInfoFromEpisodeID(episodeId: string) {
+    const captures = await prisma.capture.findMany({
+      where: { clips: { some: { episodeId } } },
+    })
+    return captures.map((c) => new Capture(c).toJSON())
+  }
   /**
    * @deprecated 由方法 Capture.createOrToggleFetchTasks 替代
    */
