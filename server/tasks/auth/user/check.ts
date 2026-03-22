@@ -2,6 +2,7 @@ import { defineTask } from 'nitro/task'
 import type { TaskResult } from '~s/types/tasks/result'
 import { bigint2string } from '~s/utils/bigint'
 import { Event } from '~s/utils/common/event'
+import { checkNetworkConnectivity } from '~s/utils/connectivity'
 import { prisma } from '~s/utils/prisma'
 import { AuthUserLogin } from './login'
 
@@ -22,6 +23,11 @@ export default defineTask<TaskResult<TaskAuthUserCheckResult>>({
 
 export async function AuthUserCheck(): Promise<TaskAuthUserCheckResult> {
   const e = new Event('auth:user:check')
+  const net = await checkNetworkConnectivity()
+  if (!net) {
+    e.warn('网络未连接，跳过用户登录状态检查')
+    return { deletedUserMids: [] }
+  }
   const users = await prisma.user.findMany({
     select: { mid: true, bauth_cookies: true },
   })

@@ -5,6 +5,7 @@ import type { KVAuth, WbiKeys } from '~s/types/kv/auth'
 import type { TaskPayload } from '~s/types/tasks/payload'
 import { getWbiKeys } from '~s/utils/bili/auth/global/wbi'
 import { Event } from '~s/utils/common/event'
+import { checkNetworkConnectivity } from '~s/utils/connectivity'
 import { Cookies } from '~s/utils/cookies'
 import { AuthGlobalWbiKeyGet } from './get'
 
@@ -32,8 +33,15 @@ export default defineTask<TaskAuthGlobalWbikeyRefreshResult>({
 export async function AuthGlobalWbiKeyRefresh(
   payload?: TaskAuthGlobalWbikeyRefreshPayload,
 ): Promise<TaskAuthGlobalWbikeyRefreshResult> {
-  const storage = useStorage<KVAuth>('auth')
   const e = new Event('auth:global:wbikey:refresh')
+  const net = await checkNetworkConnectivity()
+  if (!net) {
+    throw e.err(
+      'WBI刷新失败',
+      new HTTPError('Network is not connected', { status: 503 }),
+    )
+  }
+  const storage = useStorage<KVAuth>('auth')
   const res = await getWbiKeys(
     payload ? new Cookies(payload.bauth_cookies) : undefined,
   )
