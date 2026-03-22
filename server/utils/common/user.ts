@@ -5,15 +5,21 @@ import { AuthGlobalWbiKeyGet } from '~s/tasks/auth/global/wbikey/get'
 import { encWbi } from '../bili/auth/global/wbi'
 import { Cookies } from '../cookies'
 import { prisma } from '../prisma'
+import { Event } from './event'
 
 export type UserWithoutDetails = Omit<UserModel, 'bauth_cookies'>
+
+const e = new Event('utils:common:user')
 
 export class User {
   constructor(public userModel: UserModel) {}
   static async load(userModel: UserModel) {
     if (!userModel.bauth_cookies) {
       await prisma.user.delete({ where: { mid: userModel.mid } })
-      throw new HTTPError('User is not logged in', { status: 500 })
+      throw e.err(
+        'load',
+        new HTTPError('User is not logged in', { status: 500 }),
+      )
     }
     return new User(userModel)
   }
@@ -27,19 +33,24 @@ export class User {
         where: { mid },
       })
       .catch((err: Error) => {
-        throw new HTTPError(`User with mid ${mid.toString()} not found`, {
-          status: 404,
-          cause: err,
-        })
+        throw e.err(
+          'fromMid',
+          new HTTPError(`User with mid ${mid.toString()} not found`, {
+            status: 404,
+            cause: err,
+          }),
+        )
       })
     return User.load(u)
   }
   static async fromRandom() {
     const count = await prisma.user.count()
     if (count === 0)
-      throw new HTTPError(
-        'No available users, please login at least one user',
-        { status: 500 },
+      throw e.err(
+        'fromRandom',
+        new HTTPError('No available users, please login at least one user', {
+          status: 500,
+        }),
       )
     const skip = Math.floor(Math.random() * count)
     const u = await prisma.user
@@ -49,10 +60,13 @@ export class User {
         take: 1,
       })
       .catch((err: Error) => {
-        throw new HTTPError('Failed to get random user', {
-          status: 500,
-          cause: err,
-        })
+        throw e.err(
+          'fromRandom',
+          new HTTPError('Failed to get random user', {
+            status: 500,
+            cause: err,
+          }),
+        )
       })
     return User.load(u)
   }
@@ -100,7 +114,10 @@ export class User {
   async encWbi(params: Record<string, unknown>) {
     const wbiKey = await AuthGlobalWbiKeyGet()
     if (!wbiKey.img_key || !wbiKey.sub_key)
-      throw new HTTPError('WBI key is not available', { status: 500 })
+      throw e.err(
+        'encWbi',
+        new HTTPError('WBI key is not available', { status: 500 }),
+      )
     return encWbi(params, wbiKey.img_key, wbiKey.sub_key)
   }
 }
