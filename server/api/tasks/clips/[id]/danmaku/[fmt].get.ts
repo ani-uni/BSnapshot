@@ -27,9 +27,7 @@ export default defineCachedHandler(
       return {
         count: pool?.dans.length ?? 0,
       }
-    if (params.fmt === DM_format.BiliXml)
-      event.res.headers.set('Content-Type', 'application/xml')
-    return pool?.convert2(params.fmt)
+    return pool?.convert2(params.fmt, true)
   },
   { maxAge: 60 },
 )

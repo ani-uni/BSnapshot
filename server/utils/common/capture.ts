@@ -569,13 +569,14 @@ export class Clip {
     await this.saveDanmaku(n, up)
   }
   getDanmakuRaw(up = false) {
-    return up ? this.clipModel.danmakuUp : this.clipModel.danmaku
+    return (
+      (up ? this.clipModel.danmakuUp : this.clipModel.danmaku) ??
+      UniPool.create({ dedupe: false, dmid: false }).toPb()
+    )
   }
   async getDanmaku(up = false) {
     const danmakuPb = this.getDanmakuRaw(up)
-    if (danmakuPb)
-      return UniPool.fromPb(danmakuPb, { dedupe: false, dmid: false })
-    return null
+    return UniPool.fromPb(danmakuPb, { dedupe: false, dmid: false })
   }
   async addToEpisode(epId: string) {
     await prisma.episode.update({
