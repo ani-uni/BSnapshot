@@ -4,7 +4,9 @@ import pkg from '~/package.json'
 import { prisma } from '~s/utils/prisma'
 
 export default defineHandler(async () => {
-  const userExist = !((await prisma.user.findFirst({ select: {} })) !== null)
+  const userExist = !(
+    (await prisma.user.findFirst({ select: { mid: true } })) === null
+  )
   return {
     name: pkg.name,
     version: pkg.version,
