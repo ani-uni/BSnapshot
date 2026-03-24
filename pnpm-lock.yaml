@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@dan-uni/dan-any':
-        specifier: ^1.3.6
-        version: 1.3.6
+        specifier: ^1.3.8
+        version: 1.3.8
       '@prisma/adapter-libsql':
         specifier: ^7.5.0
         version: 7.5.0
@@ -51,8 +51,8 @@ importers:
         specifier: ^6.15.0
         version: 6.15.0
       smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.6.1
+        version: 1.6.1
       tough-cookie:
         specifier: ^6.0.1
         version: 6.0.1
@@ -96,8 +96,8 @@ packages:
   '@chevrotain/utils@10.5.0':
     resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
 
-  '@dan-uni/dan-any@1.3.6':
-    resolution: {integrity: sha512-QJHY2q2Hhh/5MFEyBnperJEgFupwtZWRWqKmbRWeH6fZclKBJH0N9hLNuzxG6efTgSOe9PLeGED4brgSL7xGjA==}
+  '@dan-uni/dan-any@1.3.8':
+    resolution: {integrity: sha512-AyYllJOf4ntEpOQp1vBDaOpCGimPTg+oDez1sTxmRWQ4x5ps/ue76ITv/3SFf9zJs8mj13rgVIl/Rm98SWSARg==}
 
   '@electric-sql/pglite-socket@0.0.20':
     resolution: {integrity: sha512-J5nLGsicnD9wJHnno9r+DGxfcZWh+YJMCe0q/aCgtG6XOm9Z7fKeite8IZSNXgZeGltSigM9U/vAWZQWdgcSFg==}
@@ -1881,8 +1881,8 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  smol-toml@1.6.0:
-    resolution: {integrity: sha512-4zemZi0HvTnYwLfrpk/CF9LOd9Lt87kAt50GnqhMpyF9U3poDAP2+iukq2bZsO/ufegbYehBkqINbsWxj4l4cw==}
+  smol-toml@1.6.1:
+    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
     engines: {node: '>= 18'}
 
   sonic-boom@4.2.1:
@@ -2198,7 +2198,7 @@ snapshots:
 
   '@chevrotain/utils@10.5.0': {}
 
-  '@dan-uni/dan-any@1.3.6':
+  '@dan-uni/dan-any@1.3.8':
     dependencies:
       '@bufbuild/protobuf': 2.11.0
       base16384: 1.0.0
@@ -3948,7 +3948,7 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  smol-toml@1.6.0: {}
+  smol-toml@1.6.1: {}
 
   sonic-boom@4.2.1:
     dependencies:
