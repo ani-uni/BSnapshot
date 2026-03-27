@@ -4,16 +4,22 @@ export default defineConfig({
   compatibilityDate: 'latest',
   serverDir: 'server',
   imports: false,
+  inlineDynamicImports: true,
   experimental: {
+    openAPI: false,
+    typescriptBundlerResolution: true,
     asyncContext: true,
+    envExpansion: true,
     tasks: true,
-    openAPI: true,
   },
   features: {
     websocket: true,
   },
   future: {
     nativeSWR: true,
+  },
+  oxc: {
+    minify: { compress: true, mangle: true },
   },
   openAPI: {
     meta: {

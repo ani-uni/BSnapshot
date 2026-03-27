@@ -1,5 +1,4 @@
-import { UniPool } from '@dan-uni/dan-any'
-import { bili, stats } from '@dan-uni/dan-any/plugins'
+import { plugins, UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
 import {
@@ -243,7 +242,9 @@ export class Capture {
       danmaku.dans.length === 0
         ? LocalHisCacheStatus.Null
         : LocalHisCacheStatus.SpecificDate
-    const res = danmaku.pipe(bili.bili_history_fast_forward(query_history_date))
+    const res = danmaku.pipe(
+      plugins.bili.bili_history_fast_forward(query_history_date),
+    )
     await prisma.$transaction(async (tx) => {
       // 处理 指定日期
       const sdDate = DateTime.fromFormat(query_history_date, 'yyyy-MM-dd', {
@@ -471,14 +472,14 @@ export class Capture {
             (d) => clip.start <= d.progress && d.progress <= clip.end,
           ),
           { dedupe: false, dmid: false },
-        ).pipe(bili.bili_dedupe.to_bili_deduped),
+        ).pipe(plugins.bili.bili_dedupe.to_bili_deduped),
         up,
       )
     }
     if (updateCursor) {
       if (up) {
         // up接口
-        const cursor = danmaku.pipe(stats.getLatestDan)?.ctime
+        const cursor = danmaku.pipe(plugins.stats.getLatestDan)?.ctime
         // 以上返回null的条件是弹幕池为空，在前面的检查已保证不会出现这种情况
         if (!cursor)
           throw new HTTPError('No cursor found from danmaku', {
@@ -565,7 +566,7 @@ export class Clip {
     const ori = this.clipModel.danmaku
       ? UniPool.fromPb(this.clipModel.danmaku, { dedupe: false, dmid: false })
       : UniPool.create({ dedupe: false, dmid: false })
-    const n = ori.assign(danmaku).pipe(bili.bili_dedupe.to_bili_deduped)
+    const n = ori.assign(danmaku).pipe(plugins.bili.bili_dedupe.to_bili_deduped)
     await this.saveDanmaku(n, up)
   }
   getDanmakuRaw(up = false) {
