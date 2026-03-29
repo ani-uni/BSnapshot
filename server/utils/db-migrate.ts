@@ -18,7 +18,6 @@ const migrateDB = (s: number | string = 0, e?: number | string) => {
       db.exec(init_sql)
     }
   }
-  db.sync()
   db.close()
 }
 
