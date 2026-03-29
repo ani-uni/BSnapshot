@@ -29,6 +29,14 @@ CREATE TABLE "Runtime" (
 );
 
 -- CreateTable
+CREATE TABLE "Event" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ctime" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "type" TEXT NOT NULL DEFAULT 'INFO',
+    "msg" TEXT NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "Capture" (
     "cid" BIGINT NOT NULL PRIMARY KEY,
     "pub" DATETIME,
@@ -62,11 +70,33 @@ CREATE TABLE "FetchTask" (
 CREATE TABLE "Clip" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "cid" BIGINT NOT NULL,
-    "start" INTEGER NOT NULL,
-    "end" INTEGER NOT NULL,
+    "start" REAL NOT NULL,
+    "end" REAL NOT NULL,
+    "epOffset" REAL NOT NULL DEFAULT 0,
     "danmaku" BLOB,
     "danmakuUp" BLOB,
-    CONSTRAINT "Clip_cid_fkey" FOREIGN KEY ("cid") REFERENCES "Capture" ("cid") ON DELETE CASCADE ON UPDATE CASCADE
+    "episodeId" TEXT,
+    CONSTRAINT "Clip_cid_fkey" FOREIGN KEY ("cid") REFERENCES "Capture" ("cid") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Clip_episodeId_fkey" FOREIGN KEY ("episodeId") REFERENCES "Episode" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Episode" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "sn" INTEGER,
+    "title" TEXT,
+    "bgmtv" INTEGER,
+    "tmdb" TEXT,
+    "seasonId" TEXT,
+    CONSTRAINT "Episode_seasonId_fkey" FOREIGN KEY ("seasonId") REFERENCES "Season" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Season" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT,
+    "bgmtv" INTEGER,
+    "tmdb" TEXT
 );
 
 -- CreateIndex
@@ -80,3 +110,7 @@ CREATE UNIQUE INDEX "Clip_cid_start_key" ON "Clip"("cid", "start");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Clip_cid_end_key" ON "Clip"("cid", "end");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Episode_seasonId_sn_key" ON "Episode"("seasonId", "sn");
+
