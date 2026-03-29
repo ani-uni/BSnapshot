@@ -4,7 +4,6 @@ export default defineConfig({
   compatibilityDate: 'latest',
   serverDir: 'server',
   imports: false,
-  inlineDynamicImports: true,
   experimental: {
     openAPI: false,
     typescriptBundlerResolution: true,
