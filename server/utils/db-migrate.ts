@@ -21,4 +21,4 @@ const migrateDB = (s: number | string = 0, e?: number | string) => {
   db.close()
 }
 
-export { migrateDB }
+export { migrateDB, db2ver }
