@@ -28,8 +28,8 @@ export default defineConfig({
     },
     production: 'prerender',
   },
+  // fs的kv会在plugins内重新加载
   storage: {
-    base: { driver: 'fs', base: '.data/db/base' },
     auth: { driver: 'fs', base: '.data/db/auth' },
     tmdb: { driver: 'fs', base: '.data/db/tmdb' },
     cache: { driver: 'lru-cache' }, // nitro内置缓存
