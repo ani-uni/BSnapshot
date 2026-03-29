@@ -1,8 +1,13 @@
 import 'dotenv/config'
+import path from 'node:path'
 import Database from 'libsql'
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
 
-const dbPath = process.env.DATABASE_URL ?? 'file:.data/db/prisma.db'
+const dbPath =
+  process.env.DATABASE_URL ??
+  (process.env.USER_DATA_PATH
+    ? `file:${path.resolve(process.env.USER_DATA_PATH, '.data/db/prisma.db')}`
+    : 'file:.data/db/prisma.db')
 
 const db2ver = {
   '0.0.1': 0,
