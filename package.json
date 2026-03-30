@@ -1,6 +1,10 @@
 {
   "name": "bsnapshot",
   "version": "0.0.1",
+  "author": {
+    "name": "ani-uni",
+    "url": "https://github.com/ani-uni"
+  },
   "homepage": "https://github.com/ani-uni/BSnapshot",
   "repository": {
     "type": "git",
