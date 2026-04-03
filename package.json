@@ -14,7 +14,7 @@
   "type": "module",
   "scripts": {
     "build": "nitro build",
-    "dev": "nitro dev",
+    "dev": "vite dev",
     "preview": "pnpx srvx --prod .output/",
     "clean-init": "rm -f .data/db/prisma.db & rm -rf prisma/migrations & prisma migrate dev --name init"
   },
