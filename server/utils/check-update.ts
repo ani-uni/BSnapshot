@@ -30,25 +30,23 @@ const releaseInfoSchema = z.object({
   assets: z.array(gitHubReleaseAssetSchema),
 })
 
-const updateInfoSchema = z
-  .object({
+const updateInfoSchema = z.discriminatedUnion('isLatest', [
+  z.object({
     repo: z.string(),
     platform: z.string(),
     ver: z.string(),
-  })
-  .extend(
-    z.discriminatedUnion('isLatest', [
-      z.object({
-        isLatest: z.literal(true),
-      }),
-      z.object({
-        isLatest: z.literal(false),
-        onlyWeb: z.boolean(),
-        dl_link: z.string().optional(),
-        release: releaseInfoSchema,
-      }),
-    ]),
-  )
+    isLatest: z.literal(true),
+  }),
+  z.object({
+    repo: z.string(),
+    platform: z.string(),
+    ver: z.string(),
+    isLatest: z.literal(false),
+    onlyWeb: z.boolean(),
+    dl_link: z.string().optional(),
+    release: releaseInfoSchema,
+  }),
+])
 
 const base = { repo, platform, ver }
 
