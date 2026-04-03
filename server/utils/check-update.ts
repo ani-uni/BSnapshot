@@ -6,7 +6,8 @@ import pkg from '~/package.json'
 const repo = pkg.repository.url
     .replaceAll('git+https://github.com/', '')
     .replaceAll('.git', ''),
-  ver = pkg.version.replace(/^v/i, '')
+  ver = pkg.version.replace(/^v/i, ''),
+  platform = process.platform
 
 const gitHubReleaseAssetSchema = z.object({
   name: z.string(),
@@ -29,15 +30,27 @@ const releaseInfoSchema = z.object({
   assets: z.array(gitHubReleaseAssetSchema),
 })
 
-const updateInfoSchema = z.union([
-  z.object({
-    isLatest: z.literal(true),
-  }),
-  z.object({
-    isLatest: z.literal(false),
-    release: releaseInfoSchema,
-  }),
-])
+const updateInfoSchema = z
+  .object({
+    repo: z.string(),
+    platform: z.string(),
+    ver: z.string(),
+  })
+  .extend(
+    z.discriminatedUnion('isLatest', [
+      z.object({
+        isLatest: z.literal(true),
+      }),
+      z.object({
+        isLatest: z.literal(false),
+        onlyWeb: z.boolean(),
+        dl_link: z.string().optional(),
+        release: releaseInfoSchema,
+      }),
+    ]),
+  )
+
+const base = { repo, platform, ver }
 
 export async function checkUpdate() {
   return ky
@@ -48,6 +61,7 @@ export async function checkUpdate() {
       if (res.status === 404) {
         // GitHub returns 404 when the repository has no published release.
         return updateInfoSchema.parse({
+          ...base,
           isLatest: true,
         })
       }
@@ -62,11 +76,16 @@ export async function checkUpdate() {
       const latestVersion = release.tag_name.replace(/^v/i, '')
       if (latestVersion === ver) {
         return updateInfoSchema.parse({
+          ...base,
           isLatest: true,
         })
       }
       return updateInfoSchema.parse({
+        ...base,
         isLatest: false,
+        dl_link: release.assets.find((a) => a.name.includes(platform))
+          ?.browser_download_url,
+        onlyWeb: release.body?.includes('# Only Web (v0)') ?? false,
         release: {
           tag: release.tag_name,
           name: release.name ?? release.tag_name,
