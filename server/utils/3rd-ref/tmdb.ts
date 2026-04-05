@@ -550,7 +550,10 @@ export class TMDB {
     const hds = headers.get('app')
     return ky.create({
       searchParams: {
-        api_key: this.api_key === 'proxy' ? undefined : this.api_key,
+        api_key:
+          this.api_key === 'proxy'
+            ? undefined
+            : (this.api_key ?? import.meta.env.VITE_TMDB_API_KEY),
         language: 'zh-CN',
         include_image_language: 'zh,null',
       },
