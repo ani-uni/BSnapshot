@@ -1,7 +1,9 @@
 import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
-import type { UserModel } from '~/generated/prisma/models'
 import { AuthGlobalWbiKeyGet } from '~s/tasks/auth/global/wbikey/get'
+
+import type { UserModel } from '~/generated/prisma/models'
+
 import { encWbi } from '../bili/auth/global/wbi'
 import { Cookies } from '../cookies'
 import { prisma } from '../prisma'

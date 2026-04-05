@@ -1,14 +1,16 @@
 import { plugins, UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
+import type { Clips } from '~s/types/task'
+import { his_index, his_pub_to_now } from '~s/utils/bili/danmaku/main'
+
 import {
   LocalHisCacheStatus,
   TaskStatus,
   type TaskType,
 } from '~/generated/prisma/enums'
 import type { CaptureModel, ClipModel } from '~/generated/prisma/models'
-import type { Clips } from '~s/types/task'
-import { his_index, his_pub_to_now } from '~s/utils/bili/danmaku/main'
+
 import { zeroDate } from '../bili-zero-date'
 import { ClipLintAndFmt } from '../clip-lint-fmt'
 import { clips2segs } from '../clips2segs'
@@ -501,19 +503,20 @@ export class Capture {
   }
   async getDanmaku(up = false) {
     let pool = UniPool.create({ dedupe: false, dmid: false })
-    await (up
-      ? prisma.clip
-          .findMany({
-            where: { cid: this.captureModel.cid },
-            select: { danmakuUp: true },
-          })
-          .then((clips) => clips.map((c) => c.danmakuUp))
-      : prisma.clip
-          .findMany({
-            where: { cid: this.captureModel.cid },
-            select: { danmaku: true },
-          })
-          .then((clips) => clips.map((c) => c.danmaku))
+    await (
+      up
+        ? prisma.clip
+            .findMany({
+              where: { cid: this.captureModel.cid },
+              select: { danmakuUp: true },
+            })
+            .then((clips) => clips.map((c) => c.danmakuUp))
+        : prisma.clip
+            .findMany({
+              where: { cid: this.captureModel.cid },
+              select: { danmaku: true },
+            })
+            .then((clips) => clips.map((c) => c.danmaku))
     ).then((pbs) =>
       pbs.forEach((pb) => {
         if (pb)

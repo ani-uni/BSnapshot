@@ -1,6 +1,7 @@
 import ky from 'ky'
 import { HTTPError } from 'nitro'
 import z from 'zod'
+
 import pkg from '~/package.json'
 
 const repo = pkg.repository.url

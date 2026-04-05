@@ -1,4 +1,6 @@
 import { HTTPError } from 'nitro/h3'
+import { ConfigGet } from '~s/tasks/config/get'
+
 import { TaskStatus, TaskType } from '~/generated/prisma/enums'
 import type {
   CaptureModel,
@@ -7,7 +9,7 @@ import type {
   FetchTaskModel,
   RuntimeModel,
 } from '~/generated/prisma/models'
-import { ConfigGet } from '~s/tasks/config/get'
+
 import { his, rt, sp, up } from '../bili/danmaku/main'
 import { prisma } from '../prisma'
 import { Capture } from './capture'
@@ -430,8 +432,6 @@ export class FetchTaskAsQueue {
               status: 500,
             })
           const cursor = capture.upLatest
-          const conf = new FetchTaskAsQueue()
-          await conf.init()
           const pool = await up(
             await User.fromMid(task.capture.upMid),
             task.cid,

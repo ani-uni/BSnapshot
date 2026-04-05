@@ -34,7 +34,7 @@ export function encWbi(
   Object.assign(params, { wts: curr_time }) // 添加 wts 字段
   // 按照 key 重排参数
   const query = Object.keys(params)
-    .sort()
+    .toSorted()
     .map((key) => {
       if (
         !params[key] ||
@@ -69,9 +69,9 @@ export async function getWbiKeys(cookies: Cookies = new Cookies()) {
         wbi_img: { img_url: string; sub_url: string }
       }
     }>()
-    .then((res) => {
-      if (res?.data.wbi_img) {
-        return res.data.wbi_img
+    .then((r) => {
+      if (r?.data.wbi_img) {
+        return r.data.wbi_img
       }
       return null
     })

@@ -7,6 +7,7 @@ import { getWbiKeys } from '~s/utils/bili/auth/global/wbi'
 import { Event } from '~s/utils/common/event'
 import { checkNetworkConnectivity } from '~s/utils/connectivity'
 import { Cookies } from '~s/utils/cookies'
+
 import { AuthGlobalWbiKeyGet } from './get'
 
 export interface TaskAuthGlobalWbikeyRefreshPayload {

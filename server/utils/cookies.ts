@@ -1,5 +1,6 @@
 import { HTTPError } from 'nitro/h3'
 import { Cookie as CK } from 'tough-cookie'
+
 import { headers } from './headers'
 
 // type CKIns = InstanceType<typeof CK>
@@ -49,8 +50,8 @@ export class Cookies {
   get hasCookies() {
     return !!this.cookies && this.cookies.length > 0
   }
-  static parseHeaders(headers: Headers) {
-    const setCookies = headers.getSetCookie()
+  static parseHeaders(hds: Headers) {
+    const setCookies = hds.getSetCookie()
     if (setCookies.length > 0) {
       const cks = setCookies
         .map((ck) => CK.parse(ck))

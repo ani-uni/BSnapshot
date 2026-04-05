@@ -1,6 +1,7 @@
 import { defineHandler, readValidatedBody } from 'nitro/h3'
-import { ConfigModelSchema } from '~/generated/zod/schemas'
 import { ConfigSet } from '~s/tasks/config/set'
+
+import { ConfigModelSchema } from '~/generated/zod/schemas'
 
 export default defineHandler(async (event) => {
   const payload = await readValidatedBody(

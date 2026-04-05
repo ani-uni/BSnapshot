@@ -3,6 +3,7 @@
  */
 
 import PQueue from 'p-queue'
+
 import { FetchTaskAsQueue } from '../common/fetchtask'
 
 interface QueueInstance {

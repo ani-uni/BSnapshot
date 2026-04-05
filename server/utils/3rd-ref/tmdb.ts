@@ -3,6 +3,7 @@ import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import z from 'zod'
+
 import { headers } from '../headers'
 
 export const TMDBConfigSchema = z.object({
@@ -565,8 +566,8 @@ export class TMDB {
     const res = await this.kyInstance()
       .get('3/authentication')
       .json()
-      .then((res) => TMDBApiSchema[3].authentication.response.parse(res))
-      .then((res) => res.success)
+      .then((r) => TMDBApiSchema[3].authentication.response.parse(r))
+      .then((r) => r.success)
     return res
   }
   private check_input_of_getTVEpisodeInfo(i: string) {
@@ -589,10 +590,10 @@ export class TMDB {
         `3/tv/${id.series_id}/season/${id.season_number}/episode/${id.episode_number}`,
       )
       .json()
-      .then((res) =>
+      .then((r) =>
         TMDBApiSchema[3].tv['{series_id}'].season['{season_number}'].episode[
           '{episode_number}'
-        ].response.parse(res),
+        ].response.parse(r),
       )
     return {
       tv: {
@@ -615,11 +616,10 @@ export class TMDB {
       typeof input === 'string'
         ? this.check_input_of_getMovieInfo(input)
         : input
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get(`3/movie/${id.movie_id}`)
       .json()
-      .then((res) => TMDBApiSchema[3].movie['{movie_id}'].response.parse(res))
+      .then((r) => TMDBApiSchema[3].movie['{movie_id}'].response.parse(r))
     return {
       movie: res,
     }
@@ -639,14 +639,13 @@ export class TMDB {
       typeof input === 'string'
         ? this.check_input_of_getTVSeasonInfo(input)
         : input
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get(`3/tv/${id.series_id}/season/${id.season_number}`)
       .json()
-      .then((res) =>
+      .then((r) =>
         TMDBApiSchema[3].tv['{series_id}'].season[
           '{season_number}'
-        ].response.parse(res),
+        ].response.parse(r),
       )
     return {
       tv: {
@@ -669,11 +668,10 @@ export class TMDB {
       typeof input === 'string'
         ? this.check_input_of_getTVSeriesInfo(input)
         : input
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get(`3/tv/${id.series_id}`)
       .json()
-      .then((res) => TMDBApiSchema[3].tv['{series_id}'].response.parse(res))
+      .then((r) => TMDBApiSchema[3].tv['{series_id}'].response.parse(r))
     return {
       tv: {
         series: res,
@@ -688,13 +686,12 @@ export class TMDB {
       movie: z.infer<(typeof TMDBApiSchema)[3]['search']['movie']['response']>
     }
   }> {
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get('3/search/movie', {
         searchParams: { query, include_adult: true, page },
       })
       .json()
-      .then((res) => TMDBApiSchema[3].search.movie.response.parse(res))
+      .then((r) => TMDBApiSchema[3].search.movie.response.parse(r))
     return {
       search: {
         movie: res,
@@ -709,13 +706,12 @@ export class TMDB {
       tv: z.infer<(typeof TMDBApiSchema)[3]['search']['tv']['response']>
     }
   }> {
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get('3/search/tv', {
         searchParams: { query, include_adult: true, page },
       })
       .json()
-      .then((res) => TMDBApiSchema[3].search.tv.response.parse(res))
+      .then((r) => TMDBApiSchema[3].search.tv.response.parse(r))
     return {
       search: {
         tv: res,
@@ -730,21 +726,18 @@ export class TMDB {
       multi: z.infer<(typeof TMDBApiSchema)[3]['search']['multi']['response']>
     }
   }> {
-    const ky = this.kyInstance()
-    const res = await ky
+    const res = await this.kyInstance()
       .get('3/search/multi', {
         searchParams: { query, include_adult: true, page },
       })
       .json()
-      // biome-ignore lint/suspicious/noExplicitAny: pre-handle
-      .then((res: any) => ({
-        ...res,
-        results: res.results.filter(
-          // biome-ignore lint/suspicious/noExplicitAny: pre-handle
-          (r: any) => r.media_type === 'movie' || r.media_type === 'tv',
+      .then((r: any) => ({
+        ...r,
+        results: r.results.filter(
+          (ri: any) => ri.media_type === 'movie' || ri.media_type === 'tv',
         ),
       }))
-      .then((res) => TMDBApiSchema[3].search.multi.response.parse(res))
+      .then((r) => TMDBApiSchema[3].search.multi.response.parse(r))
     return {
       search: {
         multi: res,

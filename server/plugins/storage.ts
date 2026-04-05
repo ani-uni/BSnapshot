@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { definePlugin } from 'nitro'
 import { useStorage } from 'nitro/storage'
 import fsDriver from 'unstorage/drivers/fs'

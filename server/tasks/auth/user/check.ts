@@ -4,6 +4,7 @@ import { bigint2string } from '~s/utils/bigint'
 import { Event } from '~s/utils/common/event'
 import { checkNetworkConnectivity } from '~s/utils/connectivity'
 import { prisma } from '~s/utils/prisma'
+
 import { AuthUserLogin } from './login'
 
 export interface TaskAuthUserCheckResult {

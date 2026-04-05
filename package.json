@@ -1,31 +1,22 @@
 {
   "name": "bsnapshot",
   "version": "0.0.1",
+  "homepage": "https://github.com/ani-uni/BSnapshot",
+  "license": "MIT",
   "author": {
     "name": "ani-uni",
     "url": "https://github.com/ani-uni"
   },
-  "homepage": "https://github.com/ani-uni/BSnapshot",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ani-uni/BSnapshot.git"
   },
-  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "nitro build",
+    "clean-init": "rm -f .data/db/prisma.db & rm -rf prisma/migrations & prisma migrate dev --name init",
     "dev": "vite dev",
-    "preview": "pnpx srvx --prod .output/",
-    "clean-init": "rm -f .data/db/prisma.db & rm -rf prisma/migrations & prisma migrate dev --name init"
-  },
-  "devDependencies": {
-    "@types/json-bigint": "^1.0.4",
-    "@types/luxon": "^3.7.1",
-    "@types/node": "^25.5.2",
-    "@types/qs": "^6.15.0",
-    "nitro": "3.0.260311-beta",
-    "prisma": "^7.6.0",
-    "vite": "^8.0.3"
+    "preview": "pnpx srvx --prod .output/"
   },
   "dependencies": {
     "@dan-uni/dan-any": "^1.3.9",
@@ -44,5 +35,16 @@
     "smol-toml": "^1.6.1",
     "tough-cookie": "^6.0.1",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/json-bigint": "^1.0.4",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^25.5.2",
+    "@types/qs": "^6.15.0",
+    "nitro": "3.0.260311-beta",
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.58.0",
+    "prisma": "^7.6.0",
+    "vite": "^8.0.3"
   }
 }

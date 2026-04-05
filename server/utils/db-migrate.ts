@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import path from 'node:path'
+
 import Database from 'libsql'
+
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
 
 const dbPath =

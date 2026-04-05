@@ -1,7 +1,6 @@
 import { HTTPError } from 'nitro/h3'
 import { useStorage } from 'nitro/storage'
 import { defineTask } from 'nitro/task'
-import type { UserModel } from '~/generated/prisma/models'
 import type { KVAuth } from '~s/types/kv/auth'
 import type { TaskPayload } from '~s/types/tasks/payload'
 import type { TaskResult } from '~s/types/tasks/result'
@@ -11,6 +10,9 @@ import { Buvid } from '~s/utils/bili/auth/user/buvid'
 import { getBiliTicket } from '~s/utils/bili/auth/user/ticket'
 import { Cookies } from '~s/utils/cookies'
 import { prisma } from '~s/utils/prisma'
+
+import type { UserModel } from '~/generated/prisma/models'
+
 import { AuthUserGet } from './get'
 
 export interface TaskAuthUserRefreshPayload {

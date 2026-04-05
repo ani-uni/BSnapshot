@@ -1,4 +1,4 @@
-import type { Clips } from "~s/types/task"
+import type { Clips } from '~s/types/task'
 
 export const clips2segs = (
   clips: Clips,
@@ -14,5 +14,5 @@ export const clips2segs = (
     for (let seg = startSeg; seg <= endSeg; seg++) segSet.add(seg)
   }
   // 返回排序后的seg数组
-  return Array.from(segSet).sort((a, b) => a - b)
+  return Array.from(segSet).toSorted((a, b) => a - b)
 }

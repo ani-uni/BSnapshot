@@ -1,10 +1,12 @@
 import ky from 'ky'
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
-import type { UserModel } from '~/generated/prisma/models'
 import type { TaskResult } from '~s/types/tasks/result'
 import { bigint2string } from '~s/utils/bigint'
 import { Cookies } from '~s/utils/cookies'
+
+import type { UserModel } from '~/generated/prisma/models'
+
 import { AuthUserLogin } from './login'
 
 export interface TaskAuthUserLoginQrPayload {

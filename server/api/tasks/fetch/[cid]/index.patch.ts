@@ -4,9 +4,10 @@ import {
   readValidatedBody,
 } from 'nitro/h3'
 import z from 'zod'
-import { TaskTypeSchema } from '~/generated/zod/schemas'
 import { stringToBigInt } from '~s/utils/codecs'
 import { Capture } from '~s/utils/common/capture'
+
+import { TaskTypeSchema } from '~/generated/zod/schemas'
 
 export default defineHandler(async (event) => {
   const params = await getValidatedRouterParams(

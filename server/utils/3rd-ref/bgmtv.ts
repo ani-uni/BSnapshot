@@ -1,5 +1,6 @@
 import ky from 'ky'
 import z from 'zod'
+
 import { headers } from '../headers'
 
 const BgmTvApiModelSchema = {
@@ -149,9 +150,7 @@ export class BgmTv {
     const res = await this.kyInstance()
       .get(`v0/episodes/${episode_id}`)
       .json()
-      .then((res) =>
-        BgmTvApiSchema.v0.episodes['{episode_id}'].response.parse(res),
-      )
+      .then((r) => BgmTvApiSchema.v0.episodes['{episode_id}'].response.parse(r))
     return {
       v0: {
         episodes: {
@@ -164,9 +163,7 @@ export class BgmTv {
     const res = await this.kyInstance()
       .get(`v0/subjects/${subject_id}`)
       .json()
-      .then((res) =>
-        BgmTvApiSchema.v0.subjects['{subject_id}'].response.parse(res),
-      )
+      .then((r) => BgmTvApiSchema.v0.subjects['{subject_id}'].response.parse(r))
     return {
       v0: {
         subjects: {
@@ -183,7 +180,7 @@ export class BgmTv {
         }),
       })
       .json()
-      .then((res) => BgmTvApiSchema.v0.episodes.response.parse(res))
+      .then((r) => BgmTvApiSchema.v0.episodes.response.parse(r))
     return {
       v0: {
         episodes: res,
@@ -199,8 +196,8 @@ export class BgmTv {
         }),
       })
       .json()
-      .then((res) =>
-        BgmTvApiSchema.v0.search.subjects['<post>'].response.parse(res),
+      .then((r) =>
+        BgmTvApiSchema.v0.search.subjects['<post>'].response.parse(r),
       )
     return {
       v0: {

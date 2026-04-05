@@ -1,4 +1,5 @@
 import { HTTPError } from 'nitro/h3'
+
 import type { Clips } from '../types/task'
 
 export function ClipLintAndFmt(clips: Clips): Clips {

@@ -1,10 +1,11 @@
 import { HTTPError } from 'nitro/h3'
 import { defineTask } from 'nitro/task'
-import type { Config } from '~/generated/prisma/client'
-import type { ConfigModel } from '~/generated/prisma/models'
 import type { TaskPayload } from '~s/types/tasks/payload'
 import type { TaskResult } from '~s/types/tasks/result'
 import { prisma } from '~s/utils/prisma'
+
+import type { Config } from '~/generated/prisma/client'
+import type { ConfigModel } from '~/generated/prisma/models'
 
 export type TaskConfigSetPayload = TaskPayload<Omit<Config, 'id'>>
 

@@ -1,7 +1,9 @@
 import { UniPool } from '@dan-uni/dan-any'
 import { HTTPError } from 'nitro/h3'
 import z from 'zod'
+
 import type { EpisodeModel } from '~/generated/prisma/models'
+
 import { TMDBUrlCRawSchema } from '../3rd-ref/tmdb'
 import { prisma } from '../prisma'
 
@@ -158,19 +160,20 @@ export class Episode {
   }
   async getDanmaku(up = false) {
     let pool = UniPool.create({ dedupe: false, dmid: false })
-    await (up
-      ? prisma.clip
-          .findMany({
-            where: { episodeId: this.episodeModel.id },
-            select: { danmakuUp: true },
-          })
-          .then((clips) => clips.map((c) => c.danmakuUp))
-      : prisma.clip
-          .findMany({
-            where: { episodeId: this.episodeModel.id },
-            select: { danmaku: true },
-          })
-          .then((clips) => clips.map((c) => c.danmaku))
+    await (
+      up
+        ? prisma.clip
+            .findMany({
+              where: { episodeId: this.episodeModel.id },
+              select: { danmakuUp: true },
+            })
+            .then((clips) => clips.map((c) => c.danmakuUp))
+        : prisma.clip
+            .findMany({
+              where: { episodeId: this.episodeModel.id },
+              select: { danmaku: true },
+            })
+            .then((clips) => clips.map((c) => c.danmaku))
     ).then((pbs) =>
       pbs.forEach((pb) => {
         if (pb) pool = pool.assign(UniPool.fromPb(pb))

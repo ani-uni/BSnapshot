@@ -1,4 +1,5 @@
 import type { User } from '~s/utils/common/user'
+
 import view, { type VideoInfoOpt } from './info'
 
 export type VideoPageBasic = {

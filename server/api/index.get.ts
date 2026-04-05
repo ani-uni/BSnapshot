@@ -1,8 +1,9 @@
 import { defineHandler } from 'nitro/h3'
 import { version as nitroVersion } from 'nitro/meta'
-import pkg from '~/package.json'
 import { db2ver } from '~s/utils/db-migrate'
 import { prisma } from '~s/utils/prisma'
+
+import pkg from '~/package.json'
 
 export default defineHandler(async () => {
   const userExist = !(

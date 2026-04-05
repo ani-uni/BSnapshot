@@ -1,4 +1,5 @@
 import { EventLevel } from '~/generated/prisma/enums'
+
 import { prisma } from '../prisma'
 
 export class Event {
