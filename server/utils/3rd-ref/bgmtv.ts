@@ -143,7 +143,7 @@ export class BgmTv {
     hds.set('Accept', 'application/json')
     return ky.create({
       headers: hds,
-      prefixUrl: this.api_url,
+      prefix: this.api_url,
     })
   }
   async getEpisodeInfo(episode_id: number) {

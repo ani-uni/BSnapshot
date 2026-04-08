@@ -558,7 +558,7 @@ export class TMDB {
         include_image_language: 'zh,null',
       },
       headers: hds,
-      prefixUrl: this.api_url,
+      prefix: this.api_url,
     })
   }
   /**

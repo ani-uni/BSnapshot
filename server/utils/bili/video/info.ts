@@ -103,7 +103,7 @@ async function view(user: User, opt: VideoInfoOpt) {
         .get(
           `${urls.wbi_view}?${await user.encWbi(VideoInfoOptSchema.parse(opt))}`,
           {
-            parseJson: JSONBigInt.parse,
+            parseJson: (text) => JSONBigInt.parse(text),
           },
         )
         .json<VideoInfo>()
