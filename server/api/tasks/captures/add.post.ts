@@ -11,7 +11,7 @@ export default defineHandler(async (event) => {
       clips: ClipsSchema,
       cid: stringToBigInt,
       aid: stringToBigInt.optional(),
-      pubdate: z.number().optional(),
+      pubdate: z.int().positive().optional(),
       upMid: stringToBigInt.optional(),
     }),
   )
