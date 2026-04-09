@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import Database from 'libsql'
 
+import pkg from '~/package.json' with { type: 'json' }
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
 import add_video_source_sql from '~/prisma/migrations/20260408153716_add_video_source/migration.sql?raw'
 
@@ -17,12 +18,15 @@ const db2ver = {
   '0.0.3': 1,
 } as const
 
-const migrateDB = (s: number | string = 0, e?: number | string) => {
+const migrateDB = (
+  s: number | string = -1,
+  e: number | string = pkg.version,
+) => {
   if (!e) e = s
   if (typeof s === 'string') s = db2ver[s as keyof typeof db2ver] ?? 0
   if (typeof e === 'string') e = db2ver[e as keyof typeof db2ver] ?? 0
   const db = new Database(dbPath)
-  for (let v = s; v <= e; v++) {
+  for (let v = s + 1; v <= e; v++) {
     switch (v) {
       case 0:
         db.exec(init_sql)
