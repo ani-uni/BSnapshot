@@ -4,6 +4,7 @@ import path from 'node:path'
 import Database from 'libsql'
 
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
+import add_video_source_sql from '~/prisma/migrations/20260408153716_add_video_source/migration.sql?raw'
 
 const dbPath =
   process.env.DATABASE_URL ??
@@ -13,6 +14,7 @@ const dbPath =
 
 const db2ver = {
   '0.0.1': 0,
+  '0.0.3': 1,
 } as const
 
 const migrateDB = (s: number | string = 0, e?: number | string) => {
@@ -21,8 +23,15 @@ const migrateDB = (s: number | string = 0, e?: number | string) => {
   if (typeof e === 'string') e = db2ver[e as keyof typeof db2ver] ?? 0
   const db = new Database(dbPath)
   for (let v = s; v <= e; v++) {
-    if (v === 0) {
-      db.exec(init_sql)
+    switch (v) {
+      case 0:
+        db.exec(init_sql)
+        break
+      case 1:
+        db.exec(add_video_source_sql)
+        break
+      default:
+        break
     }
   }
   db.close()

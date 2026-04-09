@@ -10,6 +10,7 @@ export default defineHandler(async (event) => {
     z.object({
       clips: ClipsSchema,
       cid: stringToBigInt,
+      aid: stringToBigInt.optional(),
       pubdate: z.number().optional(),
       upMid: stringToBigInt.optional(),
     }),
@@ -17,6 +18,7 @@ export default defineHandler(async (event) => {
   const data = await Capture.create({
     clips: payload.clips,
     cid: payload.cid,
+    aid: payload.aid,
     pubdate: payload.pubdate,
     upMid: payload.upMid,
   })

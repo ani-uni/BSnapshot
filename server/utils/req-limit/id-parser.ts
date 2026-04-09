@@ -30,7 +30,7 @@ export const QueueIDParamsSchema = z.discriminatedUnion('type', [
     options: DanmakuSearchOptionsSchema.optional(),
   }),
   z.object({
-    type: z.literal('view'),
+    type: z.union([z.literal('view'), z.literal('viewWithoutInfo')]),
     opt: VideoInfoOptSchema,
   }),
 ])

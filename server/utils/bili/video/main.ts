@@ -1,6 +1,6 @@
 import type { User } from '~s/utils/common/user'
 
-import view, { type VideoInfoOpt } from './info'
+import { view, viewWithoutInfo, type VideoInfoOpt } from './info'
 
 export type VideoPageBasic = {
   cid: bigint
@@ -42,4 +42,8 @@ export async function getVideoBasic(
       duration: p.duration,
     })),
   }
+}
+
+export async function checkVideoAlive(user: User, opt: VideoInfoOpt) {
+  return viewWithoutInfo(user, opt)
 }

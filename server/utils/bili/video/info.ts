@@ -1,6 +1,7 @@
 import { HTTPError } from 'nitro/h3'
 import z from 'zod'
 import { JSONBigInt } from '~s/utils/bigint'
+import { Event } from '~s/utils/common/event'
 import type { User } from '~s/utils/common/user'
 import { queueID2params } from '~s/utils/req-limit/id-parser'
 import getQueue from '~s/utils/req-limit/p-queue'
@@ -120,4 +121,37 @@ async function view(user: User, opt: VideoInfoOpt) {
   )
 }
 
-export default view
+/**
+ * 参数与上方函数相同，仅用于检测视频是否存活，不进行其它信息处理
+ */
+async function viewWithoutInfo(
+  user: User,
+  opt: VideoInfoOpt,
+): Promise<
+  { alive: false; upCanSee: boolean; reason: string } | { alive: true }
+> {
+  return (await getQueue()).SlowQueue.add(
+    async () =>
+      user
+        .kyInstance()
+        .get(
+          `${urls.view}?${await user.encWbi(VideoInfoOptSchema.parse(opt))}`,
+          {
+            parseJson: (text) => JSONBigInt.parse(text),
+          },
+        )
+        .json<VideoInfo>()
+        .then((res) => {
+          if (res.code !== 0) {
+            const e = new Event('视频存活检测')
+            const reason = `错误码: ${res.code}, 错误信息: ${res.message}`
+            if ('aid' in opt) e.warn(`<aid: ${opt.aid}>`, reason)
+            else e.warn(`<bvid: ${opt.bvid}>`, reason)
+            return { alive: false, upCanSee: res.code === 62012, reason }
+          } else return { alive: true }
+        }),
+    { id: queueID2params.encode({ type: 'viewWithoutInfo', opt }) },
+  )
+}
+
+export { view, viewWithoutInfo }

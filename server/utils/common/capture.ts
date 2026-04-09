@@ -9,18 +9,86 @@ import {
   TaskStatus,
   type TaskType,
 } from '~/generated/prisma/enums'
-import type { CaptureModel, ClipModel } from '~/generated/prisma/models'
+import type {
+  CaptureModel,
+  ClipModel,
+  VideoSourceModel,
+} from '~/generated/prisma/models'
 
 import { zeroDate } from '../bili-zero-date'
+import { checkVideoAlive } from '../bili/video/main'
 import { ClipLintAndFmt } from '../clip-lint-fmt'
 import { clips2segs } from '../clips2segs'
 import { prisma } from '../prisma'
-import { FetchTask } from './fetchtask'
+import { FetchTask, FetchTaskAsQueue } from './fetchtask'
 import { User } from './user'
+
+export class VideoSource {
+  constructor(public videoSourceModel: VideoSourceModel) {}
+  static async check() {
+    const videoSourcesAlive = await prisma.videoSource.findMany({
+      where: { deadAt: null },
+      select: { aid: true },
+    })
+    const videoSources = await Promise.all(
+      videoSourcesAlive.map(async ({ aid }) => {
+        const ac = await checkVideoAlive(await User.fromRotating(), { aid }) // aliveCheck
+        return { ...ac, aid }
+      }),
+    )
+    const now = new Date()
+    await prisma.$transaction(
+      videoSources.map((vs) =>
+        prisma.videoSource.update({
+          where: { aid: vs.aid },
+          data: vs.alive
+            ? { lastRunAt: now }
+            : {
+                lastRunAt: now,
+                deadAt: now,
+                reason: vs.reason,
+                upCanSee: vs.upCanSee,
+              },
+        }),
+      ),
+    )
+  }
+  static async loadFromFetchTask(ft: FetchTask) {
+    const videoSourceModel = await prisma.videoSource.findFirst({
+      where: {
+        captures: {
+          some: { tasks: { some: { id: ft.fetchTaskModel.id } } },
+        },
+      },
+    })
+    if (!videoSourceModel) return null
+    return new VideoSource(videoSourceModel)
+  }
+  async die(upCanSee: boolean, reason: string) {
+    const now = new Date()
+    await prisma.videoSource.update({
+      where: { aid: this.videoSourceModel.aid },
+      data: { lastRunAt: now, deadAt: now, reason, upCanSee },
+    })
+  }
+  async check(conf: FetchTaskAsQueue['conf']) {
+    if (this.videoSourceModel.deadAt) return
+    if (
+      Date.now() <
+      this.videoSourceModel.lastRunAt.getTime() + conf.acIntervalSec * 1000
+    )
+      return
+    const ac = await checkVideoAlive(await User.fromRotating(), {
+      aid: this.videoSourceModel.aid,
+    })
+    if (ac.alive === false) await this.die(ac.upCanSee, ac.reason)
+  }
+}
 
 export interface CaptureCreate {
   clips: Clips
   cid: bigint
+  aid?: bigint
   pubdate?: number
   upMid?: bigint
 }
@@ -45,22 +113,23 @@ export class Capture {
           })),
         },
         segs: clips2segs(clips).join(','),
+        videoSource: {
+          connectOrCreate: data.aid
+            ? {
+                where: { aid: data.aid },
+                create: { aid: data.aid, lastRunAt: new Date(0) },
+              }
+            : undefined,
+        },
       },
     })
     await FetchTask.initForCapture(capture_c.cid)
     return new Capture(capture_c)
   }
   static async loadFromCID(cid: bigint) {
-    const captureModel = await prisma.capture
-      .findUniqueOrThrow({
-        where: { cid },
-      })
-      .catch((err) => {
-        throw new HTTPError('Capture not found', {
-          status: 404,
-          cause: err,
-        })
-      })
+    const captureModel = await prisma.capture.findUniqueOrThrow({
+      where: { cid },
+    })
     return new Capture(captureModel)
   }
   static async list() {
@@ -374,7 +443,7 @@ export class Capture {
       }
     })
   }
-  async getHisDates(count = 1) {
+  async getHisDates(start?: Date, count = 1) {
     // 向前追溯终止日期
     const endPub = this.captureModel.pub
       ? DateTime.fromJSDate(this.captureModel.pub).startOf('day')
@@ -394,10 +463,11 @@ export class Capture {
     //   select: { date: true },
     // })
     // 从 昨天 开始向前确定需要的日期(防止 今天 还没过完就已被确定性标记)
-    let current = DateTime.now()
+    let current = (
+      start ? DateTime.fromJSDate(start) : DateTime.now().minus({ days: 1 })
+    )
       .setZone('Asia/Shanghai')
       .startOf('day')
-      .minus({ days: 1 })
     while (datesMap.size < count) {
       if (current < endPub) break
       const cDate = await prisma.hisDate.findUnique({

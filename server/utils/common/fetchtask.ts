@@ -12,7 +12,7 @@ import type {
 
 import { his, rt, sp, up } from '../bili/danmaku/main'
 import { prisma } from '../prisma'
-import { Capture } from './capture'
+import { Capture, VideoSource } from './capture'
 import { User } from './user'
 
 export class FetchTask {
@@ -142,6 +142,9 @@ export class FetchTask {
       where: { id: this.fetchTaskModel.id },
     })
   }
+  async getVideoSource() {
+    return VideoSource.loadFromFetchTask(this)
+  }
   /**
    * 不应在上方手动切换中被使用，仅运行时使用
    */
@@ -181,6 +184,7 @@ export class FetchTaskAsQueue {
     upIntervalSec: 7200,
     upBatch: 5,
     upPool: 500,
+    acIntervalSec: 86400,
   }
   public runtime: RuntimeModel = {
     id: 0,
@@ -289,6 +293,8 @@ export class FetchTaskAsQueue {
       where: { id: ft.fetchTaskModel.id },
       data: { queueId: qid, status: TaskStatus.RUNNING },
     })
+    const vs = await VideoSource.loadFromFetchTask(ft)
+    await vs?.check(this.conf)
     return qid
   }
   // 按照Type+queueID优先顺序执行，每个type都从0开始排id
@@ -358,14 +364,20 @@ export class FetchTaskAsQueue {
             })
           }
           await capture.mergeDanmaku(pool)
-          await ft.status(TaskStatus.PENDING)
+          const vs = await ft.getVideoSource()
+          if (vs?.videoSourceModel.deadAt) await ft.status(TaskStatus.DONE)
+          else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
         }
       } else if (task.type === TaskType.HIS) {
         return async () => {
           for (let i = 0; i < conf.conf.hisBatch; i++) {
-            const toFetchDates = await capture.getHisDates(1)
+            const vs = await ft.getVideoSource()
+            const toFetchDates = await capture.getHisDates(
+              vs?.videoSourceModel.deadAt ?? undefined,
+              1,
+            )
             // 当没有需要获取的日期时，说明历史弹幕已经获取完毕
             if (toFetchDates.length === 0) {
               await ft.status(TaskStatus.DONE)
@@ -420,7 +432,9 @@ export class FetchTaskAsQueue {
             })
           }
           await capture.mergeDanmaku(pool)
-          await ft.status(TaskStatus.PENDING)
+          const vs = await ft.getVideoSource()
+          if (vs?.videoSourceModel.deadAt) await ft.status(TaskStatus.DONE)
+          else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
         }
@@ -452,7 +466,13 @@ export class FetchTaskAsQueue {
             return
           }
           await capture.mergeDanmaku(pool, true, true)
-          await ft.status(TaskStatus.PENDING)
+          const vs = await ft.getVideoSource()
+          if (
+            vs?.videoSourceModel.deadAt &&
+            vs.videoSourceModel.upCanSee === false
+          )
+            await ft.status(TaskStatus.DONE)
+          else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
         }
