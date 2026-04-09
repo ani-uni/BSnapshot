@@ -73,7 +73,7 @@ export async function checkUpdate() {
       const data = await res.json<z.infer<typeof gitHubReleaseSchema>>()
       const release = gitHubReleaseSchema.parse(data)
       const latestVersion = release.tag_name.replace(/^v/i, '')
-      if (latestVersion === ver) {
+      if (latestVersion <= ver) {
         return updateInfoSchema.parse({
           ...base,
           isLatest: true,
