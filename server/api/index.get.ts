@@ -1,6 +1,6 @@
 import { defineHandler } from 'nitro/h3'
 import { version as nitroVersion } from 'nitro/meta'
-import { db2ver } from '~s/utils/db-migrate'
+import { ver2db } from '~s/utils/db-migrate'
 import { prisma } from '~s/utils/prisma'
 
 import pkg from '~/package.json'
@@ -12,7 +12,7 @@ export default defineHandler(async () => {
   return {
     name: pkg.name,
     version: pkg.version,
-    dbVersion: db2ver[pkg.version as keyof typeof db2ver] ?? -1,
+    dbVersion: ver2db(pkg.version),
     nitroVersion,
     userExist,
   }

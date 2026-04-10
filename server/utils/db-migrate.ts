@@ -18,6 +18,16 @@ const db2ver = {
   '0.0.3': 1,
 } as const
 
+const ver2db = (ver: string) => {
+  const v = db2ver[ver as keyof typeof db2ver]
+  if (v === undefined) {
+    for (const [k, ev] of Object.entries(db2ver).toReversed()) {
+      if (ver >= k) return ev
+    }
+  }
+  return -1
+}
+
 const migrateDB = (
   s: number | string = -1,
   e: number | string = pkg.version,
@@ -41,4 +51,4 @@ const migrateDB = (
   db.close()
 }
 
-export { migrateDB, db2ver }
+export { migrateDB, ver2db }
