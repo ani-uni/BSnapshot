@@ -69,13 +69,18 @@ export class Event {
   }
   static async cleanEvents() {
     const conf = await this.getConf()
-    await prisma.event.deleteMany({
+    const del = await prisma.event.deleteMany({
       where: {
         ctime: {
           lt: new Date(Date.now() - conf.autoDelTimeAway * 1000),
         },
       },
     })
+    await this.info(
+      '日志',
+      `清理旧日志 - autoDelTimeAway: ${conf.autoDelTimeAway}`,
+      `成功清理${del.count}条事件`,
+    )
   }
   static async clearEvents() {
     await prisma.event.deleteMany({})

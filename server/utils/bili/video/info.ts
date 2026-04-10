@@ -145,8 +145,8 @@ async function viewWithoutInfo(
           if (res.code !== 0) {
             const e = new Event('视频存活检测')
             const reason = `错误码: ${res.code}, 错误信息: ${res.message}`
-            if ('aid' in opt) e.warn(`<aid: ${opt.aid}>`, reason)
-            else e.warn(`<bvid: ${opt.bvid}>`, reason)
+            if ('aid' in opt) e.warn(`aid: ${opt.aid}`, reason)
+            else e.warn(`bvid: ${opt.bvid}`, reason)
             return { alive: false, upCanSee: res.code === 62012, reason }
           } else return { alive: true }
         }),
