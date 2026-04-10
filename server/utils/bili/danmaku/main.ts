@@ -53,8 +53,8 @@ export async function his(user: User, oid: bigint, dates: HisIndex) {
 }
 export { his_index, his_pub_to_now } from './history'
 
-export async function sp(user: User, oid: bigint) {
-  return command_seg(user, oid)
+export async function sp(user: User, oid: bigint, pid?: bigint) {
+  return command_seg(user, oid, pid)
 }
 
 export async function up(

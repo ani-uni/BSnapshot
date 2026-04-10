@@ -12,7 +12,7 @@ import type {
 
 import { his, rt, sp, up } from '../bili/danmaku/main'
 import { prisma } from '../prisma'
-import { Capture, VideoSource } from './capture'
+import { Capture, VideoSource, VideoSourceState } from './capture'
 import { User } from './user'
 
 export class FetchTask {
@@ -365,7 +365,8 @@ export class FetchTaskAsQueue {
           }
           await capture.mergeDanmaku(pool)
           const vs = await ft.getVideoSource()
-          if (vs?.videoSourceModel.deadAt) await ft.status(TaskStatus.DONE)
+          if (vs?.toState() !== VideoSourceState.Alive)
+            await ft.status(TaskStatus.DONE)
           else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
@@ -433,7 +434,8 @@ export class FetchTaskAsQueue {
           }
           await capture.mergeDanmaku(pool)
           const vs = await ft.getVideoSource()
-          if (vs?.videoSourceModel.deadAt) await ft.status(TaskStatus.DONE)
+          if (vs?.toState() !== VideoSourceState.Alive)
+            await ft.status(TaskStatus.DONE)
           else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()
           return
@@ -467,10 +469,7 @@ export class FetchTaskAsQueue {
           }
           await capture.mergeDanmaku(pool, true, true)
           const vs = await ft.getVideoSource()
-          if (
-            vs?.videoSourceModel.deadAt &&
-            vs.videoSourceModel.upCanSee === false
-          )
+          if (vs?.toState() === VideoSourceState.Dead)
             await ft.status(TaskStatus.DONE)
           else await ft.status(TaskStatus.PENDING)
           await ft.afterRun()

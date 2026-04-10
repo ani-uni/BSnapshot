@@ -23,6 +23,12 @@ import { prisma } from '../prisma'
 import { FetchTask, FetchTaskAsQueue } from './fetchtask'
 import { User } from './user'
 
+export enum VideoSourceState {
+  Alive,
+  Restricted, // OnlyUpCanSee
+  Dead,
+}
+
 export class VideoSource {
   constructor(public videoSourceModel: VideoSourceModel) {}
   static async check() {
@@ -83,6 +89,19 @@ export class VideoSource {
     })
     if (ac.alive === false) await this.die(ac.upCanSee, ac.reason)
   }
+  toJSON() {
+    return {
+      ...this.videoSourceModel,
+      aid: this.videoSourceModel.aid.toString(),
+    }
+  }
+  toState() {
+    if (this.videoSourceModel.deadAt) {
+      if (this.videoSourceModel.upCanSee) return VideoSourceState.Restricted
+      else return VideoSourceState.Dead
+    }
+    return VideoSourceState.Alive
+  }
 }
 
 export interface CaptureCreate {
@@ -94,7 +113,16 @@ export interface CaptureCreate {
 }
 
 export class Capture {
-  constructor(public captureModel: CaptureModel) {}
+  constructor(
+    public captureModel: CaptureModel & {
+      videoSource?: VideoSourceModel | null
+    },
+  ) {}
+  get videoSource() {
+    return this.captureModel.videoSource
+      ? new VideoSource(this.captureModel.videoSource)
+      : null
+  }
   static async create(data: CaptureCreate) {
     const clips = ClipLintAndFmt(data.clips)
     if (clips.length === 0)
@@ -122,6 +150,7 @@ export class Capture {
             : undefined,
         },
       },
+      include: { videoSource: true },
     })
     await FetchTask.initForCapture(capture_c.cid)
     return new Capture(capture_c)
@@ -129,22 +158,27 @@ export class Capture {
   static async loadFromCID(cid: bigint) {
     const captureModel = await prisma.capture.findUniqueOrThrow({
       where: { cid },
+      include: { videoSource: true },
     })
     return new Capture(captureModel)
   }
   static async list() {
-    const captures = await prisma.capture.findMany({ select: { cid: true } })
-    return captures
+    const captures = await prisma.capture.findMany({
+      include: { videoSource: true },
+    })
+    return captures.map((c) => new Capture(c).toJSON())
   }
   static async listInfoFromEpisodeID(episodeId: string) {
     const captures = await prisma.capture.findMany({
       where: { clips: { some: { episodeId } } },
+      include: { videoSource: true },
     })
     return captures.map((c) => new Capture(c).toJSON())
   }
   static async listInfoFromSeasonID(seasonId: string) {
     const captures = await prisma.capture.findMany({
       where: { clips: { some: { episode: { seasonId } } } },
+      include: { videoSource: true },
     })
     return captures.map((c) => new Capture(c).toJSON())
   }
@@ -200,7 +234,7 @@ export class Capture {
     for (const c of captures_raw) {
       // const capture = await Capture.loadFromCID(c.cid)
       // 因为这里用到run()方法只需要cid字段
-      const capture = new Capture({ cid: c.cid } as CaptureModel)
+      const capture = new Capture({ cid: BigInt(c.cid) } as CaptureModel)
       await capture.run(types, manual)
     }
   }
@@ -509,11 +543,11 @@ export class Capture {
     return {
       ...this.captureModel,
       cid: this.captureModel.cid.toString(),
-      pub: this.captureModel.pub?.getTime() ?? null,
-      upMid: this.captureModel.upMid
-        ? this.captureModel.upMid.toString()
-        : null,
-      upLatest: this.captureModel.upLatest?.getTime() ?? null,
+      upMid: this.captureModel.upMid?.toString() ?? null,
+      videoSource: undefined, // 无须返回该完整字段
+      videoSourceId: undefined,
+      aid: this.videoSource?.toJSON().aid ?? null,
+      videoSourceState: this.videoSource?.toState() ?? null,
     }
   }
   /**
