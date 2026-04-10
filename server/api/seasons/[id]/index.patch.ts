@@ -13,7 +13,7 @@ export default defineHandler(async (event) => {
       id: z.cuid2(),
     }),
   )
-  const body = await readValidatedBody(
+  const payload = await readValidatedBody(
     event,
     z.object({
       ref: ssRefSchema.optional(),
@@ -22,8 +22,8 @@ export default defineHandler(async (event) => {
     }),
   )
   const season = await Season.loadFromID(params.id)
-  if (body.title) await season.editTitle(body.title)
-  if (body.ref) await season.editRef(body.ref)
-  if (body.episodes) await season.setEpisodes(body.episodes)
+  if (payload.title) await season.editTitle(payload.title)
+  if (payload.ref) await season.editRef(payload.ref)
+  if (payload.episodes) await season.setEpisodes(payload.episodes)
   return season.toJSON()
 })

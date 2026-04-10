@@ -13,7 +13,7 @@ export default defineHandler(async (event) => {
       id: z.cuid2(),
     }),
   )
-  const body = await readValidatedBody(
+  const payload = await readValidatedBody(
     event,
     z.object({
       ref: epRefSchema.optional(),
@@ -28,9 +28,9 @@ export default defineHandler(async (event) => {
     }),
   )
   const episode = await Episode.loadFromID(params.id)
-  if (body.title) await episode.editTitle(body.title)
-  if (body.ref) await episode.editRef(body.ref)
-  if (body.clips) await episode.setClips(body.clips)
-  if (body.season) await episode.setSeason(body.season.id, body.season.sn)
+  if (payload.title) await episode.editTitle(payload.title)
+  if (payload.ref) await episode.editRef(payload.ref)
+  if (payload.clips) await episode.setClips(payload.clips)
+  if (payload.season) await episode.setSeason(payload.season.id, payload.season.sn)
   return episode.toJSON()
 })
