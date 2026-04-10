@@ -32,12 +32,14 @@ export default defineConfig({
   storage: {
     auth: { driver: 'fs', base: '.data/db/auth' },
     tmdb: { driver: 'fs', base: '.data/db/tmdb' },
+    event: { driver: 'fs', base: '.data/db/event' },
     cache: { driver: 'lru-cache' }, // nitro内置缓存
   },
   scheduledTasks: {
-    '0 12 * * *': ['auth:user:check'],
+    '0 */11 * * *': ['auth:user:check'],
     '0 */2 * * *': ['auth:global:wbikey:refresh'],
     '*/2 * * * *': ['task:fetch:add'],
     '*/1 * * * *': ['task:fetch:run'],
+    '0 */3 * * *': ['event:auto-clean'],
   },
 })
