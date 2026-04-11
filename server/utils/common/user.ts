@@ -15,6 +15,10 @@ const e = new Event('utils:common:user')
 
 export class User {
   constructor(public userModel: UserModel) {}
+  static async exist() {
+    const user = await prisma.user.findFirst({ select: { mid: true } })
+    return !(user === null)
+  }
   static async load(userModel: UserModel) {
     if (!userModel.bauth_cookies) {
       await prisma.user.delete({ where: { mid: userModel.mid } })
