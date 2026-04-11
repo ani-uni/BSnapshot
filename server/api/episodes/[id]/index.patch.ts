@@ -21,7 +21,7 @@ export default defineHandler(async (event) => {
       clips: z.array(z.cuid2()).optional(),
       season: z
         .xor([
-          z.object({ id: z.cuid2(), sn: z.int() }),
+          z.object({ id: z.cuid2(), sn: z.number() }),
           z.object({ id: z.null(), sn: z.undefined().optional() }),
         ])
         .optional(),

@@ -182,7 +182,7 @@ model Clip {
 // 由一或多个Clip组成的可表示1集/1个视频的弹幕单位
 model Episode {
   id       String  @id @default(cuid())
-  sn       Int?
+  sn       Float?
   title    String? // 优先显示，为空时尝试从ref获取title
   // 引用链接
   // episode id

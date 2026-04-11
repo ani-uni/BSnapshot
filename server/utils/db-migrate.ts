@@ -6,6 +6,7 @@ import Database from 'libsql'
 import pkg from '~/package.json' with { type: 'json' }
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
 import add_video_source_sql from '~/prisma/migrations/20260408153716_add_video_source/migration.sql?raw'
+import sn_may_be_float_sql from '~/prisma/migrations/20260411152213_sn_may_be_float/migration.sql?raw'
 
 const dbPath =
   process.env.DATABASE_URL ??
@@ -16,6 +17,7 @@ const dbPath =
 const db2ver = {
   '0.0.1': 0,
   '0.0.3': 1,
+  '0.0.7': 2,
 } as const
 
 const ver2db = (ver: string) => {
@@ -43,6 +45,9 @@ const migrateDB = (
         break
       case 1:
         db.exec(add_video_source_sql)
+        break
+      case 2:
+        db.exec(sn_may_be_float_sql)
         break
       default:
         break

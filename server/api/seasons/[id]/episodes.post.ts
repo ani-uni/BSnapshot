@@ -14,7 +14,7 @@ export default defineHandler(async (event) => {
     }),
   )
   if (params.id === 'default') return Episode.create(null)
-  const payload = await readValidatedBody(event, z.object({ sn: z.int() }))
+  const payload = await readValidatedBody(event, z.object({ sn: z.number() }))
   const episode = await Episode.create(params.id, payload.sn)
   return episode
 })
