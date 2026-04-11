@@ -7,6 +7,7 @@ import { prisma } from '../prisma'
 
 export const eventConfSchema = z.object({
   autoDelTimeAway: z.int().nonnegative(), // 自动清理n秒前的事件，0为不自动清理
+  autoDelCountAway: z.int().nonnegative(), // 自动清理超过n条的事件，0为不自动清理
 })
 export type EventConf = z.infer<typeof eventConfSchema>
 
@@ -19,11 +20,16 @@ export class Event {
         (await storage.getItem<EventConf['autoDelTimeAway']>(
           'autoDelTimeAway',
         )) ?? 7 * 24 * 3600, // 默认7天
+      autoDelCountAway:
+        (await storage.getItem<EventConf['autoDelCountAway']>(
+          'autoDelCountAway',
+        )) ?? 1000, // 默认1000条
     }
   }
   static async setConf(conf: EventConf) {
     const storage = useStorage('event')
     await storage.setItem('autoDelTimeAway', conf.autoDelTimeAway)
+    await storage.setItem('autoDelCountAway', conf.autoDelCountAway)
     return this.getConf()
   }
   static async info(src: string, msg: string, params: string = '') {
@@ -69,12 +75,26 @@ export class Event {
   }
   static async cleanEvents() {
     const conf = await this.getConf()
-    if (conf.autoDelTimeAway === 0) return
+    if (conf.autoDelTimeAway === 0 && conf.autoDelCountAway === 0) return
+    let count: number | undefined = undefined
+    if (conf.autoDelCountAway) count = await prisma.event.count()
     const del = await prisma.event.deleteMany({
       where: {
-        ctime: {
-          lt: new Date(Date.now() - conf.autoDelTimeAway * 1000),
-        },
+        OR: [
+          {
+            id:
+              count && conf.autoDelCountAway
+                ? { lte: count - conf.autoDelCountAway }
+                : undefined,
+          },
+          {
+            ctime: conf.autoDelTimeAway
+              ? {
+                  lt: new Date(Date.now() - conf.autoDelTimeAway * 1000),
+                }
+              : undefined,
+          },
+        ],
       },
     })
     await this.info(
