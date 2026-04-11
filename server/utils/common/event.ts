@@ -6,14 +6,14 @@ import { EventLevel } from '~/generated/prisma/enums'
 import { prisma } from '../prisma'
 
 export const eventConfSchema = z.object({
-  autoDelTimeAway: z.int().nonnegative(), // 自动清理n秒前的事件，0为不自动清理
-  autoDelCountAway: z.int().nonnegative(), // 自动清理超过n条的事件，0为不自动清理
+  autoDelTimeAway: z.int().nonnegative().nullish(), // 自动清理n秒前的事件，0为不自动清理
+  autoDelCountAway: z.int().nonnegative().nullish(), // 自动清理超过n条的事件，0为不自动清理
 })
 export type EventConf = z.infer<typeof eventConfSchema>
 
 export class Event {
   constructor(private src: string) {}
-  static async getConf(): Promise<EventConf> {
+  static async getConf() {
     const storage = useStorage('event')
     return {
       autoDelTimeAway:
@@ -28,8 +28,10 @@ export class Event {
   }
   static async setConf(conf: EventConf) {
     const storage = useStorage('event')
-    await storage.setItem('autoDelTimeAway', conf.autoDelTimeAway)
-    await storage.setItem('autoDelCountAway', conf.autoDelCountAway)
+    if (conf.autoDelTimeAway !== undefined)
+      await storage.setItem('autoDelTimeAway', conf.autoDelTimeAway)
+    if (conf.autoDelCountAway !== undefined)
+      await storage.setItem('autoDelCountAway', conf.autoDelCountAway)
     return this.getConf()
   }
   static async info(src: string, msg: string, params: string = '') {
