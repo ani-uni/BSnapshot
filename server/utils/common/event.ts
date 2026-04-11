@@ -69,6 +69,7 @@ export class Event {
   }
   static async cleanEvents() {
     const conf = await this.getConf()
+    if (conf.autoDelTimeAway === 0) return
     const del = await prisma.event.deleteMany({
       where: {
         ctime: {
