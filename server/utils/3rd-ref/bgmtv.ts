@@ -19,7 +19,7 @@ const BgmTvApiModelSchema = {
     series: z.boolean(),
     nsfw: z.boolean(),
     locked: z.boolean(),
-    date: z.string().optional(),
+    date: z.string().nullish(),
     platform: z.string(),
     images: z.object({
       large: z.string(),
@@ -35,7 +35,7 @@ const BgmTvApiModelSchema = {
           z.union([z.string(), z.array(z.object({ v: z.string() }))]),
         ),
       )
-      .optional(),
+      .nullish(),
     volumes: z.int(),
     eps: z.int(),
     total_episodes: z.int(),
@@ -61,7 +61,7 @@ const BgmTvApiModelSchema = {
     name: z.string(),
     name_cn: z.string(),
     sort: z.number(),
-    ep: z.number().optional(),
+    ep: z.number().nullish(),
     airdate: z.string(),
     comment: z.int(),
     duration: z.string(),
@@ -75,13 +75,13 @@ const BgmTvApiModelSchema = {
     name: z.string(),
     name_cn: z.string(),
     sort: z.number(),
-    ep: z.number().optional(),
+    ep: z.number().nullish(),
     airdate: z.string(),
     comment: z.int(),
     duration: z.string(),
     desc: z.string(),
     disc: z.int(),
-    duration_seconds: z.int().optional(),
+    duration_seconds: z.int().nullish(),
   }),
 }
 // 除get外的请求使用尖括号包裹请求方法
