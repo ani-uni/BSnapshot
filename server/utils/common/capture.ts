@@ -48,7 +48,7 @@ export class VideoSource {
         prisma.videoSource.update({
           where: { aid: vs.aid },
           data: vs.alive
-            ? { lastRunAt: now }
+            ? { lastRunAt: now, deadAt: null, reason: null, upCanSee: true }
             : {
                 lastRunAt: now,
                 deadAt: now,
@@ -58,6 +58,12 @@ export class VideoSource {
         }),
       ),
     )
+  }
+  static async loadFromAid(aid: bigint) {
+    const videoSourceModel = await prisma.videoSource.findUniqueOrThrow({
+      where: { aid },
+    })
+    return new VideoSource(videoSourceModel)
   }
   static async loadFromFetchTask(ft: FetchTask) {
     const videoSourceModel = await prisma.videoSource.findFirst({
@@ -72,7 +78,7 @@ export class VideoSource {
   }
   async die(upCanSee: boolean, reason: string) {
     const now = new Date()
-    await prisma.videoSource.update({
+    this.videoSourceModel = await prisma.videoSource.update({
       where: { aid: this.videoSourceModel.aid },
       data: { lastRunAt: now, deadAt: now, reason, upCanSee },
     })
@@ -88,6 +94,16 @@ export class VideoSource {
       aid: this.videoSourceModel.aid,
     })
     if (ac.alive === false) await this.die(ac.upCanSee, ac.reason)
+    else
+      this.videoSourceModel = await prisma.videoSource.update({
+        where: { id: this.videoSourceModel.id },
+        data: {
+          lastRunAt: new Date(),
+          deadAt: null,
+          reason: null,
+          upCanSee: true,
+        },
+      }) // 考虑视频复活情况
   }
   toJSON() {
     return {
