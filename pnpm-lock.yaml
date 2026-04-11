@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@dan-uni/dan-any':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.4.5
+        version: 1.4.5
       '@prisma/adapter-libsql':
         specifier: ^7.7.0
         version: 7.7.0
@@ -99,8 +99,8 @@ packages:
   '@clack/prompts@0.11.0':
     resolution: {integrity: sha512-pMN5FcrEw9hUkZA4f+zLlzivQSeQf5dRGJjSUbvVYDLvpKCdQx5OaknvKzgbtXOizhP+SJJJjqEbOe55uKKfAw==}
 
-  '@dan-uni/dan-any@1.4.1':
-    resolution: {integrity: sha512-xHsuaR3Pm+gwpYkTnbKCx8wBUuA5nQArI9+huzqGcg/CicE9+H6v/NvabETdU76arIfB50m6y3nGqwyLZkFoVw==}
+  '@dan-uni/dan-any@1.4.5':
+    resolution: {integrity: sha512-h2TPg7d2tR/9o6rhqBv3xdngsGRm07/FGbHzpkPUDtUCCyzVkp0lgy/gvwF58xeWw/9QDgx4wXEqWVwPU4Z30Q==}
 
   '@electric-sql/pglite-socket@0.1.1':
     resolution: {integrity: sha512-p2hoXw3Z3LQHwTeikdZNsFBOvXGqKY2hk51BBw+8NKND8eoH+8LFOtW9Z8CQKmTJ2qqGYu82ipqiyFZOTTXNfw==}
@@ -2437,7 +2437,7 @@ snapshots:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@dan-uni/dan-any@1.4.1':
+  '@dan-uni/dan-any@1.4.5':
     dependencies:
       '@bufbuild/protobuf': 2.11.0
       base16384: 1.0.0

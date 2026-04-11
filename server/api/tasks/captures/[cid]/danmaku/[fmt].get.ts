@@ -1,4 +1,4 @@
-import { DM_format } from '@dan-uni/dan-any'
+import { convert2Formats } from '@dan-uni/dan-any'
 import { defineCachedHandler } from 'nitro/cache'
 import { getValidatedQuery, getValidatedRouterParams } from 'nitro/h3'
 import z from 'zod'
@@ -11,7 +11,7 @@ export default defineCachedHandler(
       event,
       z.object({
         cid: stringToBigInt,
-        fmt: z.union([z.enum(DM_format), z.literal('stats')]),
+        fmt: z.union([z.enum(convert2Formats), z.literal('stats')]),
       }),
     )
     const query = await getValidatedQuery(
@@ -26,9 +26,7 @@ export default defineCachedHandler(
       return {
         count: pool.dans.length ?? 0,
       }
-    if (params.fmt === DM_format.BiliXml)
-      event.res.headers.set('Content-Type', 'application/xml')
-    return pool.convert2(params.fmt)
+    return pool.convert2(params.fmt, true)
   },
   { maxAge: 60 },
 )

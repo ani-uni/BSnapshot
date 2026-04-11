@@ -19,7 +19,7 @@
     "preview": "pnpx srvx --prod .output/"
   },
   "dependencies": {
-    "@dan-uni/dan-any": "^1.4.1",
+    "@dan-uni/dan-any": "^1.4.5",
     "@prisma/adapter-libsql": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "dotenv": "^17.4.1",
