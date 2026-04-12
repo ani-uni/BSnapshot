@@ -78,32 +78,44 @@ export class Event {
   static async cleanEvents() {
     const conf = await this.getConf()
     if (conf.autoDelTimeAway === 0 && conf.autoDelCountAway === 0) return
-    let count: number | undefined = undefined
-    if (conf.autoDelCountAway) count = await prisma.event.count()
+    let id_offset: number | undefined = undefined
+    if (conf.autoDelCountAway)
+      id_offset = (
+        await prisma.event.findFirst({
+          select: { id: true },
+          skip: conf.autoDelCountAway,
+          orderBy: { id: 'asc' },
+        })
+      )?.id
+    const orConditions = [
+      id_offset !== undefined && conf.autoDelCountAway
+        ? {
+            id: { lte: id_offset },
+          }
+        : undefined,
+      conf.autoDelTimeAway
+        ? {
+            ctime: {
+              lt: new Date(Date.now() - conf.autoDelTimeAway * 1000),
+            },
+          }
+        : undefined,
+    ].filter(
+      (condition): condition is NonNullable<typeof condition> =>
+        condition !== undefined,
+    )
+    if (!orConditions.length) return
     const del = await prisma.event.deleteMany({
       where: {
-        OR: [
-          {
-            id:
-              count && conf.autoDelCountAway
-                ? { lte: count - conf.autoDelCountAway }
-                : undefined,
-          },
-          {
-            ctime: conf.autoDelTimeAway
-              ? {
-                  lt: new Date(Date.now() - conf.autoDelTimeAway * 1000),
-                }
-              : undefined,
-          },
-        ],
+        OR: orConditions,
       },
     })
-    await this.info(
-      '日志',
-      `清理旧日志 - autoDelTimeAway: ${conf.autoDelTimeAway}`,
-      `成功清理${del.count}条事件`,
-    )
+    if (del.count)
+      await this.info(
+        '日志管理',
+        `清理旧日志 - autoDelTimeAway: ${conf.autoDelTimeAway}, autoDelCountAway: ${conf.autoDelCountAway}`,
+        `成功清理${del.count}条事件`,
+      )
   }
   static async clearEvents() {
     await prisma.event.deleteMany({})
