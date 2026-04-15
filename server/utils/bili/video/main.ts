@@ -30,6 +30,7 @@ export type VideoBasic = {
 export async function getVideoBasic(
   user: User,
   opt: VideoInfoOpt,
+  fastcap_manual?: string,
 ): Promise<VideoBasic> {
   const data = await view(user, opt)
   const vpbs = data.pages.map((p) => ({
@@ -39,7 +40,9 @@ export async function getVideoBasic(
     duration: p.duration,
   }))
   // 解析fastcap失效则无视
-  const fastcap_str = data.desc.match(/```fastcap([\s\S]*?)```/i)?.[1]?.trim()
+  const fastcap_str = (fastcap_manual || data.desc)
+    .match(/```fastcap([\s\S]*?)```/i)?.[1]
+    ?.trim()
   let preset: CaptureCreate[] | undefined = undefined
   try {
     if (fastcap_str) {

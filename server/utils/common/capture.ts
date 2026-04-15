@@ -1,7 +1,8 @@
 import { plugins, UniPool } from '@dan-uni/dan-any'
 import { DateTime } from 'luxon'
 import { HTTPError } from 'nitro/h3'
-import type { Clips } from '~s/types/task'
+import z from 'zod'
+import { ClipsSchema } from '~s/types/task'
 import { his_index, his_pub_to_now } from '~s/utils/bili/danmaku/main'
 
 import {
@@ -120,13 +121,14 @@ export class VideoSource {
   }
 }
 
-export interface CaptureCreate {
-  clips: Clips
-  cid: bigint
-  aid?: bigint
-  pubdate?: number
-  upMid?: bigint
-}
+export const CaptureCreateSchema = z.object({
+  clips: ClipsSchema,
+  cid: z.bigint().positive(),
+  aid: z.bigint().positive().optional(),
+  pubdate: z.int().nonnegative().optional(),
+  upMid: z.bigint().positive().optional(),
+})
+export type CaptureCreate = z.infer<typeof CaptureCreateSchema>
 
 export class Capture {
   constructor(

@@ -43,6 +43,7 @@ export default defineTask<TaskResult<TaskTaskPreGenResult>>({
 
 export async function TaskPreGen(
   payload: TaskTaskPreGenPayload,
+  fastcap_manual?: string,
 ): Promise<TaskTaskPreGenResult> {
   if (payload.type === 'cid') {
     return {
@@ -64,6 +65,7 @@ export async function TaskPreGen(
     const abBasic = getVideoBasic(
       await User.fromRotating(),
       payload.type === 'aid' ? { aid: payload.id } : { bvid: payload.id },
+      fastcap_manual,
     )
     return abBasic
   }
