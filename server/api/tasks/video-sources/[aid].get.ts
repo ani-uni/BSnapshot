@@ -12,5 +12,5 @@ export default defineHandler(async (event) => {
     }),
   )
   const videoSource = await VideoSource.loadFromAid(params.aid)
-  return videoSource
+  return videoSource.toJSON()
 })
