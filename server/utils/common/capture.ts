@@ -641,6 +641,7 @@ export class Capture {
             .then((clips) => clips.map((c) => c.danmaku))
     ).then((pbs) =>
       pbs.forEach((pb) => {
+        // 当按Capture(cid)即原视频导出弹幕时，不需要对其epOffset偏移弹幕进度
         if (pb)
           pool = pool.assign(UniPool.fromPb(pb, { dedupe: false, dmid: false }))
       }),

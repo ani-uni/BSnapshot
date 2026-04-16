@@ -165,18 +165,29 @@ export class Episode {
         ? prisma.clip
             .findMany({
               where: { episodeId: this.episodeModel.id },
-              select: { danmakuUp: true },
+              select: { danmakuUp: true, epOffset: true },
             })
-            .then((clips) => clips.map((c) => c.danmakuUp))
+            .then((clips) =>
+              clips.map((c) => ({ pb: c.danmakuUp, epOffset: c.epOffset })),
+            )
         : prisma.clip
             .findMany({
               where: { episodeId: this.episodeModel.id },
-              select: { danmaku: true },
+              select: { danmaku: true, epOffset: true },
             })
-            .then((clips) => clips.map((c) => c.danmaku))
-    ).then((pbs) =>
-      pbs.forEach((pb) => {
-        if (pb) pool = pool.assign(UniPool.fromPb(pb))
+            .then((clips) =>
+              clips.map((c) => ({ pb: c.danmaku, epOffset: c.epOffset })),
+            )
+    ).then((clips) =>
+      clips.forEach(({ pb, epOffset }) => {
+        if (pb) {
+          const danmakuPool = UniPool.fromPb(pb, { dedupe: false, dmid: false })
+          // 当按照剧集导出弹幕时，须保证导出弹幕按照剧集与原视频的偏移量进行调整，以保证弹幕时间轴的正确性
+          danmakuPool.dans.forEach((d) => {
+            d.progress += epOffset
+          })
+          pool = pool.assign(danmakuPool)
+        }
       }),
     )
     return pool
