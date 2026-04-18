@@ -96,7 +96,7 @@ export class FastCap {
           ep: {
             1: { src: 'bgmtv', episode_id: ep.episodeModel.bgmtv },
           },
-          ss: {},
+          ss: undefined,
         },
       })
     } else if (ep.episodeModel.tmdb) {
@@ -124,7 +124,7 @@ export class FastCap {
               >,
             },
           },
-          ss: {},
+          ss: undefined,
         },
       })
     } else if (ep.episodeModel.seasonId && ep.episodeModel.sn) {
