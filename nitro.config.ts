@@ -20,6 +20,11 @@ export default defineConfig({
   oxc: {
     minify: { compress: true, mangle: true },
   },
+  traceDeps: [
+    '@libsql/win32-x64-msvc',
+    '@libsql/darwin-x64',
+    '@libsql/linux-x64-gnu',
+  ],
   openAPI: {
     meta: {
       title: 'BSnapshot API',
