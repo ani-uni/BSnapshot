@@ -31,6 +31,7 @@ export default defineHandler(async (event) => {
   if (payload.title) await episode.editTitle(payload.title)
   if (payload.ref) await episode.editRef(payload.ref)
   if (payload.clips) await episode.setClips(payload.clips)
-  if (payload.season) await episode.setSeason(payload.season.id, payload.season.sn)
+  if (payload.season)
+    await episode.setSeason(payload.season.id, payload.season.sn)
   return episode.toJSON()
 })
