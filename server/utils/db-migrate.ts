@@ -49,7 +49,13 @@ const migrateDB = async () => {
   const done = new Set<keyof typeof sqls>(JSON.parse(done_raw) ?? [])
   const execMigrate = async (migration: keyof typeof sqls) => {
     if (!done.has(migration)) {
-      await prisma.$executeRawUnsafe(sqls[migration])
+      sqls[migration].split(';').forEach((sql) => {
+        if (sql.trim() !== '') {
+          prisma.$executeRawUnsafe(sql).catch((e) => {
+            console.error(`Error executing migration ${migration}:`, e)
+          })
+        }
+      })
       done.add(migration)
     }
   }
