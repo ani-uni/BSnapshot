@@ -84,6 +84,16 @@ importers:
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.3)(jiti@2.6.1)
+    optionalDependencies:
+      '@libsql/darwin-x64':
+        specifier: ^0.5.29
+        version: 0.5.29
+      '@libsql/linux-x64-gnu':
+        specifier: ^0.5.29
+        version: 0.5.29
+      '@libsql/win32-x64-msvc':
+        specifier: ^0.5.29
+        version: 0.5.29
 
 packages:
 
