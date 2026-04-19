@@ -24,9 +24,8 @@ export class Season {
   }
   async del() {
     await prisma.$transaction([
-      prisma.episode.updateMany({
+      prisma.episode.deleteMany({
         where: { seasonId: this.seasonModel.id },
-        data: { seasonId: null, sn: null },
       }),
       prisma.season.delete({ where: { id: this.seasonModel.id } }),
     ])
