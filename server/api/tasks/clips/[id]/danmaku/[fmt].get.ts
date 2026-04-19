@@ -1,4 +1,4 @@
-import { DM_format } from '@dan-uni/dan-any'
+import { convert2Formats, DM_format } from '@dan-uni/dan-any'
 import { defineCachedHandler } from 'nitro/cache'
 import { getValidatedQuery, getValidatedRouterParams } from 'nitro/h3'
 import z from 'zod'
@@ -10,7 +10,7 @@ export default defineCachedHandler(
       event,
       z.object({
         id: z.cuid2(),
-        fmt: z.union([z.enum(DM_format), z.literal('stats')]),
+        fmt: z.union([z.enum(convert2Formats), z.literal('stats')]),
       }),
     )
     const query = await getValidatedQuery(
@@ -29,5 +29,5 @@ export default defineCachedHandler(
       }
     return pool?.convert2(params.fmt, true)
   },
-  { maxAge: 60 },
+  { maxAge: 10 },
 )

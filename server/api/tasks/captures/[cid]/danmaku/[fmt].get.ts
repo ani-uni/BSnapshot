@@ -28,5 +28,5 @@ export default defineCachedHandler(
       }
     return pool.convert2(params.fmt, true)
   },
-  { maxAge: 60 },
+  { maxAge: 10 },
 )
