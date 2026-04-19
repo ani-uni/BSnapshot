@@ -20,7 +20,6 @@ export default defineConfig({
   oxc: {
     minify: { compress: true, mangle: true },
   },
-  traceDeps: ['@libsql/*'],
   openAPI: {
     meta: {
       title: 'BSnapshot API',

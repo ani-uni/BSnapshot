@@ -5,6 +5,8 @@ import { PrismaLibSql } from '@prisma/adapter-libsql'
 
 import { PrismaClient } from '~/generated/prisma/client'
 
+import { migrateDB } from './db-migrate'
+
 const dbPath =
   process.env.DATABASE_URL ??
   (process.env.USER_DATA_PATH
@@ -16,5 +18,7 @@ const adapter = new PrismaLibSql({
 })
 
 const prisma = new PrismaClient({ adapter })
+
+await migrateDB()
 
 export { prisma }

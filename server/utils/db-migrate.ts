@@ -2,17 +2,12 @@ import 'dotenv/config'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import Database from 'libsql'
-
 import init_sql from '~/prisma/migrations/0_init/migration.sql?raw'
 import add_video_source_sql from '~/prisma/migrations/20260408153716_add_video_source/migration.sql?raw'
 import sn_may_be_float_sql from '~/prisma/migrations/20260411152213_sn_may_be_float/migration.sql?raw'
 
-const dbPath =
-  process.env.DATABASE_URL ??
-  (process.env.USER_DATA_PATH
-    ? `file:${path.resolve(process.env.USER_DATA_PATH, '.data/db/prisma.db')}`
-    : 'file:.data/db/prisma.db')
+import { prisma } from './prisma'
+
 const dbMigrationLockPath = process.env.USER_DATA_PATH
   ? path.resolve(process.env.USER_DATA_PATH, '.data/db/prisma.migration-lock')
   : '.data/db/prisma.migration-lock'
@@ -39,12 +34,11 @@ const ver2db = (ver: string) => {
   return -1
 }
 
-const migrateDB = () => {
+const migrateDB = async () => {
   if (!fs.existsSync(dbMigrationLockPath)) {
     fs.mkdirSync(path.dirname(dbMigrationLockPath), { recursive: true })
     fs.writeFileSync(dbMigrationLockPath, '[]')
   }
-  const db = new Database(dbPath)
   let done_raw = fs.readFileSync(dbMigrationLockPath, 'utf-8')
   if (done_raw === '') done_raw = '[]'
   try {
@@ -53,17 +47,16 @@ const migrateDB = () => {
     done_raw = '[]'
   }
   const done = new Set<keyof typeof sqls>(JSON.parse(done_raw) ?? [])
-  const execMigrate = (migration: keyof typeof sqls) => {
+  const execMigrate = async (migration: keyof typeof sqls) => {
     if (!done.has(migration)) {
-      db.exec(sqls[migration])
+      await prisma.$executeRawUnsafe(sqls[migration])
       done.add(migration)
     }
   }
   for (const migration of Object.keys(sqls) as (keyof typeof sqls)[]) {
-    execMigrate(migration)
+    await execMigrate(migration)
   }
   fs.writeFileSync(dbMigrationLockPath, JSON.stringify([...done]))
-  db.close()
 }
 
 export { migrateDB, ver2db }
